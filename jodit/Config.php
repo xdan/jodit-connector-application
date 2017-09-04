@@ -100,7 +100,7 @@ class Config {
 			switch ($key) {
 				case 'sources':
 					foreach ($value as $source) {
-						$this->sources[] = new Source($source, $this->data);
+						$this->sources[] = new Source($source, $this);
 					}
 					break;
 				default:
@@ -108,6 +108,10 @@ class Config {
 						$this->{$key} = $value;
 					}
 			}
+		}
+
+		if (!count($this->sources)) {
+			$this->sources[] = new Source([], $this);
 		}
 
 		$this->defaultOptuions = (object)($defaultOptuions?:[]);

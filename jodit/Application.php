@@ -107,9 +107,9 @@ abstract class Application {
 	 */
 	public function getSource() {
 		if (!$this->request->source || empty($this->config->sources[$this->request->source])) {
-			return new Source(array_values($this->config->sources)[0], $this->config);
+			return $this->config->sources[0];
 		}
-		return new Source($this->config->sources[$this->request->source], $this->config);
+		return $this->config->sources[$this->request->source];
 	}
 
 	/**
@@ -401,8 +401,6 @@ abstract class Application {
 				continue;
 			}
 
-			$source = new Source($source, $this->config);
-
 			$path = $this->getPath($source);
 
 			$sourceData = (object)[
@@ -457,8 +455,6 @@ abstract class Application {
 			if ($this->request->source && $this->request->source !== 'default' && $key !== $this->request->source && $this->request->path !== './') {
 				continue;
 			}
-
-			$source = new Source($source, $this->config);
 
 			$path = $this->getPath($source);
 
@@ -763,7 +759,6 @@ abstract class Application {
 				continue;
 			}
 
-			$source = new Source($source, $this->config);
 			$base = parse_url($source->baseurl);
 
 			$path = preg_replace('#^(/)?' . $base['path'] . '#', '', $parts['path']);
