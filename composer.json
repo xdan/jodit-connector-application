@@ -1,6 +1,5 @@
 {
     "name": "jodit/application",
-    "version": "1.0.3",
     "description": "Jodit FileBrowser and Uploader connector",
     "license": "MIT",
     "authors": [
@@ -10,7 +9,7 @@
         }
     ],
     "autoload": {
-        "jodit":  "jodit"
+        "jodit":  "/jodit"
     },
     "require": {
         "php": ">=5.4.0",
