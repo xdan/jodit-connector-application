@@ -21,7 +21,7 @@ class Source {
 			return $this->defaultOptuions->{$key};
 		}
 
-		throw new ErrorException('Option ' . $key . ' not set', 501);
+		throw new \ErrorException('Option ' . $key . ' not set', 501);
 	}
 	function __construct($data, $defaultOptuions) {
 		$this->data = (object)$data;

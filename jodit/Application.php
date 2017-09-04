@@ -1,7 +1,15 @@
 <?php
 namespace jodit;
 
+use abeautifulsite\SimpleImage;
+
 abstract class Application {
+	public $debug = false;
+
+	/**
+	 * @var Config
+	 */
+	public $config;
 
 	/**
 	 * Check whether the user has the ability to view files
@@ -31,7 +39,7 @@ abstract class Application {
 	}
 
 	function display () {
-		if (!JODIT_DEBUG) {
+		if (!$this->debug) {
 			ob_end_clean();
 			header('Content-Type: application/json');
 		}
@@ -45,7 +53,7 @@ abstract class Application {
 			}
 		}
 
-		exit(json_encode($this->response, JODIT_DEBUG ? JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES: 0));
+		exit(json_encode($this->response, $this->debug ? JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES: 0));
 	}
 	function execute () {
 		$this->action  = $this->request->action;
@@ -53,7 +61,7 @@ abstract class Application {
 		if (method_exists($this, 'action' . $this->action)) {
 			$this->response->data =  (object)call_user_func_array([$this, 'action' . $this->action], []);
 		} else {
-			throw new ErrorException('This action is not found', 404);
+			throw new \ErrorException('This action is not found', 404);
 		}
 
 		$this->response->success = true;
@@ -65,14 +73,14 @@ abstract class Application {
 	 * Constructor FileBrowser
 	 *
 	 * @param {array} $config
-	 * @throws ErrorException
+	 * @throws \ErrorException
 	 */
 	function __construct ($config) {
 		ob_start();
 		set_error_handler([$this, 'errorHandler'], E_ALL);
 		set_exception_handler([$this, 'exceptionHandler']);
 
-		$this->config  = (object)$config;
+		$this->config  = new Config($config);
 
 		if ($this->config->allowCrossOrigin) {
 			$this->corsHeaders();
@@ -81,7 +89,7 @@ abstract class Application {
 		$this->response  = new Response();
 		$this->request  = new Request();
 
-		if (JODIT_DEBUG) {
+		if ($this->debug) {
 			error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT);
 			ini_set('display_errors', 'on');
 		} else {
@@ -90,7 +98,7 @@ abstract class Application {
 		}
 
 		if ($this->request->source && $this->request->source !== 'default' && empty($this->config->sources[$this->request->source])) {
-			throw new ErrorException('Need valid parameter source key', 400);
+			throw new \ErrorException('Need valid parameter source key', 400);
 		}
 	}
 
@@ -189,11 +197,11 @@ abstract class Application {
 		$newName = $this->request->newname ?  $this->makeSafe($this->request->newname) : '';
 
 		if (!$path || !$file || !file_exists($path . $file) || !is_file($path . $file)) {
-			throw new ErrorException('Source file not set or not exists', 404);
+			throw new \ErrorException('Source file not set or not exists', 404);
 		}
 
 //        if (!$newName) {
-//            throw new ErrorException('Set new name for file', 400);
+//            throw new \ErrorException('Set new name for file', 400);
 //        }
 
 		$img = new SimpleImage();
@@ -206,7 +214,7 @@ abstract class Application {
 			$info = pathinfo($path . $file);
 			$newName = $newName . '.' . $info['extension'];
 			if (file_exists($path . $newName)) {
-				throw new ErrorException('File ' . $newName . ' already exists', 400);
+				throw new \ErrorException('File ' . $newName . ' already exists', 400);
 			}
 		} else {
 			$newName = $file;
@@ -264,13 +272,13 @@ abstract class Application {
 	public function errorHandler ($errorNumber, $errorMessage, $file, $line) {
 		$this->response->success = false;
 		$this->response->data->code = $errorNumber;
-		$this->response->data->messages[] = $errorMessage . (JODIT_DEBUG ? ' - file:' . $file . ' line:' . $line : '');
+		$this->response->data->messages[] = $errorMessage . ($this->debug ? ' - file:' . $file . ' line:' . $line : '');
 
 		$this->display();
 	}
 
 	/**
-	 * @param ErrorException $exception
+	 * @param \ErrorException $exception
 	 */
 	public function exceptionHandler ($exception) {
 		$this->errorHandler($exception->getCode(), $exception->getMessage(), $exception->getFile(), $exception->getLine());
@@ -281,16 +289,16 @@ abstract class Application {
 	 *
 	 * @param $source
 	 * @return string
-	 * @throws ErrorException
+	 * @throws \ErrorException
 	 */
 	protected function getRoot($source) {
 		if ($source->root) {
 			if (!is_dir($source->root)) {
-				throw new ErrorException('Root directory not exists ' . $source->root, 501);
+				throw new \ErrorException('Root directory not exists ' . $source->root, 501);
 			}
 			return realpath($source->root) . DIRECTORY_SEPARATOR;
 		}
-		throw new ErrorException('Set root directory for source', 501);
+		throw new \ErrorException('Set root directory for source', 501);
 	}
 
 	/**
@@ -299,7 +307,7 @@ abstract class Application {
 	 * @param $source
 	 * @param string $name
 	 * @return bool|string
-	 * @throws ErrorException
+	 * @throws \ErrorException
 	 */
 	protected function getPath ($source, $name = 'path') {
 		$root = $this->getRoot($source);
@@ -317,7 +325,7 @@ abstract class Application {
 				$root .= DIRECTORY_SEPARATOR;
 			}
 		} else {
-			throw new ErrorException('Path does not exist', 404);
+			throw new \ErrorException('Path does not exist', 404);
 		}
 
 		return $root;
@@ -348,11 +356,11 @@ abstract class Application {
 	 *
 	 * @param $url
 	 * @param $destinationFilename
-	 * @throws ErrorException
+	 * @throws \ErrorException
 	 */
 	protected function downloadRemoteFile($url, $destinationFilename) {
 		if (!ini_get('allow_url_fopen')) {
-			throw new ErrorException('allow_url_fopen is disable', 501);
+			throw new \ErrorException('allow_url_fopen is disable', 501);
 		}
 
 		if (!function_exists('curl_init')) {
@@ -381,7 +389,7 @@ abstract class Application {
 
 		if (!$this->isImage($destinationFilename)) {
 			unlink($destinationFilename);
-			throw new ErrorException('Bad image ' . $destinationFilename, 406);
+			throw new \ErrorException('Bad image ' . $destinationFilename, 406);
 		}
 	}
 
@@ -481,25 +489,25 @@ abstract class Application {
 
 	/**
 	 * Load remote image by URL to self host
-	 * @throws ErrorException
+	 * @throws \ErrorException
 	 */
 	protected function actionUploadRemote() {
 		$url = $this->request->url;
 
 		if (!$url) {
-			throw new ErrorException('Need url parameter', 400);
+			throw new \ErrorException('Need url parameter', 400);
 		}
 
 		$result = parse_url($url);
 
 		if (!isset($result['host']) || !isset($result['path'])) {
-			throw new ErrorException('Not valid URL', 400);
+			throw new \ErrorException('Not valid URL', 400);
 		}
 
 		$filename = $this->makeSafe(basename($result['path']));
 
 		if (!$filename) {
-			throw new ErrorException('Not valid URL', 400);
+			throw new \ErrorException('Not valid URL', 400);
 		}
 
 		$this->downloadRemoteFile($url, $this->getRoot($this->getSource()) . $filename);
@@ -526,7 +534,7 @@ abstract class Application {
 	 * Upload images
 	 *
 	 * @return array
-	 * @throws ErrorException
+	 * @throws \ErrorException
 	 */
 	protected function actionUpload() {
 
@@ -541,36 +549,36 @@ abstract class Application {
 		if (isset($_FILES['files']) and is_array($_FILES['files']) and isset($_FILES['files']['name']) and is_array($_FILES['files']['name']) and count($_FILES['files']['name'])) {
 			foreach ($_FILES['files']['name'] as $i => $file) {
 				if ($_FILES['files']['error'][$i]) {
-					throw new ErrorException(isset(self::$upload_errors[$_FILES['files']['error'][$i]]) ? self::$upload_errors[$_FILES['files']['error'][$i]] : 'Error', $_FILES['files']['error'][$i]);
+					throw new \ErrorException(isset(self::$upload_errors[$_FILES['files']['error'][$i]]) ? self::$upload_errors[$_FILES['files']['error'][$i]] : 'Error', $_FILES['files']['error'][$i]);
 				}
 
 				$tmp_name = $_FILES['files']['tmp_name'][$i];
 
 				if ($source->maxFileSize and filesize($tmp_name) > $this->convertToBytes($source->maxFileSize)) {
 					unlink($tmp_name);
-					throw new ErrorException('File size exceeds the allowable', 403);
+					throw new \ErrorException('File size exceeds the allowable', 403);
 				}
 
 				if (move_uploaded_file($tmp_name, $file = $path . $this->makeSafe($_FILES['files']['name'][$i]))) {
 					if (!$this->isGoodFile($file, $source)) {
 						unlink($file);
-						throw new ErrorException('File type is not in white list', 403);
+						throw new \ErrorException('File type is not in white list', 403);
 					}
 
 					$messages[] = 'File ' . $_FILES['files']['name'][$i] . ' was upload';
 					$files[] = str_replace($root, '', $file);
 				} else {
 					if (!is_writable($path)) {
-						throw new ErrorException('Destination directory is not writeble', 424);
+						throw new \ErrorException('Destination directory is not writeble', 424);
 					}
 
-					throw new ErrorException('No files have been uploaded', 422);
+					throw new \ErrorException('No files have been uploaded', 422);
 				}
 			}
 		}
 
 		if (!count($files)) {
-			throw new ErrorException('No files have been uploaded', 422);
+			throw new \ErrorException('No files have been uploaded', 422);
 		}
 
 		return [
@@ -583,7 +591,7 @@ abstract class Application {
 	/**
 	 * Remove file or directory
 	 *
-	 * @throws ErrorException
+	 * @throws \ErrorException
 	 */
 	protected function actionRemove() {
 		$source = $this->getSource();
@@ -623,16 +631,16 @@ abstract class Application {
 
 			if (!$result) {
 				$error = (object)error_get_last();
-				throw new ErrorException('Delete failed! ' . $error->message, 424);
+				throw new \ErrorException('Delete failed! ' . $error->message, 424);
 			}
 		} else {
-			throw new ErrorException('File or directory not exists' . $path . $target, 400);
+			throw new \ErrorException('File or directory not exists' . $path . $target, 400);
 		}
 	}
 
 	/**
 	 * Create directory
-	 * @throws ErrorException
+	 * @throws \ErrorException
 	 */
 	protected function actionCreate() {
 		$source = $this->getSource();
@@ -646,19 +654,19 @@ abstract class Application {
 					if (is_dir($destinationPath . $folderName)) {
 						return ['messages' => ['Directory successfully created']];
 					}
-					throw new ErrorException('Directory was not created', 404);
+					throw new \ErrorException('Directory was not created', 404);
 				}
-				throw new ErrorException('Directory already exists', 406);
+				throw new \ErrorException('Directory already exists', 406);
 			}
-			throw new ErrorException('The name for new directory has not been set', 406);
+			throw new \ErrorException('The name for new directory has not been set', 406);
 		}
-		throw new ErrorException('The destination directory has not been set', 406);
+		throw new \ErrorException('The destination directory has not been set', 406);
 	}
 
 	/**
 	 * Move file or directory to another folder
 	 *
-	 * @throws ErrorException
+	 * @throws \ErrorException
 	 */
 	protected function actionMove() {
 		$source = $this->getSource();
@@ -670,31 +678,31 @@ abstract class Application {
 				if (is_file($source_path) or is_dir($source_path)) {
 					rename($source_path, $destination_path . basename($source_path));
 				} else {
-					throw new ErrorException('Not file', 404);
+					throw new \ErrorException('Not file', 404);
 				}
 			} else {
-				throw new ErrorException('Need destination path', 400);
+				throw new \ErrorException('Need destination path', 400);
 			}
 		} else {
-			throw new ErrorException('Need source path', 400);
+			throw new \ErrorException('Need source path', 400);
 		}
 	}
 
 	/**
 	 * Resize image
 	 *
-	 * @throws ErrorException
+	 * @throws \ErrorException
 	 */
 	protected function actionResize() {
 		$source = $this->getSource();
 		$info = $this->getImageEditorInfo();
 
 		if (!$info->box || (int)$info->box->w <= 0) {
-			throw new ErrorException('Width not specified', 400);
+			throw new \ErrorException('Width not specified', 400);
 		}
 
 		if (!$info->box || (int)$info->box->h <= 0) {
-			throw new ErrorException('Height not specified', 400);
+			throw new \ErrorException('Height not specified', 400);
 		}
 
 
@@ -708,19 +716,19 @@ abstract class Application {
 		$info = $this->getImageEditorInfo();
 
 		if ((int)$info->box->x < 0 || (int)$info->box->x > (int)$info->width) {
-			throw new ErrorException('Start X not specified', 400);
+			throw new \ErrorException('Start X not specified', 400);
 		}
 
 		if ((int)$info->box->y < 0 || (int)$info->box->y > (int)$info->height) {
-			throw new ErrorException('Start Y not specified', 400);
+			throw new \ErrorException('Start Y not specified', 400);
 		}
 
 		if ((int)$info->box->w <= 0) {
-			throw new ErrorException('Width not specified', 400);
+			throw new \ErrorException('Width not specified', 400);
 		}
 
 		if ((int)$info->box->h <= 0) {
-			throw new ErrorException('Height not specified', 400);
+			throw new \ErrorException('Height not specified', 400);
 		}
 
 		$info->img
@@ -737,18 +745,20 @@ abstract class Application {
 	function actionGetLocalFileByURL() {
 		$url = $this->request->url;
 		if (!$url) {
-			throw new ErrorException('Need full url', 400);
+			throw new \ErrorException('Need full url', 400);
 		}
 
 		$parts = parse_url($url);
 
 		if (empty($parts['path'])) {
-			throw new ErrorException('Empty url', 400);
+			throw new \ErrorException('Empty url', 400);
 		}
 
 		$found = false;
 		$path = '';
 		$root = '';
+
+		$key = 0;
 
 		foreach ($this->config->sources as $key => $source) {
 			if ($this->request->source && $this->request->source !== 'default' && $key !== $this->request->source && $this->request->path !== './') {
@@ -770,7 +780,7 @@ abstract class Application {
 		}
 
 		if (!$found) {
-			throw new ErrorException('File does not exist or is above the root of the connector', 424);
+			throw new \ErrorException('File does not exist or is above the root of the connector', 424);
 		}
 
 		return [
