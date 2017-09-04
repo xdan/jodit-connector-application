@@ -1,5 +1,5 @@
 <?php
-namespace jodit;
+namespace Jodit;
 
 use abeautifulsite\SimpleImage;
 

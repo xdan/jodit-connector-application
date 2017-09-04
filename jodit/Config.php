@@ -1,5 +1,5 @@
 <?php
-namespace jodit;
+namespace Jodit;
 
 /**
  * Class Config
@@ -93,7 +93,7 @@ class Config {
 
 		throw new \ErrorException('Option ' . $key . ' not set', 501);
 	}
-	function __construct($data, $defaultOptuions = null) {
+	function __construct($data, $defaultOptuions = false) {
 		$this->data = (object)$data;
 
 		foreach ($this->data as $key => $value) {
@@ -110,6 +110,6 @@ class Config {
 			}
 		}
 
-		$this->defaultOptuions = (object)$defaultOptuions;
+		$this->defaultOptuions = (object)($defaultOptuions?:[]);
 	}
 }
