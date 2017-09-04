@@ -4,8 +4,6 @@ namespace jodit;
 use abeautifulsite\SimpleImage;
 
 abstract class Application {
-	public $debug = false;
-
 	/**
 	 * @var Config
 	 */
@@ -39,7 +37,7 @@ abstract class Application {
 	}
 
 	function display () {
-		if (!$this->debug) {
+		if (!$this->config->debug) {
 			ob_end_clean();
 			header('Content-Type: application/json');
 		}
@@ -53,7 +51,7 @@ abstract class Application {
 			}
 		}
 
-		exit(json_encode($this->response, $this->debug ? JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES: 0));
+		exit(json_encode($this->response, $this->config->debug ? JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES: 0));
 	}
 	function execute () {
 		$this->action  = $this->request->action;
@@ -89,7 +87,7 @@ abstract class Application {
 		$this->response  = new Response();
 		$this->request  = new Request();
 
-		if ($this->debug) {
+		if ($this->config->debug) {
 			error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT);
 			ini_set('display_errors', 'on');
 		} else {
@@ -272,7 +270,7 @@ abstract class Application {
 	public function errorHandler ($errorNumber, $errorMessage, $file, $line) {
 		$this->response->success = false;
 		$this->response->data->code = $errorNumber;
-		$this->response->data->messages[] = $errorMessage . ($this->debug ? ' - file:' . $file . ' line:' . $line : '');
+		$this->response->data->messages[] = $errorMessage . ($this->config->debug ? ' - file:' . $file . ' line:' . $line : '');
 
 		$this->display();
 	}

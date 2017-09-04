@@ -17,6 +17,11 @@ class Config {
 	private $defaultOptuions = [];
 
 	/**
+	 * @var bool
+	 */
+	public $debug = true; // must be true
+
+	/**
 	 * @var \jodit\Source[]
 	 */
 	public $sources = [];
@@ -90,6 +95,7 @@ class Config {
 	}
 	function __construct($data, $defaultOptuions = null) {
 		$this->data = (object)$data;
+
 		foreach ($this->data as $key => $value) {
 			switch ($key) {
 				case 'sources':
