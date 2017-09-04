@@ -5,6 +5,7 @@ namespace Jodit;
  * Class Source
  * @package jodit
  * @property string $baseurl
+ * @property string $root
  * @property number $maxFileSize
  * @property number $quality
  * @property string $thumbFolderName

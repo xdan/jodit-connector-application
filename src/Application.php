@@ -46,7 +46,7 @@ abstract class Application {
 		foreach ($this->config->sources as $source) {
 			if (isset($this->response->data->messages)) {
 				foreach ($this->response->data->messages as &$message) {
-					$message = str_replace($source['root'], '/', $message);
+					$message = str_replace($source->root, '/', $message);
 				}
 			}
 		}
