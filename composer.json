@@ -9,7 +9,7 @@
         }
     ],
     "autoload": {
-        "jodit\\":  "jodit"
+        "psr-0": { "": ["jodit/"] }
     },
     "require": {
         "php": ">=5.4.0",
