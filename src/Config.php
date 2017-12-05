@@ -22,7 +22,7 @@ class Config {
 	public $debug = true; // must be true
 
 	/**
-	 * @var \jodit\Source[]
+	 * @var Source[]
 	 */
 	public $sources = [];
 
@@ -93,14 +93,21 @@ class Config {
 
 		throw new \ErrorException('Option ' . $key . ' not set', 501);
 	}
+
+	/**
+	 * Config constructor.
+	 *
+	 * @param array $data
+	 * @param false|array $defaultOptuions
+	 */
 	function __construct($data, $defaultOptuions = false) {
 		$this->data = (object)$data;
 
 		foreach ($this->data as $key => $value) {
 			switch ($key) {
 				case 'sources':
-					foreach ($value as $source) {
-						$this->sources[] = new Source($source, $this);
+					foreach ($value as $key => $source) {
+						$this->sources[$key] = new Source($source, $this);
 					}
 					break;
 				default:
@@ -110,8 +117,8 @@ class Config {
 			}
 		}
 
-		if (!count($this->sources)) {
-			$this->sources[] = new Source([], $this);
+		if (!count($this->sources) or !(array_values($this->sources)[0] instanceof Source)) {
+			$this->sources = [new Source([], $this)];
 		}
 
 		$this->defaultOptuions = (object)($defaultOptuions?:[]);

@@ -17,7 +17,14 @@ class Request {
 	function __construct() {
 		$data = file_get_contents('php://input');
 		if ($data) {
-			$this->_raw_data =  parse_str($data);
+			switch ($_SERVER["CONTENT_TYPE"]) {
+				case 'application/json':
+					$this->_raw_data =  json_decode($data, true);
+					break;
+				default:
+					$this->_raw_data =  parse_str($data);
+
+			}
 		}
 	}
 

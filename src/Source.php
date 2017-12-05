@@ -13,19 +13,24 @@ namespace Jodit;
  */
 class Source {
 	private $data = [];
-	private $defaultOptuions = [];
+	/**
+	 * @var \Jodit\Config
+	 */
+	private $defaultOptions;
+
 	function __get($key) {
 		if (!empty($this->data->{$key})) {
 			return $this->data->{$key};
 		}
-		if ($this->defaultOptuions->{$key}) {
-			return $this->defaultOptuions->{$key};
+		if ($this->defaultOptions->{$key}) {
+			return $this->defaultOptions->{$key};
 		}
 
 		throw new \ErrorException('Option ' . $key . ' not set', 501);
 	}
+
 	function __construct($data, $defaultOptuions) {
-		$this->data = (object)$data;
-		$this->defaultOptuions = (object)$defaultOptuions;
+		$this->data           = (object)$data;
+		$this->defaultOptions = $defaultOptuions;
 	}
 }
