@@ -101,6 +101,8 @@ class Config {
 	 * @param false|array $defaultOptuions
 	 */
 	function __construct($data, $defaultOptuions = false) {
+		$this->baseurl = ((isset($_SERVER['HTTPS']) and $_SERVER['HTTPS']) ? 'https://' : 'http://') . (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '') . '/';
+
 		$this->data = (object)$data;
 
 		foreach ($this->data as $key => $value) {
