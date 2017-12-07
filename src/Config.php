@@ -67,6 +67,11 @@ class Config {
 	public $allowCrossOrigin = false;
 
 	/**
+	 * @var bool
+	 */
+	public $allowReplaceSourceFile = true;
+
+	/**
 	 * @var string
 	 */
 	public $baseurl = '';

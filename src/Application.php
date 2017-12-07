@@ -198,10 +198,6 @@ abstract class Application {
 			throw new \ErrorException('Source file not set or not exists', 404);
 		}
 
-//        if (!$newName) {
-//            throw new \ErrorException('Set new name for file', 400);
-//        }
-
 		$img = new SimpleImage();
 
 
@@ -210,8 +206,13 @@ abstract class Application {
 
 		if ($newName) {
 			$info = pathinfo($path . $file);
-			$newName = $newName . '.' . $info['extension'];
-			if (file_exists($path . $newName)) {
+
+			// if has not same extension
+			if (!preg_match('#\.(' . $info['extension'] . ')$#i', $newName)) {
+				$newName = $newName . '.' . $info['extension'];
+			}
+
+			if (!$this->config->allowReplaceSourceFile and file_exists($path . $newName)) {
 				throw new \ErrorException('File ' . $newName . ' already exists', 400);
 			}
 		} else {
