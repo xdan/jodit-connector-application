@@ -10,6 +10,7 @@ namespace Jodit;
  * @property number $quality
  * @property string $thumbFolderName
  * @property string $defaultPermission
+ * @property string[] $imageExtensions
  */
 class Source {
 	private $data = [];

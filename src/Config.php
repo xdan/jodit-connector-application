@@ -82,9 +82,14 @@ class Config {
 	public $root = '';
 
 	/**
-	 * @var string
+	 * @var string[]
 	 */
 	public $extensions = ['jpg', 'png', 'gif', 'jpeg'];
+
+	/**
+	 * @var string[]
+	 */
+	public $imageExtensions = ['jpg', 'png', 'gif', 'jpeg', 'bmp'];
 
 
 

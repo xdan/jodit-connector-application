@@ -53,6 +53,7 @@ abstract class Application {
 
 		exit(json_encode($this->response, $this->config->debug ? JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES: 0));
 	}
+
 	function execute () {
 		if (method_exists($this, 'action' . $this->action)) {
 			$this->response->data =  (object)call_user_func_array([$this, 'action' . $this->action], []);
@@ -73,6 +74,7 @@ abstract class Application {
 	 */
 	function __construct ($config) {
 		ob_start();
+
 		set_error_handler([$this, 'errorHandler'], E_ALL);
 		set_exception_handler([$this, 'exceptionHandler']);
 
@@ -139,42 +141,18 @@ abstract class Application {
 	 * @param {Source} $source
 	 * @return bool
 	 */
-	private function isGoodFile($file, $source) {
+	private function isGoodFile($file, Source $source) {
 		$info = pathinfo($file);
+
 		if (!isset($info['extension']) or (!in_array(strtolower($info['extension']), $source->extensions))) {
 			return false;
 		}
-		return true;
-	}
-	/**
-	 * Convert number bytes to human format
-	 *
-	 * @param $bytes
-	 * @param int $decimals
-	 * @return string
-	 */
-	protected function humanFileSize($bytes, $decimals = 2) {
-		$size = ['B','kB','MB','GB','TB','PB','EB','ZB','YB'];
-		$factor = floor((strlen($bytes) - 1) / 3);
-		return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)) . $size[(int)$factor];
-	}
 
-	/**
-	 * Converts from human readable file size (kb,mb,gb,tb) to bytes
-	 *
-	 * @param {string|int} human readable file size. Example 1gb or 11.2mb
-	 * @return int
-	 */
-	protected function convertToBytes($from) {
-		if (is_numeric($from)) {
-			return (int)$from;
+		if (in_array(strtolower($info['extension']), $source->imageExtensions) and !Helper::isImage($file)) {
+			return false;
 		}
 
-		$number = substr($from, 0, -2);
-		$formats = ["KB", "MB", "GB", "TB"];
-		$format = strtoupper(substr($from, -2));
-
-		return in_array($format, $formats) ? (int)($number * pow(1024, array_search($format, $formats) + 1)) : (int)$from;
+		return true;
 	}
 
 	protected function getImageEditorInfo() {
@@ -196,7 +174,7 @@ abstract class Application {
 			}
 		}
 
-		$newName = $this->request->newname ?  $this->makeSafe($this->request->newname) : '';
+		$newName = $this->request->newname ?  Helper::makeSafe($this->request->newname) : '';
 
 		if (!$path || !$file || !file_exists($path . $file) || !is_file($path . $file)) {
 			throw new \ErrorException('Source file not set or not exists', 404);
@@ -238,30 +216,6 @@ abstract class Application {
 			'width' => $info['width'],
 			'height' => $info['height'],
 		];
-	}
-
-	protected function translit ($str) {
-		$str = (string)$str;
-
-		$replace = [
-			'а'=>'a','б'=>'b','в'=>'v','г'=>'g','д'=>'d','е'=>'e','ё'=>'yo','ж'=>'zh','з'=>'z','и'=>'i','й'=>'y',
-			'к'=>'k','л'=>'l','м'=>'m','н'=>'n','о'=>'o','п'=>'p','р'=>'r','с'=>'s','т'=>'t','у'=>'u','ф'=>'f',
-			'х'=>'h','ц'=>'ts','ч'=>'ch','ш'=>'sh','щ'=>'shch','ъ'=>'','ы'=>'i','ь'=>'','э'=>'e','ю'=>'yu','я'=>'ya',
-			' '=>'-',
-			'А'=>'A','Б'=>'B','В'=>'V','Г'=>'G','Д'=>'D','Е'=>'E','Ё'=>'Yo','Ж'=>'Zh','З'=>'Z','И'=>'I','Й'=>'Y',
-			'К'=>'K','Л'=>'L','М'=>'M','Н'=>'N','О'=>'O','П'=>'P','Р'=>'R','С'=>'S','Т'=>'T','У'=>'U','Ф'=>'F',
-			'Х'=>'H','Ц'=>'Ts','Ч'=>'CH','Ш'=>'Sh','Щ'=>'Shch','Ъ'=>'','Ы'=>'I','Ь'=>'','Э'=>'E','Ю'=>'Yu','Я'=>'Ya',
-		];
-
-		$str = strtr($str, $replace);
-
-		return $str;
-	}
-
-	protected function makeSafe($file) {
-		$file = rtrim($this->translit($file), '.');
-		$regex = ['#(\.){2,}#', '#[^A-Za-z0-9\.\_\- ]#', '#^\.#'];
-		return trim(preg_replace($regex, '', $file));
 	}
 
 	/**
@@ -336,25 +290,6 @@ abstract class Application {
 
 
 	/**
-	 * Check by mimetype what file is image
-	 *
-	 * @param string $path
-	 *
-	 * @return bool
-	 */
-	protected function isImage($path) {
-		if (!function_exists('exif_imagetype')) {
-			function exif_imagetype($filename) {
-				if (( list(, , $type) = getimagesize($filename)) !== false) {
-					return $type;
-				}
-				return false;
-			}
-		}
-		return in_array(exif_imagetype($path) , [IMAGETYPE_GIF, IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_BMP]);
-	}
-
-	/**
 	 * Download remote file on server
 	 *
 	 * @param $url
@@ -390,7 +325,7 @@ abstract class Application {
 
 		file_put_contents($destinationFilename, $raw);
 
-		if (!$this->isImage($destinationFilename)) {
+		if (!Helper::isImage($destinationFilename)) {
 			unlink($destinationFilename);
 			throw new \ErrorException('Bad image ' . $destinationFilename, 406);
 		}
@@ -437,7 +372,7 @@ abstract class Application {
 						}
 
 						$item['changed'] = date($this->config->datetimeFormat, filemtime($path.$file));
-						$item['size'] = $this->humanFileSize(filesize($path.$file));
+						$item['size'] = Helper::humanFileSize(filesize($path.$file));
 						$sourceData->files[] = $item;
 					}
 				}
@@ -503,7 +438,7 @@ abstract class Application {
 			throw new \ErrorException('Not valid URL', 400);
 		}
 
-		$filename = $this->makeSafe(basename($result['path']));
+		$filename = Helper::makeSafe(basename($result['path']));
 
 		if (!$filename) {
 			throw new \ErrorException('Not valid URL', 400);
@@ -553,12 +488,12 @@ abstract class Application {
 
 				$tmp_name = $_FILES['files']['tmp_name'][$i];
 
-				if ($source->maxFileSize and filesize($tmp_name) > $this->convertToBytes($source->maxFileSize)) {
+				if ($source->maxFileSize and filesize($tmp_name) > Helper::convertToBytes($source->maxFileSize)) {
 					unlink($tmp_name);
 					throw new \ErrorException('File size exceeds the allowable', 403);
 				}
 
-				if (move_uploaded_file($tmp_name, $file = $path . $this->makeSafe($_FILES['files']['name'][$i]))) {
+				if (move_uploaded_file($tmp_name, $file = $path . Helper::makeSafe($_FILES['files']['name'][$i]))) {
 					if (!$this->isGoodFile($file, $source)) {
 						unlink($file);
 						throw new \ErrorException('File type is not in white list', 403);
@@ -644,7 +579,7 @@ abstract class Application {
 	protected function actionCreate() {
 		$source = $this->getSource();
 		$destinationPath = $this->getPath($source);
-		$folderName = $this->makeSafe($this->request->name);
+		$folderName = Helper::makeSafe($this->request->name);
 
 		if ($destinationPath) {
 			if ($folderName) {
