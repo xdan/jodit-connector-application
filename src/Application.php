@@ -75,7 +75,7 @@ abstract class Application {
 	function __construct ($config) {
 		ob_start();
 
-		set_error_handler([$this, 'errorHandler'], E_ALL);
+//		set_error_handler([$this, 'errorHandler'], E_ALL);
 		set_exception_handler([$this, 'exceptionHandler']);
 
 		$this->config  = new Config($config);
@@ -363,10 +363,14 @@ abstract class Application {
 								mkdir($path . $this->config->thumbFolderName, 0777);
 							}
 							if (!file_exists($path . $this->config->thumbFolderName . DIRECTORY_SEPARATOR . $file)) {
-								$img = new SimpleImage($path . $file);
-								$img
-									->best_fit(150, 150)
-									->save($path.$this->config->thumbFolderName . DIRECTORY_SEPARATOR . $file, $this->config->quality);
+								try {
+									$img = new SimpleImage($path . $file);
+									$img
+										->best_fit(150, 150)
+										->save($path . $this->config->thumbFolderName . DIRECTORY_SEPARATOR . $file, $this->config->quality);
+								} catch (\Exception $e) {
+									continue;
+								}
 							}
 							$item['thumb'] = $this->config->thumbFolderName . DIRECTORY_SEPARATOR . $file;
 						}
