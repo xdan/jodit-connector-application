@@ -54,12 +54,10 @@ abstract class Application {
 		exit(json_encode($this->response, $this->config->debug ? JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES: 0));
 	}
 	function execute () {
-		$this->action  = $this->request->action;
-
 		if (method_exists($this, 'action' . $this->action)) {
 			$this->response->data =  (object)call_user_func_array([$this, 'action' . $this->action], []);
 		} else {
-			throw new \ErrorException('This action is not found', 404);
+			throw new \ErrorException('Action is not found', 404);
 		}
 
 		$this->response->success = true;
@@ -86,6 +84,12 @@ abstract class Application {
 
 		$this->response  = new Response();
 		$this->request  = new Request();
+
+		$this->action  = $this->request->action;
+
+		if (!method_exists($this, 'action' . $this->action)) {
+			throw new \ErrorException('Action is not found', 404);
+		}
 
 		if ($this->config->debug) {
 			error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT);
