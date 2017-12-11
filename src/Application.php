@@ -126,7 +126,7 @@ abstract class Application {
 	/**
 	 * @property string $action
 	 */
-	private $action;
+	public $action;
 
 	/**
 	 * Check file extension
