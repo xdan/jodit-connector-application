@@ -2,4 +2,5 @@
 .idea/
 vendor/
 composer.lock
-
+/tests/files/_thumbs/
+/tests/files/folder1/_thumbs/
