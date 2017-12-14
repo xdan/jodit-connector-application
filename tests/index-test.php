@@ -15,7 +15,7 @@ $config = require(__DIR__ . "/config.php");
 $fileBrowser = new JoditRestTestApplication($config);
 
 try {
-	$fileBrowser->checkPermissions();
+	$fileBrowser->checkAuthentication();
 	$fileBrowser->execute();
 } catch(\ErrorException $e) {
 	$fileBrowser->exceptionHandler($e);

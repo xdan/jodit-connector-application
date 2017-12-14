@@ -13,7 +13,7 @@ abstract class Application {
 	 * Check whether the user has the ability to view files
 	 * You can define JoditCheckPermissions function in config.php and use it
 	 */
-	abstract public function checkPermissions ();
+	abstract public function checkAuthentication ();
 
 	function corsHeaders() {
 		if (isset($_SERVER['HTTP_ORIGIN'])) {
