@@ -14,5 +14,8 @@
     "require": {
         "php": ">=5.4.0",
         "abeautifulsite/simpleimage": "^2.6"
+    },
+    "require-dev": {
+        "codeception/codeception": "^2.3"
     }
 }

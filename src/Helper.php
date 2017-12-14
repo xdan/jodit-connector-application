@@ -2,6 +2,18 @@
 namespace Jodit;
 
 abstract class Helper {
+	static $upload_errors = [
+		0 => 'There is no error, the file uploaded with success',
+		1 => 'The uploaded file exceeds the upload_max_filesize directive in php.ini',
+		2 => 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form',
+		3 => 'The uploaded file was only partially uploaded',
+		4 => 'No file was uploaded',
+		6 => 'Missing a temporary folder',
+		7 => 'Failed to write file to disk.',
+		8 => 'A PHP extension stopped the file upload.',
+	];
+
+
 	/**
 	 * Convert number bytes to human format
 	 *
@@ -80,5 +92,83 @@ abstract class Helper {
 		} catch (\Exception $e) {
 			return false;
 		}
+	}
+
+
+	/**
+	 * Download remote file on server
+	 *
+	 * @param string $url
+	 * @param string $destinationFilename
+	 * @throws \Exception
+	 */
+	static function downloadRemoteFile($url, $destinationFilename) {
+		if (!ini_get('allow_url_fopen')) {
+			throw new \Exception('allow_url_fopen is disable', 501);
+		}
+
+		if (!function_exists('curl_init')) {
+			$raw = file_get_contents($url);
+		} else {
+
+			$ch = curl_init($url);
+
+			curl_setopt($ch, CURLOPT_HEADER, 0);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+			curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+			curl_setopt($ch, CURLOPT_BINARYTRANSFER, 1);
+			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+			curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);// таймаут4
+
+			$response = parse_url($url);
+			curl_setopt($ch, CURLOPT_REFERER, $response['scheme'] . '://' . $response['host']);
+			curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:45.0) Gecko/20100101 Firefox/45.0');
+
+			$raw = curl_exec($ch);
+
+			curl_close($ch);
+		}
+
+		file_put_contents($destinationFilename, $raw);
+
+		if (!self::isImage($destinationFilename)) {
+			unlink($destinationFilename);
+			throw new \Exception('Bad image ' . $destinationFilename, 406);
+		}
+	}
+
+	/**
+	 * @param $string
+	 *
+	 * @return string
+	 */
+	static function Upperize($string) {
+		$string = preg_replace('#(\w)([A-Z])#', '\1_\2', $string);
+		return strtoupper($string);
+	}
+
+	/**
+	 * @param string $dirPath
+	 */
+	static function deleteDir($dirPath) {
+		if (!is_dir($dirPath)) {
+			throw new InvalidArgumentException("$dirPath must be a directory");
+		}
+
+		if (substr($dirPath, strlen($dirPath) - 1, 1) != '/') {
+			$dirPath .= '/';
+		}
+
+		$files = glob($dirPath . '*', GLOB_MARK);
+
+		foreach ($files as $file) {
+			if (is_dir($file)) {
+				self::deleteDir($file);
+			} else {
+				unlink($file);
+			}
+		}
+
+		rmdir($dirPath);
 	}
 }

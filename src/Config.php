@@ -67,6 +67,22 @@ class Config {
 	public $allowCrossOrigin = false;
 
 	/**
+	 * @var array
+	 * @see https://github.com/xdan/jodit-connectors#access-control
+	 */
+	public $accessControl = [];
+
+	/**
+	 * @var string
+	 */
+	public $roleSessionVar = 'JoditUserRole';
+
+	/**
+	 * @var string
+	 */
+	public $defaultRole = 'guest';
+
+	/**
 	 * @var bool
 	 */
 	public $allowReplaceSourceFile = true;
@@ -91,7 +107,15 @@ class Config {
 	 */
 	public $imageExtensions = ['jpg', 'png', 'gif', 'jpeg', 'bmp'];
 
+	/**
+	 * @var int
+	 */
+	public $maxImageWidth = 1900;
 
+	/**
+	 * @var int
+	 */
+	public $maxImageHeight = 1900;
 
 	function __get($key) {
 		if (!empty($this->data->{$key})) {
