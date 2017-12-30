@@ -11,18 +11,20 @@ $I->seeResponseIsJson();
 $I->seeResponseContainsJson([
 	"success" => true,
 	"data" => [
-		"allowFiles" => true,
-        "allowFileMove" => true,
-        "allowFileUpload" => true,
-        "allowFileUploadRemote" => true,
-        "allowFileRemove" => true,
-        "allowFileRename" => true,
-        "allowFolders" => true,
-        "allowFolderMove" => true,
-        "allowFolderRemove" => true,
-        "allowFolderRename" => true,
-        "allowImageResize" => true,
-        "allowImageCrop" => true,
+		"permissions" => [
+			"allowFiles" => true,
+	        "allowFileMove" => true,
+	        "allowFileUpload" => true,
+	        "allowFileUploadRemote" => true,
+	        "allowFileRemove" => true,
+	        "allowFileRename" => true,
+	        "allowFolders" => true,
+	        "allowFolderMove" => true,
+	        "allowFolderRemove" => true,
+	        "allowFolderRename" => true,
+	        "allowImageResize" => true,
+	        "allowImageCrop" => true,
+        ],
         "code" => 220
     ]
 
@@ -37,18 +39,20 @@ $I->seeResponseIsJson();
 $I->seeResponseContainsJson([
 	"success" => true,
 	"data" => [
-		"allowFiles" => true,
-		"allowFileMove" => false,
-		"allowFileUpload" => false,
-		"allowFileUploadRemote" => false,
-		"allowFileRemove" => true,
-		"allowFileRename" => false,
-		"allowFolders" => true,
-		"allowFolderMove" => true,
-		"allowFolderRemove" => true,
-		"allowFolderRename" => true,
-		"allowImageResize" => true,
-		"allowImageCrop" => true,
+		"permissions" => [
+			"allowFiles" => true,
+			"allowFileMove" => false,
+			"allowFileUpload" => false,
+			"allowFileUploadRemote" => false,
+			"allowFileRemove" => true,
+			"allowFileRename" => false,
+			"allowFolders" => true,
+			"allowFolderMove" => true,
+			"allowFolderRemove" => true,
+			"allowFolderRename" => true,
+			"allowImageResize" => true,
+			"allowImageCrop" => true,
+		],
 		"code" => 220
 	]
 
@@ -62,18 +66,20 @@ $I->seeResponseIsJson();
 $I->seeResponseContainsJson([
 	"success" => true,
 	"data" => [
-		"allowFiles" => true,
-		"allowFileMove" => true,
-		"allowFileUpload" => true,
-		"allowFileUploadRemote" => true,
-		"allowFileRemove" => true,
-		"allowFileRename" => true,
-		"allowFolders" => true,
-		"allowFolderMove" => true,
-		"allowFolderRemove" => true,
-		"allowFolderRename" => true,
-		"allowImageResize" => true,
-		"allowImageCrop" => true,
+		"permissions" => [
+			"allowFiles" => true,
+			"allowFileMove" => true,
+			"allowFileUpload" => true,
+			"allowFileUploadRemote" => true,
+			"allowFileRemove" => true,
+			"allowFileRename" => true,
+			"allowFolders" => true,
+			"allowFolderMove" => true,
+			"allowFolderRemove" => true,
+			"allowFolderRename" => true,
+			"allowImageResize" => true,
+			"allowImageCrop" => true,
+		],
 		"code" => 220
 	]
 
