@@ -3,7 +3,7 @@ namespace Jodit;
 
 class AccessControl {
 	private $accessList = [];
-	static private $defaultRule = [
+	static public $defaultRule = [
 		'role'                => '*',
 
 		'extensions'          => '*',
@@ -45,7 +45,7 @@ class AccessControl {
 			if (!isset($rule['role']) or $rule['role'] === '*' or $rule['role'] === $role) {
 
 				if (isset($rule['path'])) {
-					if (strpos($path, $rule['path']) !== 0) {
+					if (strpos(Helper::NormalizePath($path), Helper::NormalizePath($rule['path'])) !== 0) {
 						continue;
 					}
 				}

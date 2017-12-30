@@ -6,7 +6,7 @@ $I->wantTo('Try get filename by URL');
 $I->sendPOST('',  [
     'action' => 'getLocalFileByUrl',
     'source' => 'test',
-    'url' => 'http://localhost:8181/tests/files/artio.jpg'
+    'url' => 'http://localhost:8181/files/artio.jpg'
 ]);
 
 $I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK); // 200

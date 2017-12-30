@@ -25,16 +25,23 @@ class Source {
 	private $defaultOptions;
 
 	function __get($key) {
-		if (!empty($this->data->{$key})) {
+		if (isset($this->data->{$key})) {
 			return $this->data->{$key};
 		}
-		if ($this->defaultOptions->{$key}) {
+
+		if (isset($this->defaultOptions->{$key})) {
 			return $this->defaultOptions->{$key};
 		}
 
 		throw new \ErrorException('Option ' . $key . ' not set', 501);
 	}
 
+	/**
+	 * Source constructor.
+	 *
+	 * @param $data
+	 * @param \Jodit\Config $defaultOptuions
+	 */
 	function __construct($data, $defaultOptuions) {
 		$this->data           = (object)$data;
 		$this->defaultOptions = $defaultOptuions;

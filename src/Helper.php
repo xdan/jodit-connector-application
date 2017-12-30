@@ -143,8 +143,21 @@ abstract class Helper {
 	 * @return string
 	 */
 	static function Upperize($string) {
-		$string = preg_replace('#(\w)([A-Z])#', '\1_\2', $string);
+		$string = preg_replace('#([a-z])([A-Z])#', '\1_\2', $string);
 		return strtoupper($string);
+	}
+
+	/**
+	 * @param $string
+	 *
+	 * @return string
+	 */
+	static function CamelCase($string) {
+		$string = preg_replace_callback('#([_])(\w)#', function ($m) {
+			return strtoupper($m[2]);
+		}, strtolower($string));
+
+		return ucfirst($string);
 	}
 
 	/**
@@ -170,5 +183,9 @@ abstract class Helper {
 		}
 
 		rmdir($dirPath);
+	}
+
+	static public function NormalizePath($path) {
+		return preg_replace('#[\\\\/]+#', '/', $path);
 	}
 }

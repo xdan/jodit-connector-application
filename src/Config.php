@@ -148,6 +148,7 @@ class Config {
 					break;
 				default:
 					if (property_exists($this, $key)) {
+
 						$this->{$key} = $value;
 					}
 			}

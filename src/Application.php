@@ -37,6 +37,7 @@ abstract class Application {
 	}
 
 	function display () {
+
 		if (!$this->config->debug) {
 			ob_end_clean();
 			header('Content-Type: application/json');
@@ -47,6 +48,7 @@ abstract class Application {
 			if (isset($this->response->data->messages)) {
 				foreach ($this->response->data->messages as &$message) {
 					$message = str_replace($source->root, '/', $message);
+					$message = str_replace(__DIR__, '/', $message);
 				}
 			}
 		}
@@ -65,6 +67,10 @@ abstract class Application {
 
 	function execute () {
 		$methods =  get_class_methods($this);
+
+		if (!preg_match('#^[a-z_A-Z0-9]+$#', $this->action) or strlen($this->action) > 50) {
+			throw new \Exception('Bad action', 404);
+		}
 
 		if (in_array('action' . ucfirst($this->action), $methods)) {
 			$this->accessControl->checkPermission($this->getUserRole(), $this->action);
@@ -119,6 +125,7 @@ abstract class Application {
 		}
 
 		$this->accessControl = new AccessControl();
+		$this->accessControl->setAccessList($this->config->accessControl);
 	}
 
 	/**
@@ -708,5 +715,26 @@ abstract class Application {
 			'name' => basename($path),
 			'source' => $key
 		];
+	}
+
+	function actionPermissions() {
+		$source = $this->getSource();
+		$path = $source->getPath();
+
+		$result = [];
+
+		foreach (AccessControl::$defaultRule as $permission => $tmp) {
+			if (preg_match('#^[A-Z_]+$#', $permission)) {
+				$allow = false;
+				try {
+					$this->accessControl->checkPermission($this->getUserRole(), $permission, $path);
+					$allow = true;
+				} catch (\Exception $e) {
+				}
+				$result['allow' . Helper::CamelCase($permission)] = $allow;
+			}
+		}
+
+		return $result;
 	}
 }
