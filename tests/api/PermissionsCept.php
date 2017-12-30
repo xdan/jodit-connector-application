@@ -54,4 +54,29 @@ $I->seeResponseContainsJson([
 
 ]);
 
+$I->sendGET('?action=permissions');
+
+$I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK); // 200
+$I->seeResponseIsJson();
+
+$I->seeResponseContainsJson([
+	"success" => true,
+	"data" => [
+		"allowFiles" => true,
+		"allowFileMove" => true,
+		"allowFileUpload" => true,
+		"allowFileUploadRemote" => true,
+		"allowFileRemove" => true,
+		"allowFileRename" => true,
+		"allowFolders" => true,
+		"allowFolderMove" => true,
+		"allowFolderRemove" => true,
+		"allowFolderRename" => true,
+		"allowImageResize" => true,
+		"allowImageCrop" => true,
+		"code" => 220
+	]
+
+]);
+
 
