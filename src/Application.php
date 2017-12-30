@@ -476,6 +476,8 @@ abstract class Application extends BaseApplication{
 			}
 		}
 
-		return $result;
+		return [
+			'permissions' => $result
+		];
 	}
 }
