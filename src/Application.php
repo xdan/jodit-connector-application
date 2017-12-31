@@ -163,6 +163,8 @@ abstract class Application extends BaseApplication{
 		$root = $source->getRoot();
 		$path = $source->getPath();
 
+		$this->accessControl->checkPermission($this->getUserRole(), $this->action, $path);
+
 		$messages = [];
 		$files = [];
 
@@ -192,7 +194,7 @@ abstract class Application extends BaseApplication{
 						throw new \Exception('File type is not in white list', 403);
 					}
 
-					$messages[] = 'File ' . $_FILES['files']['name'][$i] . ' was upload';
+					$messages[] = 'File ' . $_FILES['files']['name'][$i] . ' was uploaded';
 					$files[] = str_replace($root, '', $file);
 				} else {
 					if (!is_writable($path)) {

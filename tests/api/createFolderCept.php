@@ -31,5 +31,17 @@ $I->seeResponseContainsJson([
 ]);
 
 
+$I->sendGET('?action=folderCreate&source=test&path=/ceicom/&name=' . $name); // deny create folder for this path
+
+$I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK); // 200
+$I->seeResponseIsJson();
+
+$I->seeResponseContainsJson([
+	"success" => false,
+	"data" => [
+		"code" => 403,
+	]
+]);
+
 
 

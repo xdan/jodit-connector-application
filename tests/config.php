@@ -48,6 +48,7 @@ $config['accessControl'][] = array(
 	'FILE_UPLOAD'         => false,
 	'FILE_UPLOAD_REMOTE'  => false,
 	'FILE_RENAME'         => false,
+	'FOLDER_CREATE'       => false,
 );
 
 return $config;

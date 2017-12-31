@@ -18,6 +18,7 @@ class AccessControl {
 
 		'FOLDERS'             => true,
 		'FOLDER_MOVE'         => true,
+		'FOLDER_CREATE'       => true,
 		'FOLDER_REMOVE'       => true,
 		'FOLDER_RENAME'       => true,
 
