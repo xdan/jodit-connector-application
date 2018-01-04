@@ -60,22 +60,24 @@ abstract class BaseApplication {
 
 	public function display () {
 
-		if (!$this->config->debug) {
+		if ($this->config && !$this->config->debug) {
 			ob_end_clean();
 			header('Content-Type: application/json');
 		}
 
 		// replace full path from message
-		foreach ($this->config->sources as $source) {
-			if (isset($this->response->data->messages)) {
-				foreach ($this->response->data->messages as &$message) {
-					$message = str_replace($source->root, '/', $message);
-					$message = str_replace(__DIR__, '/', $message);
+		if ($this->config) {
+			foreach ($this->config->sources as $source) {
+				if (isset($this->response->data->messages)) {
+					foreach ($this->response->data->messages as &$message) {
+						$message = str_replace($source->root, '/', $message);
+						$message = str_replace(__DIR__, '/', $message);
+					}
 				}
 			}
 		}
 
-		echo json_encode($this->response, $this->config->debug ? JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES: 0);
+		echo json_encode($this->response, (!$this->config or $this->config->debug) ? JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES: 0);
 	}
 
 	/**
@@ -123,9 +125,15 @@ abstract class BaseApplication {
 	function __construct ($config) {
 		ob_start();
 
+		error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT);
+		ini_set('display_errors', 'on');
+
+		$this->response  = new Response();
+
 		set_error_handler(function ($errno, $errstr, $errfile, $errline) {
-			throw new \Exception($errstr, 501);
+			throw new \Exception($errstr .  ((!$this->config or $this->config->debug) ? ' - file:' . $errfile . ' line:' . $errline : ''), 501);
 		});
+
 		set_exception_handler([$this, 'exceptionHandler']);
 
 		$this->config  = new Config($config);
@@ -134,15 +142,12 @@ abstract class BaseApplication {
 			$this->corsHeaders();
 		}
 
-		$this->response  = new Response();
+
 		$this->request  = new Request();
 
 		$this->action  = $this->request->action;
 
-		if ($this->config->debug) {
-			error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT);
-			ini_set('display_errors', 'on');
-		} else {
+		if (!$this->config->debug) {
 			error_reporting(0);
 			ini_set('display_errors', 'off');
 		}
@@ -270,7 +275,7 @@ abstract class BaseApplication {
 	public function errorHandler ($errorNumber, $errorMessage, $file, $line) {
 		$this->response->success = false;
 		$this->response->data->code = $errorNumber;
-		$this->response->data->messages[] = $errorMessage . ($this->config->debug ? ' - file:' . $file . ' line:' . $line : '');
+		$this->response->data->messages[] = $errorMessage . ((!$this->config or $this->config->debug) ? ' - file:' . $file . ' line:' . $line : '');
 
 		$this->display();
 		return true;
