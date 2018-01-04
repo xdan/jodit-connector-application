@@ -22,7 +22,7 @@ class Request {
 					$this->_raw_data =  json_decode($data, true);
 					break;
 				default:
-					$this->_raw_data =  parse_str($data);
+					parse_str($data, $this->_raw_data);
 
 			}
 		}
