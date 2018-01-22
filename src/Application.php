@@ -8,7 +8,7 @@ abstract class Application extends BaseApplication{
 	/**
 	 * Load all files from folder ore source or sources
 	 */
-	protected function actionFiles() {
+	public function actionFiles() {
 		$sources = [];
 		foreach ($this->config->sources as $key => $source) {
 			if ($this->request->source && $this->request->source !== 'default' && $key !== $this->request->source && $this->request->path !== './') {
@@ -73,7 +73,7 @@ abstract class Application extends BaseApplication{
 	/**
 	 * Load all folders from folder ore source or sources
 	 */
-	protected function actionFolders() {
+	public function actionFolders() {
 		$sources = [];
 		foreach ($this->config->sources as $key => $source) {
 			if ($this->request->source && $this->request->source !== 'default' && $key !== $this->request->source && $this->request->path !== './') {
@@ -115,7 +115,7 @@ abstract class Application extends BaseApplication{
 	 * Load remote image by URL to self host
 	 * @throws \Exception
 	 */
-	protected function actionFileUploadRemote() {
+	public function actionFileUploadRemote() {
 		$url = $this->request->url;
 
 		if (!$url) {
@@ -156,7 +156,7 @@ abstract class Application extends BaseApplication{
 	 * @return array
 	 * @throws \Exception
 	 */
-	protected function actionFileUpload() {
+	public function actionFileUpload() {
 
 		$source = $this->getSource();
 
@@ -222,7 +222,7 @@ abstract class Application extends BaseApplication{
 	 *
 	 * @throws \Exception
 	 */
-	protected function actionFileRemove() {
+	public function actionFileRemove() {
 		$source = $this->getSource();
 
 		$file_path = false;
@@ -267,7 +267,7 @@ abstract class Application extends BaseApplication{
 	 *
 	 * @throws \Exception
 	 */
-	protected function actionFolderRemove() {
+	public function actionFolderRemove() {
 		$source = $this->getSource();
 
 		$file_path = false;
@@ -301,7 +301,7 @@ abstract class Application extends BaseApplication{
 	 * Create directory
 	 * @throws \Exception
 	 */
-	protected function actionFolderCreate() {
+	public function actionFolderCreate() {
 		$source = $this->getSource();
 		$destinationPath = $source->getPath();
 
@@ -330,7 +330,7 @@ abstract class Application extends BaseApplication{
 	 *
 	 * @throws \Exception
 	 */
-	protected function actionMove() {
+	public function actionMove() {
 		$source = $this->getSource();
 		$destinationPath = $source->getPath();
 		$sourcePath = $source->getPath($this->request->from);
@@ -358,7 +358,7 @@ abstract class Application extends BaseApplication{
 	 *
 	 * @throws \Exception
 	 */
-	protected function actionImageResize() {
+	public function actionImageResize() {
 		$source = $this->getSource();
 
 		$this->accessControl->checkPermission($this->getUserRole(), $this->action, $source->getPath());
@@ -379,7 +379,7 @@ abstract class Application extends BaseApplication{
 			->save($info->path . $info->newname, $source->quality);
 	}
 
-	protected function actionImageCrop() {
+	public function actionImageCrop() {
 		$source = $this->getSource();
 
 		$this->accessControl->checkPermission($this->getUserRole(), $this->action, $source->getPath());
@@ -413,7 +413,7 @@ abstract class Application extends BaseApplication{
 	 *
 	 * @metod actionGetFileByURL
 	 */
-	function actionGetLocalFileByUrl() {
+	public function actionGetLocalFileByUrl() {
 		$url = $this->request->url;
 		if (!$url) {
 			throw new \Exception('Need full url', 400);
@@ -460,7 +460,7 @@ abstract class Application extends BaseApplication{
 		];
 	}
 
-	function actionPermissions() {
+	public function actionPermissions() {
 		$source = $this->getSource();
 		$path = $source->getPath();
 
