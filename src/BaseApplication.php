@@ -61,7 +61,9 @@ abstract class BaseApplication {
 	public function display () {
 
 		if ($this->config && !$this->config->debug) {
-			ob_end_clean();
+			if (ob_get_length()) {
+				ob_end_clean();
+			}
 			header('Content-Type: application/json');
 		}
 
