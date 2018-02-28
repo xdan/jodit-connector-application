@@ -16,7 +16,7 @@
   "authors": [
     "Chupurnov Valeriy <chupurnov@gmail.com>"
   ],
-  "license": "LICENSE",
+  "license": "http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL",
   "bugs": {
     "url": "https://github.com/xdan/jodit-connector-application/issues"
   },
