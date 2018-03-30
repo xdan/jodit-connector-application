@@ -4,6 +4,12 @@ $I = new ApiTester($scenario);
 $I->wantTo('Remove image from server');
 
 $I->sendGET('?action=fileUploadRemote&source=test&url=' . urlencode('https://xdsoft.net/jodit/stuf/icon-joomla.png'));
+$I->seeResponseContainsJson([
+	"success" => true,
+	"data" => [
+		"code" => 220,
+	]
+]);
 
 $I->sendGET('?action=fileRemove&source=test&name=icon-joomla.png');
 
@@ -26,7 +32,7 @@ $I->seeResponseIsJson();
 $I->seeResponseContainsJson([
     "success" => false,
     "data" => [
-        "code" => 400,
+        "code" => 404,
     ]
 ]);
 

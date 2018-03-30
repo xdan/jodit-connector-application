@@ -26,5 +26,5 @@ $I->seeResponseContainsJson([
 	]
 ]);
 
-$I->assertEquals(true, preg_match('#Bad action#usi', $I->grabResponse()));
+$I->assertEquals(true, preg_match('#not found#usi', $I->grabResponse()));
 

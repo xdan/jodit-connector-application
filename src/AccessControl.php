@@ -11,6 +11,7 @@ namespace Jodit;
 
 class AccessControl {
 	private $accessList = [];
+
 	static public $defaultRule = [
 		'role'                => '*',
 
@@ -34,6 +35,7 @@ class AccessControl {
 		'IMAGE_CROP'          => true,
 	];
 
+
 	/**
 	 * @param array $list
 	 */
@@ -41,11 +43,18 @@ class AccessControl {
 		$this->accessList = $list;
 	}
 
+	public function checkPermission($role, $action, $path = '/', $fileExtension = '*') {
+		if (!$this->isAllow($role, $action, $path, $fileExtension)) {
+			throw new \Exception('Access denied', Consts::ERROR_CODE_FORBIDDEN);
+		}
+		return true;
+	}
+
 	/**
 	 * @param {string} $role
 	 * @param {string} $action
 	 */
-	public function checkPermission($role, $action, $path = '/', $fileExtension = '*') {
+	public function isAllow($role, $action, $path = '/', $fileExtension = '*') {
 		$action = Helper::Upperize($action);
 
 		$allow = null;
@@ -93,7 +102,7 @@ class AccessControl {
 		}
 
 		if ($allow === false) {
-			throw new \Exception('Access denied', 403);
+			return false;
 		}
 
 		return true;

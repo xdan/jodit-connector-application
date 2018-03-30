@@ -10,7 +10,7 @@ $I->seeResponseIsJson();
 $I->seeResponseContainsJson([
     "success" => false,
     "data" => [
-        "code" => 406
+        "code" => 403
     ]
 ]);
 

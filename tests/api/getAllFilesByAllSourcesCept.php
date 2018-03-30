@@ -15,3 +15,6 @@ $I->seeResponseContainsJson([
 
 $I->seeResponseJsonMatchesXpath('//data/sources/test/files/file');
 $I->seeResponseJsonMatchesXpath('//data/sources/folder1/files/file');
+$I->seeResponseJsonMatchesXpath('//data/sources/folder1/files/isImage');
+$I->seeResponseJsonMatchesXpath('//data/sources/folder1/files/changed');
+$I->seeResponseJsonMatchesXpath('//data/sources/folder1/files/thumb');
