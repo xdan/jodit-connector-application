@@ -154,7 +154,6 @@ class Image {
 		$thumbName = $path . $config->thumbFolderName . Consts::DS . $file->getName();
 		if (!$file->isImage()) {
 			$thumbName = $path . $config->thumbFolderName . Consts::DS . $file->getName() . '.png';
-			self::generateIcon($file, $thumbName);
 		}
 
 		if (!file_exists($thumbName)) {
