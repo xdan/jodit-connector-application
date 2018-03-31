@@ -151,8 +151,10 @@ abstract class Application extends BaseApplication{
 
 		$files = $this->move($source);
 
-		$files = array_map(function (File $file) use ($source, $root) {
+		$isImages = [];
+		$files = array_map(function (File $file) use ($source, $root, &$isImages) {
 			$messages[] = 'File ' . $file->getName() . ' was uploaded';
+			$isImages[] = $file->isImage();
 			return str_replace($root, '', $file->getPath());
 		}, $files);
 
@@ -163,7 +165,8 @@ abstract class Application extends BaseApplication{
 		return [
 			'baseurl' => $source->baseurl,
 			'messages' => $messages,
-			'files' => $files
+			'files' => $files,
+			'isImages' => $isImages
 		];
 	}
 

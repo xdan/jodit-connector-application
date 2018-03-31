@@ -7,7 +7,8 @@ $I->sendPOST('',  [
     'action' => 'fileUpload',
     'source' => 'test'
 ], ['files' => [
-    realpath(__DIR__ . '/../test.png')
+    realpath(__DIR__ . '/../test.png'),
+    realpath(__DIR__ . '/../files/test.csv'),
 ]]);
 
 $I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK); // 200
@@ -19,8 +20,13 @@ $I->seeResponseContainsJson([
     "data" => [
         "code" => 220,
         "files" => [
-            "test.png"
-        ]
+            "test.png",
+            "test.csv",
+        ],
+	    "isImages" => [
+	    	true,
+	    	false
+	    ]
     ]
 ]);
 
