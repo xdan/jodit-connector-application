@@ -94,10 +94,12 @@ class Config {
 
 		$data = (object)$data;
 
-		if (isset($data->sources) and is_array($data->sources)) {
+		if (isset($data->sources) and is_array($data->sources) and count($data->sources)) {
 			foreach ($data->sources as $key => $source) {
 				$this->sources[$key] = new Config($source, $this);
 			}
+		} else {
+			$this->sources['default'] = $this;
 		}
 
 		$this->data = $data;
@@ -167,7 +169,7 @@ class Config {
 				return $item;
 			}
 
-			$source = $item->getSource($sourceName);
+			$source = $item !== $this ? $item->getSource($sourceName) : null;
 
 			if ($source) {
 				return $source;

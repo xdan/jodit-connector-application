@@ -9,6 +9,9 @@ require_once __DIR__ . '/TestApplication.php';
 
 $config = require(__DIR__ . "/config.php");
 
+if (isset($_GET['custom_config']) and json_decode($_GET['custom_config'])) {
+	$config = array_merge($config, json_decode($_GET['custom_config'], true));
+}
 
 $fileBrowser = new JoditRestTestApplication($config);
 

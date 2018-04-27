@@ -1,5 +1,6 @@
 <?
 $config = [
+	'root' => realpath(__DIR__ . '/files') . '/',
     'sources' => [
         'test' => [
             'root' => realpath(__DIR__ . '/files') . '/',
@@ -19,7 +20,7 @@ $config = [
 
 $config['roleSessionVar'] = 'JoditUserRole';
 
-$config['accessControl'][] = array(
+$config['accessControl'][] = [
 	'role'                => '*',
 	'extensions'          => '*',
 	'path'                => '/',
@@ -37,9 +38,9 @@ $config['accessControl'][] = array(
 
 	'IMAGE_RESIZE'        => true,
 	'IMAGE_CROP'          => true,
-);
+];
 
-$config['accessControl'][] = array(
+$config['accessControl'][] = [
 	'role'                => '*',
 	'path'                => __DIR__ . '/files/ceicom/',
 
@@ -48,6 +49,6 @@ $config['accessControl'][] = array(
 	'FILE_UPLOAD_REMOTE'  => false,
 	'FILE_RENAME'         => false,
 	'FOLDER_CREATE'       => false,
-);
+];
 
 return $config;
