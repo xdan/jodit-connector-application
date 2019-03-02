@@ -276,7 +276,7 @@ abstract class Application extends BaseApplication{
 	 *
 	 * @throws \Exception
 	 */
-	public function actionMove() {
+	private function movePath() {
 		$source = $this->getSource();
 		$destinationPath = $source->getPath();
 		$sourcePath = $source->getPath($this->request->from);
@@ -298,6 +298,22 @@ abstract class Application extends BaseApplication{
 			throw new \Exception('Need source path', Consts::ERROR_CODE_BAD_REQUEST);
 		}
 	}
+
+    /**
+     * Move file
+     * @throws \Exception
+     */
+	public function actionFileMove() {
+	    $this->movePath();
+    }
+
+    /**
+     * Move folder
+     * @throws \Exception
+     */
+    public function actionFolderMove() {
+        $this->movePath();
+    }
 
 	/**
 	 * Resize image

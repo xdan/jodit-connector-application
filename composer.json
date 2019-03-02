@@ -13,6 +13,7 @@
     },
     "require": {
         "php": ">=5.4.0",
+        "ext-curl": ">=6.0.0",
         "abeautifulsite/simpleimage": "^2.6"
     },
     "require-dev": {

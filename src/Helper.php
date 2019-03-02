@@ -90,10 +90,15 @@ abstract class Helper {
 			throw new \Exception('allow_url_fopen is disable', 501);
 		}
 
-		if (!function_exists('curl_init')) {
-			$raw = file_get_contents($url);
-		} else {
+        $message = "File was not loaded";
 
+		if (function_exists('curl_init')) {
+		    try {
+                $raw = file_get_contents($url);
+            } catch (\Exception $e) {
+                throw new \Exception($message, Consts::ERROR_CODE_BAD_REQUEST);
+            }
+		} else {
 			$ch = curl_init($url);
 
 			curl_setopt($ch, CURLOPT_HEADER, 0);
@@ -105,17 +110,23 @@ abstract class Helper {
 
 			$response = parse_url($url);
 			curl_setopt($ch, CURLOPT_REFERER, $response['scheme'] . '://' . $response['host']);
-			curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:45.0) Gecko/20100101 Firefox/45.0');
+			curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_3) ' .
+                'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.99 YaBrowser/19.1.1.907 Yowser/2.5 Safari/537.36');
+
 
 			$raw = curl_exec($ch);
 
-			curl_close($ch);
-		}
+            if (!$raw) {
+                throw new \Exception($message, Consts::ERROR_CODE_BAD_REQUEST);
+            }
 
-		if ($raw) {
-			file_put_contents($destinationFilename, $raw);
-		} else {
-			throw new \Exception(curl_error($ch), Consts::ERROR_CODE_BAD_REQUEST);
+            curl_close($ch);
+        }
+
+        if ($raw) {
+            file_put_contents($destinationFilename, $raw);
+        } else {
+			throw new \Exception($message, Consts::ERROR_CODE_BAD_REQUEST);
 		}
 	}
 

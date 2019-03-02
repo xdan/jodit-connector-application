@@ -151,7 +151,6 @@ abstract class BaseApplication {
 		Jodit::$app = $this;
 	}
 
-
 	protected function getImageEditorInfo() {
 		$source = $this->getSource();
 		$path = $source->getPath();
@@ -246,7 +245,6 @@ abstract class BaseApplication {
 
 		$this->display();
 	}
-	
 
 	/**
 	 * @param \Jodit\Config $source
@@ -311,8 +309,6 @@ abstract class BaseApplication {
 
 		return $output;
 	}
-
-
 
 	/**
 	 * Read folder and retrun filelist

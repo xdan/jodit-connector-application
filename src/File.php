@@ -123,7 +123,7 @@ class File {
 	 */
 	 public function isImage() {
 		try {
-			if (!function_exists('exif_imagetype')) {
+			if (!function_exists('exif_imagetype') && !function_exists('Jodit\exif_imagetype')) {
 				function exif_imagetype($filename) {
 					if ((list(, , $type) = getimagesize($filename)) !== false) {
 						return $type;

@@ -1,4 +1,5 @@
-<?
+<?php
+
 $config = [
 	'root' => realpath(__DIR__ . '/files') . '/',
     'sources' => [
