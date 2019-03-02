@@ -3,10 +3,11 @@ $I = new ApiTester($scenario);
 
 $I->wantTo('Check uploading image from another site');
 
-$I->sendPOST('',  [
+$I->sendPOST('?',  [
     'action' => 'fileUpload',
     'source' => 'test'
 ], ['files' => [
+    realpath(__DIR__ . '/../files/regina.jpg'),
     realpath(__DIR__ . '/../test.png'),
     realpath(__DIR__ . '/../files/test.csv'),
 ]]);
@@ -20,10 +21,12 @@ $I->seeResponseContainsJson([
     "data" => [
         "code" => 220,
         "files" => [
+            "regina.jpg",
             "test.png",
             "test.csv",
         ],
 	    "isImages" => [
+	    	true,
 	    	true,
 	    	false
 	    ]
