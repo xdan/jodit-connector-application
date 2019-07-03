@@ -9,7 +9,7 @@
 
 namespace Jodit;
 
-abstract class Application extends BaseApplication{
+abstract class Application extends BaseApplication {
 
 	/**
 	 * Load all files from folder ore source or sources
@@ -31,9 +31,7 @@ abstract class Application extends BaseApplication{
 
 		}
 
-		return [
-			'sources' => $sources
-		];
+		return ['sources' => $sources];
 	}
 
 	/**
@@ -54,26 +52,13 @@ abstract class Application extends BaseApplication{
 				continue;
 			}
 
-			$sourceData = (object)[
-				'baseurl' => $source->baseurl,
-				'path' =>  str_replace(realpath($source->getRoot()) . Consts::DS, '', $path),
-				'folders' => [],
-			];
+			$sourceData = (object)['baseurl' => $source->baseurl, 'path' => str_replace(realpath($source->getRoot()) . Consts::DS, '', $path), 'folders' => [],];
 
 			$sourceData->folders[] = $path == $source->getRoot() ? '.' : '..';
 
 			$dir = opendir($path);
 			while ($file = readdir($dir)) {
-				if (
-					$file != '.' &&
-					$file != '..' &&
-					is_dir($path . $file) and
-					(
-						!$this->config->createThumb ||
-						$file !== $this->config->thumbFolderName
-					) and
-					!in_array($file, $this->config->excludeDirectoryNames)
-				) {
+				if ($file != '.' && $file != '..' && is_dir($path . $file) and (!$this->config->createThumb || $file !== $this->config->thumbFolderName) and !in_array($file, $this->config->excludeDirectoryNames)) {
 					$sourceData->folders[] = $file;
 				}
 			}
@@ -81,9 +66,7 @@ abstract class Application extends BaseApplication{
 			$sources[$key] = $sourceData;
 		}
 
-		return [
-			'sources' => $sources
-		];
+		return ['sources' => $sources];
 	}
 
 	/**
@@ -126,10 +109,7 @@ abstract class Application extends BaseApplication{
 			throw $e;
 		}
 
-		return [
-			'newfilename' => $file->getName(),
-			'baseurl' => $source->baseurl,
-		];
+		return ['newfilename' => $file->getName(), 'baseurl' => $source->baseurl,];
 	}
 
 	/**
@@ -162,12 +142,7 @@ abstract class Application extends BaseApplication{
 			throw new \Exception('No files have been uploaded', Consts::ERROR_CODE_NO_FILES_UPLOADED);
 		}
 
-		return [
-			'baseurl' => $source->baseurl,
-			'messages' => $messages,
-			'files' => $files,
-			'isImages' => $isImages
-		];
+		return ['baseurl' => $source->baseurl, 'messages' => $messages, 'files' => $files, 'isImages' => $isImages];
 	}
 
 	/**
@@ -186,10 +161,7 @@ abstract class Application extends BaseApplication{
 
 		$target = $this->request->name;
 
-		if (
-			realpath($path . $target) &&
-			strpos(realpath($path . $target), $source->getRoot()) !== false
-		) {
+		if (realpath($path . $target) && strpos(realpath($path . $target), $source->getRoot()) !== false) {
 			$file_path = realpath($path . $target);
 		}
 
@@ -299,21 +271,37 @@ abstract class Application extends BaseApplication{
 		}
 	}
 
-    /**
-     * Move file
-     * @throws \Exception
-     */
+	/**
+	 * Move file
+	 * @throws \Exception
+	 */
 	public function actionFileMove() {
-	    $this->movePath();
-    }
+		$this->movePath();
+	}
 
-    /**
-     * Move folder
-     * @throws \Exception
-     */
-    public function actionFolderMove() {
-        $this->movePath();
-    }
+	/**
+	 * Move folder
+	 * @throws \Exception
+	 */
+	public function actionFolderMove() {
+		$this->movePath();
+	}
+
+	/**
+	 * Rename file
+	 * @throws \Exception
+	 */
+	public function actionFileRename() {
+		$this->renamePath();
+	}
+
+	/**
+	 * Rename folder
+	 * @throws \Exception
+	 */
+	public function actionFolderRename() {
+		$this->renamePath();
+	}
 
 	/**
 	 * Resize image
@@ -336,9 +324,7 @@ abstract class Application extends BaseApplication{
 		}
 
 
-		$info->img
-			->resize((int)$info->box->w, (int)$info->box->h)
-			->save($info->path . $info->newname, $source->quality);
+		$info->img->resize((int)$info->box->w, (int)$info->box->h)->save($info->path . $info->newname, $source->quality);
 	}
 
 	public function actionImageCrop() {
@@ -364,9 +350,7 @@ abstract class Application extends BaseApplication{
 			throw new \Exception('Height not specified', Consts::ERROR_CODE_BAD_REQUEST);
 		}
 
-		$info->img
-			->crop((int)$info->box->x, (int)$info->box->y, (int)$info->box->x + (int)$info->box->w, (int)$info->box->y + (int)$info->box->h)
-			->save($info->path . $info->newname, $source->quality);
+		$info->img->crop((int)$info->box->x, (int)$info->box->y, (int)$info->box->x + (int)$info->box->w, (int)$info->box->y + (int)$info->box->h)->save($info->path . $info->newname, $source->quality);
 
 	}
 
@@ -418,11 +402,7 @@ abstract class Application extends BaseApplication{
 			throw new \Exception('File does not exist or is above the root of the connector', Consts::ERROR_CODE_FAILED);
 		}
 
-		return [
-			'path' => str_replace($root, '', dirname($root . $path) . Consts::DS),
-			'name' => basename($path),
-			'source' => $key
-		];
+		return ['path' => str_replace($root, '', dirname($root . $path) . Consts::DS), 'name' => basename($path), 'source' => $key];
 	}
 
 	public function actionPermissions() {
@@ -441,8 +421,6 @@ abstract class Application extends BaseApplication{
 			}
 		}
 
-		return [
-			'permissions' => $result
-		];
+		return ['permissions' => $result];
 	}
 }

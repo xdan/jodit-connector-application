@@ -6,6 +6,7 @@
  * @license    GNU General Public License version 2 or later; see LICENSE
  * @link       https://xdsoft.net/jodit/
  */
+
 namespace Jodit;
 
 use abeautifulsite\SimpleImage;
@@ -42,7 +43,7 @@ abstract class BaseApplication {
 	 * Check whether the user has the ability to view files
 	 * You can define JoditCheckPermissions function in config.php and use it
 	 */
-	abstract public function checkAuthentication ();
+	abstract public function checkAuthentication();
 
 	protected function corsHeaders() {
 		if (isset($_SERVER['HTTP_ORIGIN'])) {
@@ -65,7 +66,7 @@ abstract class BaseApplication {
 
 	}
 
-	public function display () {
+	public function display() {
 
 		if ($this->config && !$this->config->debug) {
 			if (ob_get_length()) {
@@ -77,7 +78,7 @@ abstract class BaseApplication {
 		}
 
 
-		echo json_encode($this->response, (!$this->config or $this->config->debug) ? JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES: 0);
+		echo json_encode($this->response, (!$this->config or $this->config->debug) ? JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES : 0);
 		die;
 	}
 
@@ -90,8 +91,8 @@ abstract class BaseApplication {
 		return isset($_SESSION[$this->config->roleSessionVar]) ? $_SESSION[$this->config->roleSessionVar] : $this->config->defaultRole;
 	}
 
-	public function execute () {
-		$methods =  get_class_methods($this);
+	public function execute() {
+		$methods = get_class_methods($this);
 
 		if (!in_array('action' . ucfirst($this->action), $methods)) {
 			throw new \Exception('Action "' . htmlspecialchars($this->action) . '" not found', Consts::ERROR_CODE_NOT_EXISTS);
@@ -99,7 +100,7 @@ abstract class BaseApplication {
 
 		$this->accessControl->checkPermission($this->getUserRole(), $this->action);
 
-		$this->response->data =  (object)call_user_func_array([$this, 'action' . $this->action], []);
+		$this->response->data = (object)call_user_func_array([$this, 'action' . $this->action], []);
 
 
 		$this->response->success = true;
@@ -116,6 +117,7 @@ abstract class BaseApplication {
 	 */
 
 	private $startedTime;
+
 	/**
 	 * BaseApplication constructor.
 	 *
@@ -123,28 +125,28 @@ abstract class BaseApplication {
 	 *
 	 * @throws \Exception
 	 */
-	function __construct ($config) {
+	function __construct($config) {
 		ob_start();
 		$this->startedTime = microtime(true);
 
-		$this->response  = new Response();
+		$this->response = new Response();
 		$this->accessControl = new AccessControl();
 
 		set_error_handler(function ($errno, $errstr, $errfile, $errline) {
-			throw new \Exception($errstr .  ((!$this->config or $this->config->debug) ? ' - file:' . $errfile . ' line:' . $errline : ''), 501);
+			throw new \Exception($errstr . ((!$this->config or $this->config->debug) ? ' - file:' . $errfile . ' line:' . $errline : ''), 501);
 		});
 
 		set_exception_handler([$this, 'exceptionHandler']);
 
-		$this->config  = new Config($config, null);
+		$this->config = new Config($config, null);
 
 		if ($this->config->allowCrossOrigin) {
 			$this->corsHeaders();
 		}
 
-		$this->request  = new Request();
+		$this->request = new Request();
 
-		$this->action  = $this->request->action;
+		$this->action = $this->request->action;
 
 
 		$this->accessControl->setAccessList($this->config->accessControl);
@@ -157,20 +159,15 @@ abstract class BaseApplication {
 
 		$file = $this->request->name;
 
-		$box = (object)[
-			'w' => 0,
-			'h' => 0,
-			'x' => 0,
-			'y' => 0,
-		];
+		$box = (object)['w' => 0, 'h' => 0, 'x' => 0, 'y' => 0,];
 
 		if ($this->request->box && is_array($this->request->box)) {
-			foreach ($box as $key=>&$value) {
+			foreach ($box as $key => &$value) {
 				$value = isset($this->request->box[$key]) ? $this->request->box[$key] : 0;
 			}
 		}
 
-		$newName = $this->request->newname ?  Helper::makeSafe($this->request->newname) : '';
+		$newName = $this->request->newname ? Helper::makeSafe($this->request->newname) : '';
 
 		if (!$path || !$file || !file_exists($path . $file) || !is_file($path . $file)) {
 			throw new \Exception('File not exists', Consts::ERROR_CODE_NOT_EXISTS);
@@ -203,21 +200,13 @@ abstract class BaseApplication {
 
 		$info = $img->get_original_info();
 
-		return (object)[
-			'path' => $path,
-			'file' => $file,
-			'box' => $box,
-			'newname' => $newName,
-			'img' => $img,
-			'width' => $info['width'],
-			'height' => $info['height'],
-		];
+		return (object)['path' => $path, 'file' => $file, 'box' => $box, 'newname' => $newName, 'img' => $img, 'width' => $info['width'], 'height' => $info['height'],];
 	}
 
 	/**
 	 * @param \Exception $e
 	 */
-	public function exceptionHandler ($e) {
+	public function exceptionHandler($e) {
 		$this->response->success = false;
 		$this->response->data->code = $e->getCode();
 		$this->response->data->messages[] = $e->getMessage();
@@ -240,7 +229,7 @@ abstract class BaseApplication {
 					$this->response->data->messages[] = implode(' - ', $line);
 				}
 				$e = $e->getPrevious();
-			} while($e);
+			} while ($e);
 		}
 
 		$this->display();
@@ -266,7 +255,7 @@ abstract class BaseApplication {
 						throw new \Exception(isset(Helper::$upload_errors[$files['error'][$i]]) ? Helper::$upload_errors[$files['error'][$i]] : 'Error', $files['error'][$i]);
 					}
 
-					$path     = $source->getPath();
+					$path = $source->getPath();
 					$tmp_name = $files['tmp_name'][$i];
 					$new_path = $path . Helper::makeSafe($files['name'][$i]);
 
@@ -321,11 +310,7 @@ abstract class BaseApplication {
 	public function read(Config $source) {
 		$path = $source->getPath();
 
-		$sourceData = (object)[
-			'baseurl' => $source->baseurl,
-			'path' =>  str_replace(realpath($source->getRoot()) . Consts::DS, '', $path),
-			'files' => [],
-		];
+		$sourceData = (object)['baseurl' => $source->baseurl, 'path' => str_replace(realpath($source->getRoot()) . Consts::DS, '', $path), 'files' => [],];
 
 		try {
 			$this->accessControl->checkPermission($this->getUserRole(), $this->action, $path);
@@ -343,9 +328,7 @@ abstract class BaseApplication {
 				$file = new File($path . $file);
 
 				if ($file->isGoodFile($source)) {
-					$item = [
-						'file' => $file->getPathByRoot($source),
-					];
+					$item = ['file' => $file->getPathByRoot($source),];
 
 					if ($config->createThumb || !$file->isImage()) {
 						$item['thumb'] = Image::getThumb($file, $source)->getPathByRoot($source);
@@ -381,5 +364,45 @@ abstract class BaseApplication {
 		}
 
 		return $source;
+	}
+
+	protected function renamePath() {
+		$source = $this->getSource();
+		$sourceName = Helper::makeSafe($this->request->name);
+		$fromPath = $source->getPath() . $sourceName;
+
+		$this->accessControl->checkPermission($this->getUserRole(), $this->action, $fromPath);
+
+		$newName = Helper::makeSafe($this->request->newname);
+		$destinationPath = $source->getPath() . $newName;
+
+		$this->accessControl->checkPermission($this->getUserRole(), $this->action, $destinationPath);
+
+
+		if (!$fromPath) {
+			throw new \Exception('Need source path', Consts::ERROR_CODE_BAD_REQUEST);
+		}
+
+		if (!$destinationPath) {
+			throw new \Exception('Need destination path', Consts::ERROR_CODE_BAD_REQUEST);
+		}
+
+		if (!is_file($fromPath) and !is_dir($fromPath)) {
+			throw new \Exception('Path not exists', Consts::ERROR_CODE_NOT_EXISTS);
+		}
+
+		if (is_file($fromPath)) {
+			$ext = strtolower(pathinfo($fromPath, PATHINFO_EXTENSION));
+			$newExt = strtolower(pathinfo($destinationPath, PATHINFO_EXTENSION));
+			if ($newExt !== $ext) {
+				$destinationPath .= '.' . $ext;
+			}
+		}
+
+		if (is_file($destinationPath) or is_dir($destinationPath)) {
+			throw new \Exception("New " . basename($destinationPath) . " already exists", Consts::ERROR_CODE_BAD_REQUEST);
+		}
+
+		rename($fromPath, $destinationPath);
 	}
 }
