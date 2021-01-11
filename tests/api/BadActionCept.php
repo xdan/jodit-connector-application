@@ -1,4 +1,6 @@
-<?php 
+<?php
+/** @var \Codeception\Scenario $scenario */
+
 $I = new ApiTester($scenario);
 $I->wantTo('Check bad action');
 
