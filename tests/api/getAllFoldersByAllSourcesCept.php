@@ -1,10 +1,13 @@
 <?php
-/** @var object $scenario */
+/** @var \Codeception\Scenario $scenario */
+
+use Codeception\Util\HttpCode;
+
 $I = new ApiTester($scenario);
 
 $I->wantTo('Get all folders from all sources');
 $I->sendGET('?action=folders');
-$I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK); // 200
+$I->seeResponseCodeIs(HttpCode::OK); // 200
 $I->seeResponseIsJson();
 
 $I->seeResponseContainsJson([
@@ -14,5 +17,5 @@ $I->seeResponseContainsJson([
     ]
 ]);
 
-$I->seeResponseJsonMatchesXpath('//data/sources/0/folders');
-$I->seeResponseJsonMatchesXpath('//data/sources/1/folders');
+$I->seeResponseJsonMatchesJsonPath('$.data.sources[0].folders');
+$I->seeResponseJsonMatchesXpath('$.data.sources[1].folders');
