@@ -1,4 +1,8 @@
 <?php
+/** @var \Codeception\Scenario $scenario */
+
+use Codeception\Util\HttpCode;
+
 $I = new ApiTester($scenario);
 
 $I->wantTo('Get all files root and config without source field');
@@ -6,7 +10,7 @@ $I->sendGET('?action=files&custom_config=' . rawurlencode(json_encode([
 	'sources' => null
 ])));
 
-$I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK); // 200
+$I->seeResponseCodeIs(HttpCode::OK); // 200
 $I->seeResponseIsJson();
 
 $I->seeResponseContainsJson([
@@ -16,4 +20,4 @@ $I->seeResponseContainsJson([
 	]
 ]);
 
-$I->seeResponseJsonMatchesXpath('//data/sources/default/files/file');
+$I->seeResponseJsonMatchesJsonPath('$.data.sources[?(@.name=="default")].files[0].file');

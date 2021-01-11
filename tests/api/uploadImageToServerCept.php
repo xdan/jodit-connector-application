@@ -1,4 +1,8 @@
 <?php
+/** @var \Codeception\Scenario $scenario */
+
+use Codeception\Util\HttpCode;
+
 $I = new ApiTester($scenario);
 
 $I->wantTo('Check uploading image from another site');
@@ -7,21 +11,20 @@ $I->sendPOST('?',  [
     'action' => 'fileUpload',
     'source' => 'test'
 ], ['files' => [
-    realpath(__DIR__ . '/../files/regina.jpg'),
+    realpath(__DIR__ . '/../files/regina.png'),
     realpath(__DIR__ . '/../test.png'),
     realpath(__DIR__ . '/../files/test.csv'),
 ]]);
 
-$I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK); // 200
+$I->seeResponseCodeIs(HttpCode::OK); // 200
 $I->seeResponseIsJson();
-//\Codeception\Util\Debug::debug($I->em);die();
 
 $I->seeResponseContainsJson([
     "success" => true,
     "data" => [
         "code" => 220,
         "files" => [
-            "regina.jpg",
+            "regina.png",
             "test.png",
             "test.csv",
         ],
@@ -41,7 +44,7 @@ $I->sendPOST('',  [
     realpath(__DIR__ . '/../config.php')
 ]]);
 
-$I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK); // 200
+$I->seeResponseCodeIs(HttpCode::OK); // 200
 $I->seeResponseIsJson();
 
 $I->seeResponseContainsJson([
@@ -60,7 +63,7 @@ $I->sendPOST('',  [
     realpath(__DIR__ . '/../test.png')
 ]]);
 
-$I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK); // 200
+$I->seeResponseCodeIs(HttpCode::OK); // 200
 $I->seeResponseIsJson();
 
 $I->seeResponseContainsJson([

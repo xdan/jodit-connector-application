@@ -1,9 +1,13 @@
-<?php 
+<?php
+/** @var \Codeception\Scenario $scenario */
+
+use Codeception\Util\HttpCode;
+
 $I = new ApiTester($scenario);
 
 $I->wantTo('Get all files from all sources');
 $I->sendGET('?action=files&source=test');
-$I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK); // 200
+$I->seeResponseCodeIs(HttpCode::OK); // 200
 $I->seeResponseIsJson();
 
 $I->seeResponseContainsJson([
@@ -13,5 +17,5 @@ $I->seeResponseContainsJson([
     ]
 ]);
 
-$I->seeResponseJsonMatchesXpath('//data/sources/test/files/file');
-$I->dontSeeResponseJsonMatchesXpath('//data/sources/folder1/files/file');
+$I->seeResponseJsonMatchesJsonPath('$.data.sources[?(@.name=="test")].files[0].file');
+$I->dontSeeResponseJsonMatchesJsonPath('$.data.sources[?(@.name=="folder1")].files[0].file');

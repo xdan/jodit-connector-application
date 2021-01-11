@@ -35,7 +35,9 @@ abstract class Application extends BaseApplication {
 					$source->getPath()
 				)
 			) {
-				$sources[$key] = $this->read($source);
+				$sourceData = $this->read($source);
+				$sourceData->name = $key;
+				$sources[] = $sourceData;
 			}
 		}
 

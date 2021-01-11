@@ -1,9 +1,13 @@
-<?php 
+<?php
+/** @var \Codeception\Scenario $scenario */
+
+use Codeception\Util\HttpCode;
+
 $I = new ApiTester($scenario);
 
 $I->wantTo('Get all items from all sources');
 $I->sendGET('?action=files');
-$I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK); // 200
+$I->seeResponseCodeIs(HttpCode::OK); // 200
 $I->seeResponseIsJson();
 
 $I->seeResponseContainsJson([
@@ -13,8 +17,8 @@ $I->seeResponseContainsJson([
     ]
 ]);
 
-$I->seeResponseJsonMatchesXpath('//data/sources/test/files/file');
-$I->seeResponseJsonMatchesXpath('//data/sources/folder1/files/file');
-$I->seeResponseJsonMatchesXpath('//data/sources/folder1/files/isImage');
-$I->seeResponseJsonMatchesXpath('//data/sources/folder1/files/changed');
-$I->seeResponseJsonMatchesXpath('//data/sources/folder1/files/thumb');
+$I->seeResponseJsonMatchesJsonPath('$.data.sources[?(@.name=="test")].files[0].file');
+$I->seeResponseJsonMatchesJsonPath('$.data.sources[?(@.name=="folder1")].files[0].file');
+$I->seeResponseJsonMatchesJsonPath('$.data.sources[?(@.name=="folder1")].files[0].isImage');
+$I->seeResponseJsonMatchesJsonPath('$.data.sources[?(@.name=="folder1")].files[0].changed');
+$I->seeResponseJsonMatchesJsonPath('$.data.sources[?(@.name=="folder1")].files[0].thumb');
