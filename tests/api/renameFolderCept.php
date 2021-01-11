@@ -1,5 +1,8 @@
 <?php
-/** @var object $scenario */
+/** @var \Codeception\Scenario $scenario */
+
+use Codeception\Util\HttpCode;
+
 $I = new ApiTester($scenario);
 $files_root = realpath(__DIR__ . '/../files') . '/';
 
@@ -7,7 +10,7 @@ $I->wantTo('Check rename file');
 
 $I->sendGET('?action=folderRename&source=test&name=folder1&path=&newname=folder2');
 
-$I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK); // 200
+$I->seeResponseCodeIs(HttpCode::OK); // 200
 $I->seeResponseIsJson();
 
 $I->seeResponseContainsJson([
