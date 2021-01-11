@@ -1,4 +1,5 @@
 <?php
+/** @var object $scenario */
 $I = new ApiTester($scenario);
 $files_root = realpath(__DIR__ . '/../files') . '/';
 
