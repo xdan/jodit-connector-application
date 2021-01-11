@@ -13,5 +13,5 @@ $I->seeResponseContainsJson([
     ]
 ]);
 
-$I->seeResponseJsonMatchesXpath('//data/sources/0/folders');
-$I->dontSeeResponseJsonMatchesXpath('//data/sources/1/folders');
+$I->seeResponseJsonMatchesJsonPath('$.data.sources[0].folders');
+$I->dontSeeResponseJsonMatchesJsonPath('$.data.sources[1].folders');

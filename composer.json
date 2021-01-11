@@ -1,24 +1,29 @@
 {
-    "name": "jodit/application",
-    "description": "Jodit FileBrowser and Uploader connector",
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "Chupurnov Valeriy",
-            "email": "chupurnov@gmail.com"
-        }
-    ],
-    "autoload": {
-        "psr-4": { "Jodit\\": ["src/"] }
-    },
-    "require": {
-        "php": ">=5.4.0",
-        "ext-curl": ">=6.0.0",
-        "abeautifulsite/simpleimage": "^2.7",
-        "ext-gd": "*",
-        "ext-json": "*"
-    },
-    "require-dev": {
-        "codeception/codeception": "^2.5.6"
-    }
+	"name": "jodit/application",
+	"description": "Jodit FileBrowser and Uploader connector",
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Chupurnov Valeriy",
+			"email": "chupurnov@gmail.com"
+		}
+	],
+	"autoload": {
+		"psr-4": {
+			"Jodit\\": [
+				"src/"
+			]
+		}
+	},
+	"require": {
+		"php": ">=5.4.0",
+		"ext-curl": ">=6.0.0",
+		"abeautifulsite/simpleimage": "^2.7",
+		"ext-gd": "*",
+		"ext-json": "*"
+	},
+	"require-dev": {
+		"codeception/codeception": "^2.5.6",
+		"flow/jsonpath": "^0.3.1"
+	}
 }
