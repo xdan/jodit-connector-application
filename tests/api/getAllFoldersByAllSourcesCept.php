@@ -18,4 +18,4 @@ $I->seeResponseContainsJson([
 ]);
 
 $I->seeResponseJsonMatchesJsonPath('$.data.sources[0].folders');
-$I->seeResponseJsonMatchesXpath('$.data.sources[1].folders');
+$I->seeResponseJsonMatchesJsonPath('$.data.sources[1].folders');
