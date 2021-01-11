@@ -24,6 +24,6 @@ class Response {
 
 	function __construct() {
 		$this->time = date('Y-m-d H:i:s');
-		$this->data = (object)$this->data;
+		$this->data = (object) $this->data;
 	}
 }

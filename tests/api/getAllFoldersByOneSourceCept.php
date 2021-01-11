@@ -1,4 +1,4 @@
-<?php 
+<?php
 $I = new ApiTester($scenario);
 
 $I->wantTo('Get all folders from Test source');
@@ -13,5 +13,5 @@ $I->seeResponseContainsJson([
     ]
 ]);
 
-$I->seeResponseJsonMatchesXpath('//data/sources/test/folders');
-$I->dontSeeResponseJsonMatchesXpath('//data/sources/folder1/folders');
+$I->seeResponseJsonMatchesXpath('//data/sources/0/folders');
+$I->dontSeeResponseJsonMatchesXpath('//data/sources/1/folders');

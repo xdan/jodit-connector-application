@@ -52,16 +52,55 @@ class Config {
 		'baseurl' => '',
 		'root' => '',
 		'extensions' => [
-			'jpg', 'png', 'gif', 'jpeg', 'bmp', 'ico', 'jpeg', 'psd', 'svg', 'ttf', 'tif', 'ai',
-			'txt', 'css', 'html', 'js', 'htm', 'ini', 'xml',
-			'zip', 'rar', '7z', 'gz', 'tar',
-			'pps', 'ppt', 'pptx', 'odp', 'xls', 'xlsx', 'csv',
-			'doc', 'docx', 'pdf', 'rtf', '', '', '',
-			'avi', 'flv', '3gp', 'mov', 'mkv', 'mp4', 'wmv',
+			'jpg',
+			'png',
+			'gif',
+			'jpeg',
+			'bmp',
+			'ico',
+			'jpeg',
+			'psd',
+			'svg',
+			'ttf',
+			'tif',
+			'ai',
+			'txt',
+			'css',
+			'html',
+			'js',
+			'htm',
+			'ini',
+			'xml',
+			'zip',
+			'rar',
+			'7z',
+			'gz',
+			'tar',
+			'pps',
+			'ppt',
+			'pptx',
+			'odp',
+			'xls',
+			'xlsx',
+			'csv',
+			'doc',
+			'docx',
+			'pdf',
+			'rtf',
+			'',
+			'',
+			'',
+			'avi',
+			'flv',
+			'3gp',
+			'mov',
+			'mkv',
+			'mp4',
+			'wmv',
 		],
 		'imageExtensions' => ['jpg', 'png', 'gif', 'jpeg', 'bmp', 'svg', 'ico'],
 		'maxImageWidth' => 1900,
-		'maxImageHeight' => 1900
+		'maxImageHeight' => 1900,
 	];
 
 	private $data = [];
@@ -90,27 +129,34 @@ class Config {
 	 */
 	function __construct($data, $parent = null) {
 		$this->parent = $parent;
-		$data = (object)$data;
+		$data = (object) $data;
 		$this->data = $data;
 
 		if ($parent === null) {
 			if (!$this->baseurl) {
-				$this->baseurl = ((isset($_SERVER['HTTPS']) and $_SERVER['HTTPS']) ? 'https://' : 'http://') . (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '') . '/';
+				$this->baseurl =
+					((isset($_SERVER['HTTPS']) and $_SERVER['HTTPS'])
+						? 'https://'
+						: 'http://') .
+					(isset($_SERVER['HTTP_HOST'])
+						? $_SERVER['HTTP_HOST']
+						: '') .
+					'/';
 			}
 			$this->parent = new Config(self::$defaultOptions, false);
 		}
 
-
-
-		if (isset($data->sources) and is_array($data->sources) and count($data->sources)) {
+		if (
+			isset($data->sources) and
+			is_array($data->sources) and
+			count($data->sources)
+		) {
 			foreach ($data->sources as $key => $source) {
 				$this->sources[$key] = new Config($source, $this);
 			}
 		} else {
 			$this->sources['default'] = $this;
 		}
-
-
 	}
 
 	/**
@@ -121,15 +167,20 @@ class Config {
 	 */
 	public function getRoot() {
 		if ($this->root) {
-
 			if (!is_dir($this->root)) {
-				throw new \Exception('Root directory not exists ' . $this->root, Consts::ERROR_CODE_NOT_EXISTS);
+				throw new \Exception(
+					'Root directory not exists ' . $this->root,
+					Consts::ERROR_CODE_NOT_EXISTS
+				);
 			}
 
 			return realpath($this->root) . Consts::DS;
 		}
 
-		throw new \Exception('Set root directory for source', Consts::ERROR_CODE_NOT_IMPLEMENTED);
+		throw new \Exception(
+			'Set root directory for source',
+			Consts::ERROR_CODE_NOT_IMPLEMENTED
+		);
 	}
 
 	/**
@@ -139,7 +190,7 @@ class Config {
 	 * @return bool|string
 	 * @throws \Exception
 	 */
-	public function getPath ($relativePath = false) {
+	public function getPath($relativePath = false) {
 		$root = $this->getRoot();
 
 		if ($relativePath === false) {
@@ -147,18 +198,24 @@ class Config {
 		}
 
 		//always check whether we are below the root category is not reached
-		if (realpath($root . $relativePath) && strpos(realpath($root . $relativePath) . Consts::DS, $root) !== false) {
+		if (
+			realpath($root . $relativePath) &&
+			strpos(realpath($root . $relativePath) . Consts::DS, $root) !==
+				false
+		) {
 			$root = realpath($root . $relativePath);
 			if (is_dir($root)) {
 				$root .= Consts::DS;
 			}
 		} else {
-			throw new \Exception('Path does not exist', Consts::ERROR_CODE_NOT_EXISTS);
+			throw new \Exception(
+				'Path does not exist',
+				Consts::ERROR_CODE_NOT_EXISTS
+			);
 		}
 
 		return $root;
 	}
-
 
 	/**
 	 * Get source by name
@@ -173,7 +230,7 @@ class Config {
 		}
 
 		foreach ($this->sources as $key => $item) {
-			if ((!$sourceName || $sourceName === $key)) {
+			if (!$sourceName || $sourceName === $key) {
 				return $item;
 			}
 
@@ -200,10 +257,17 @@ class Config {
 			$source = $this->getSource($sourceName);
 
 			if (!$source) {
-				throw new \Exception('Source not found', Consts::ERROR_CODE_NOT_EXISTS);
+				throw new \Exception(
+					'Source not found',
+					Consts::ERROR_CODE_NOT_EXISTS
+				);
 			}
 
-			Jodit::$app->accessControl->checkPermission(Jodit::$app->getUserRole(), Jodit::$app->action, $source->getPath());
+			Jodit::$app->accessControl->checkPermission(
+				Jodit::$app->getUserRole(),
+				Jodit::$app->action,
+				$source->getPath()
+			);
 
 			return $source;
 		}
@@ -213,11 +277,16 @@ class Config {
 				try {
 					$source = $item->getCompatibleSource(false);
 					return $source;
-				} catch (\Exception $e) {}
+				} catch (\Exception $e) {
+				}
 			}
 		}
 
-		Jodit::$app->accessControl->checkPermission(Jodit::$app->getUserRole(), Jodit::$app->action, $this->getPath());
+		Jodit::$app->accessControl->checkPermission(
+			Jodit::$app->getUserRole(),
+			Jodit::$app->action,
+			$this->getPath()
+		);
 
 		return $this;
 	}

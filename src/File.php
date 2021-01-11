@@ -23,7 +23,10 @@ class File {
 		$path = realpath($path);
 
 		if (!$path) {
-			throw new \Exception('File not exists', Consts::ERROR_CODE_NOT_EXISTS);
+			throw new \Exception(
+				'File not exists',
+				Consts::ERROR_CODE_NOT_EXISTS
+			);
 		}
 
 		$this->path = $path;
@@ -38,11 +41,19 @@ class File {
 	public function isGoodFile(Config $source) {
 		$info = pathinfo($this->path);
 
-		if (!isset($info['extension']) or (!in_array(strtolower($info['extension']), $source->extensions))) {
+		if (
+			!isset($info['extension']) or
+			!in_array(strtolower($info['extension']), $source->extensions)
+		) {
 			return false;
 		}
 
-		if (in_array(strtolower($info['extension']), $source->imageExtensions) and !$this->isImage()) {
+		if (
+			in_array(
+				strtolower($info['extension']),
+				$source->imageExtensions
+			) and !$this->isImage()
+		) {
 			return false;
 		}
 
@@ -54,11 +65,17 @@ class File {
 	 */
 	public function remove() {
 		$file = basename($this->path);
-		$thumb = dirname($this->path) . Consts::DS . Jodit::$app->getSource()->thumbFolderName . Consts::DS . $file;
+		$thumb =
+			dirname($this->path) .
+			Consts::DS .
+			Jodit::$app->getSource()->thumbFolderName .
+			Consts::DS .
+			$file;
 
 		if (file_exists($thumb)) {
 			unlink($thumb);
-			if (!count(glob(dirname($thumb) . Consts::DS . "*"))) {
+
+			if (!count(glob(dirname($thumb) . Consts::DS . '*'))) {
 				rmdir(dirname($thumb));
 			}
 		}
@@ -110,20 +127,22 @@ class File {
 
 	function getPathByRoot(Config $source) {
 		$path = preg_replace('#[\\\\/]#', '/', $this->getPath());
-		$root = preg_replace('#[\\\\/]#', '/',  $source->getPath());
+		$root = preg_replace('#[\\\\/]#', '/', $source->getPath());
 
 		return str_replace($root, '', $path);
 	}
-
 
 	/**
 	 * Check by mimetype what file is image
 	 *
 	 * @return bool
 	 */
-	 public function isImage() {
+	public function isImage() {
 		try {
-			if (!function_exists('exif_imagetype') && !function_exists('Jodit\exif_imagetype')) {
+			if (
+				!function_exists('exif_imagetype') &&
+				!function_exists('Jodit\exif_imagetype')
+			) {
 				function exif_imagetype($filename) {
 					if ((list(, , $type) = getimagesize($filename)) !== false) {
 						return $type;
@@ -133,7 +152,12 @@ class File {
 				}
 			}
 
-			return in_array(exif_imagetype($this->getPath()), [IMAGETYPE_GIF, IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_BMP]);
+			return in_array(exif_imagetype($this->getPath()), [
+				IMAGETYPE_GIF,
+				IMAGETYPE_JPEG,
+				IMAGETYPE_PNG,
+				IMAGETYPE_BMP,
+			]);
 		} catch (\Exception $e) {
 			return false;
 		}

@@ -22,16 +22,17 @@ namespace Jodit;
  */
 class Request {
 	private $_raw_data = [];
+
 	function __construct() {
 		$data = file_get_contents('php://input');
+
 		if ($data) {
-			switch ($_SERVER["CONTENT_TYPE"]) {
+			switch ($_SERVER['CONTENT_TYPE']) {
 				case 'application/json':
-					$this->_raw_data =  json_decode($data, true);
+					$this->_raw_data = json_decode($data, true);
 					break;
 				default:
 					parse_str($data, $this->_raw_data);
-
 			}
 		}
 	}

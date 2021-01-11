@@ -21,7 +21,6 @@ abstract class Helper {
 		8 => 'A PHP extension stopped the file upload.',
 	];
 
-
 	/**
 	 * Convert number bytes to human format
 	 *
@@ -30,9 +29,10 @@ abstract class Helper {
 	 * @return string
 	 */
 	static function humanFileSize($bytes, $decimals = 2) {
-		$size = ['B','kB','MB','GB','TB','PB','EB','ZB','YB'];
+		$size = ['B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
 		$factor = floor((strlen($bytes) - 1) / 3);
-		return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)) . $size[(int)$factor];
+		return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)) .
+			$size[(int) $factor];
 	}
 
 	/**
@@ -43,27 +43,89 @@ abstract class Helper {
 	 */
 	static function convertToBytes($from) {
 		if (is_numeric($from)) {
-			return (int)$from;
+			return (int) $from;
 		}
 
 		$number = substr($from, 0, -2);
-		$formats = ["KB", "MB", "GB", "TB"];
+		$formats = ['KB', 'MB', 'GB', 'TB'];
 		$format = strtoupper(substr($from, -2));
 
-		return in_array($format, $formats) ? (int)($number * pow(1024, array_search($format, $formats) + 1)) : (int)$from;
+		return in_array($format, $formats)
+			? (int) ($number * pow(1024, array_search($format, $formats) + 1))
+			: (int) $from;
 	}
 
-	static function translit ($str) {
-		$str = (string)$str;
+	static function translit($str) {
+		$str = (string) $str;
 
 		$replace = [
-			'а'=>'a','б'=>'b','в'=>'v','г'=>'g','д'=>'d','е'=>'e','ё'=>'yo','ж'=>'zh','з'=>'z','и'=>'i','й'=>'y',
-			'к'=>'k','л'=>'l','м'=>'m','н'=>'n','о'=>'o','п'=>'p','р'=>'r','с'=>'s','т'=>'t','у'=>'u','ф'=>'f',
-			'х'=>'h','ц'=>'ts','ч'=>'ch','ш'=>'sh','щ'=>'shch','ъ'=>'','ы'=>'i','ь'=>'','э'=>'e','ю'=>'yu','я'=>'ya',
-			' '=>'-',
-			'А'=>'A','Б'=>'B','В'=>'V','Г'=>'G','Д'=>'D','Е'=>'E','Ё'=>'Yo','Ж'=>'Zh','З'=>'Z','И'=>'I','Й'=>'Y',
-			'К'=>'K','Л'=>'L','М'=>'M','Н'=>'N','О'=>'O','П'=>'P','Р'=>'R','С'=>'S','Т'=>'T','У'=>'U','Ф'=>'F',
-			'Х'=>'H','Ц'=>'Ts','Ч'=>'CH','Ш'=>'Sh','Щ'=>'Shch','Ъ'=>'','Ы'=>'I','Ь'=>'','Э'=>'E','Ю'=>'Yu','Я'=>'Ya',
+			'а' => 'a',
+			'б' => 'b',
+			'в' => 'v',
+			'г' => 'g',
+			'д' => 'd',
+			'е' => 'e',
+			'ё' => 'yo',
+			'ж' => 'zh',
+			'з' => 'z',
+			'и' => 'i',
+			'й' => 'y',
+			'к' => 'k',
+			'л' => 'l',
+			'м' => 'm',
+			'н' => 'n',
+			'о' => 'o',
+			'п' => 'p',
+			'р' => 'r',
+			'с' => 's',
+			'т' => 't',
+			'у' => 'u',
+			'ф' => 'f',
+			'х' => 'h',
+			'ц' => 'ts',
+			'ч' => 'ch',
+			'ш' => 'sh',
+			'щ' => 'shch',
+			'ъ' => '',
+			'ы' => 'i',
+			'ь' => '',
+			'э' => 'e',
+			'ю' => 'yu',
+			'я' => 'ya',
+			' ' => '-',
+			'А' => 'A',
+			'Б' => 'B',
+			'В' => 'V',
+			'Г' => 'G',
+			'Д' => 'D',
+			'Е' => 'E',
+			'Ё' => 'Yo',
+			'Ж' => 'Zh',
+			'З' => 'Z',
+			'И' => 'I',
+			'Й' => 'Y',
+			'К' => 'K',
+			'Л' => 'L',
+			'М' => 'M',
+			'Н' => 'N',
+			'О' => 'O',
+			'П' => 'P',
+			'Р' => 'R',
+			'С' => 'S',
+			'Т' => 'T',
+			'У' => 'U',
+			'Ф' => 'F',
+			'Х' => 'H',
+			'Ц' => 'Ts',
+			'Ч' => 'CH',
+			'Ш' => 'Sh',
+			'Щ' => 'Shch',
+			'Ъ' => '',
+			'Ы' => 'I',
+			'Ь' => '',
+			'Э' => 'E',
+			'Ю' => 'Yu',
+			'Я' => 'Ya',
 		];
 
 		$str = strtr($str, $replace);
@@ -77,7 +139,6 @@ abstract class Helper {
 		return trim(preg_replace($regex, '', $file));
 	}
 
-
 	/**
 	 * Download remote file on server
 	 *
@@ -90,14 +151,14 @@ abstract class Helper {
 			throw new \Exception('allow_url_fopen is disable', 501);
 		}
 
-        $message = "File was not loaded";
+		$message = 'File was not loaded';
 
 		if (function_exists('curl_init')) {
-		    try {
-                $raw = file_get_contents($url);
-            } catch (\Exception $e) {
-                throw new \Exception($message, Consts::ERROR_CODE_BAD_REQUEST);
-            }
+			try {
+				$raw = file_get_contents($url);
+			} catch (\Exception $e) {
+				throw new \Exception($message, Consts::ERROR_CODE_BAD_REQUEST);
+			}
 		} else {
 			$ch = curl_init($url);
 
@@ -106,26 +167,33 @@ abstract class Helper {
 			curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
 			curl_setopt($ch, CURLOPT_BINARYTRANSFER, 1);
 			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-			curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);// таймаут4
+			curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30); // таймаут4
 
 			$response = parse_url($url);
-			curl_setopt($ch, CURLOPT_REFERER, $response['scheme'] . '://' . $response['host']);
-			curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_3) ' .
-                'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.99 YaBrowser/19.1.1.907 Yowser/2.5 Safari/537.36');
-
+			curl_setopt(
+				$ch,
+				CURLOPT_REFERER,
+				$response['scheme'] . '://' . $response['host']
+			);
+			curl_setopt(
+				$ch,
+				CURLOPT_USERAGENT,
+				'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_3) ' .
+					'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.99 YaBrowser/19.1.1.907 Yowser/2.5 Safari/537.36'
+			);
 
 			$raw = curl_exec($ch);
 
-            if (!$raw) {
-                throw new \Exception($message, Consts::ERROR_CODE_BAD_REQUEST);
-            }
+			if (!$raw) {
+				throw new \Exception($message, Consts::ERROR_CODE_BAD_REQUEST);
+			}
 
-            curl_close($ch);
-        }
+			curl_close($ch);
+		}
 
-        if ($raw) {
-            file_put_contents($destinationFilename, $raw);
-        } else {
+		if ($raw) {
+			file_put_contents($destinationFilename, $raw);
+		} else {
 			throw new \Exception($message, Consts::ERROR_CODE_BAD_REQUEST);
 		}
 	}
@@ -146,9 +214,13 @@ abstract class Helper {
 	 * @return string
 	 */
 	static function CamelCase($string) {
-		$string = preg_replace_callback('#([_])(\w)#', function ($m) {
-			return strtoupper($m[2]);
-		}, strtolower($string));
+		$string = preg_replace_callback(
+			'#([_])(\w)#',
+			function ($m) {
+				return strtoupper($m[2]);
+			},
+			strtolower($string)
+		);
 
 		return ucfirst($string);
 	}
@@ -156,20 +228,20 @@ abstract class Helper {
 	/**
 	 * @param string $dirPath
 	 */
-	static function deleteDir($dirPath) {
+	static function removeDirectory(string $dirPath) {
 		if (!is_dir($dirPath)) {
-			throw new InvalidArgumentException("$dirPath must be a directory");
+			throw new \InvalidArgumentException("$dirPath must be a directory");
 		}
 
-		if (substr($dirPath, strlen($dirPath) - 1, 1) != '/') {
-			$dirPath .= '/';
+		if (substr($dirPath, strlen($dirPath) - 1, 1) != Consts::DS) {
+			$dirPath .= Consts::DS;
 		}
 
 		$files = glob($dirPath . '*', GLOB_MARK);
 
 		foreach ($files as $file) {
 			if (is_dir($file)) {
-				self::deleteDir($file);
+				self::removeDirectory($file);
 			} else {
 				unlink($file);
 			}
@@ -178,7 +250,46 @@ abstract class Helper {
 		rmdir($dirPath);
 	}
 
-	static public function NormalizePath($path) {
+	/**
+	 * @param string $dirPath
+	 */
+	static function copy(string $source, string $dest) {
+		if (!file_exists($source)) {
+			throw new \InvalidArgumentException(
+				"$source must be file or directory"
+			);
+		}
+
+		if (is_file($source)) {
+			return copy($source, $dest);
+		}
+
+		if (!is_dir($dest)) {
+			mkdir($dest, fileperms($source));
+		}
+
+		$dir_handle = opendir($source);
+		$DS = Consts::DS;
+
+		while ($file = readdir($dir_handle)) {
+			if ($file != '.' && $file != '..') {
+				if (is_dir($source . $DS . $file)) {
+					if (!is_dir($dest . $DS . $file)) {
+						mkdir(
+							$dest . $DS . $file,
+							fileperms($source . $DS . $file)
+						);
+					}
+				}
+
+				self::copy($source . $DS . $file, $dest . $DS . $file);
+			}
+		}
+
+		closedir($dir_handle);
+	}
+
+	public static function NormalizePath($path) {
 		return preg_replace('#[\\\\/]+#', '/', $path);
 	}
 }

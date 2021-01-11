@@ -12,7 +12,6 @@ namespace Jodit;
 use abeautifulsite\SimpleImage;
 
 abstract class BaseApplication {
-
 	/**
 	 * @property Response $response
 	 */
@@ -22,7 +21,6 @@ abstract class BaseApplication {
 	 * @property Request $request
 	 */
 	public $request;
-
 
 	/**
 	 * @property string $action
@@ -49,37 +47,42 @@ abstract class BaseApplication {
 		if (isset($_SERVER['HTTP_ORIGIN'])) {
 			header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
 		} else {
-			header("Access-Control-Allow-Origin: *");
+			header('Access-Control-Allow-Origin: *');
 		}
 
 		header('Access-Control-Allow-Credentials: true');
-		header('Access-Control-Allow-Headers: Origin,X-Requested-With,Content-Type,Accept');
-		header('Access-Control-Max-Age: 86400');    // cache for 1 day
+		header(
+			'Access-Control-Allow-Headers: Origin,X-Requested-With,Content-Type,Accept'
+		);
+		header('Access-Control-Max-Age: 86400'); // cache for 1 day
 
 		if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 			if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD'])) {
-				header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+				header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 			}
 
 			exit(0);
 		}
-
 	}
 
 	public function display() {
-
 		if ($this->config && !$this->config->debug) {
 			if (ob_get_length()) {
 				ob_end_clean();
 			}
 			header('Content-Type: application/json');
 		} else {
-			$this->response->eslapsedTime = microtime(true) - $this->startedTime;
+			$this->response->eslapsedTime =
+				microtime(true) - $this->startedTime;
 		}
 
-
-		echo json_encode($this->response, (!$this->config or $this->config->debug) ? JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES : 0);
-		die;
+		echo json_encode(
+			$this->response,
+			(!$this->config or $this->config->debug)
+				? JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
+				: 0
+		);
+		die();
 	}
 
 	/**
@@ -88,20 +91,30 @@ abstract class BaseApplication {
 	 * @return string
 	 */
 	public function getUserRole() {
-		return isset($_SESSION[$this->config->roleSessionVar]) ? $_SESSION[$this->config->roleSessionVar] : $this->config->defaultRole;
+		return isset($_SESSION[$this->config->roleSessionVar])
+			? $_SESSION[$this->config->roleSessionVar]
+			: $this->config->defaultRole;
 	}
 
 	public function execute() {
 		$methods = get_class_methods($this);
 
 		if (!in_array('action' . ucfirst($this->action), $methods)) {
-			throw new \Exception('Action "' . htmlspecialchars($this->action) . '" not found', Consts::ERROR_CODE_NOT_EXISTS);
+			throw new \Exception(
+				'Action "' . htmlspecialchars($this->action) . '" not found',
+				Consts::ERROR_CODE_NOT_EXISTS
+			);
 		}
 
-		$this->accessControl->checkPermission($this->getUserRole(), $this->action);
+		$this->accessControl->checkPermission(
+			$this->getUserRole(),
+			$this->action
+		);
 
-		$this->response->data = (object)call_user_func_array([$this, 'action' . $this->action], []);
-
+		$this->response->data = (object) call_user_func_array(
+			[$this, 'action' . $this->action],
+			[]
+		);
 
 		$this->response->success = true;
 		$this->response->data->code = 220;
@@ -133,7 +146,13 @@ abstract class BaseApplication {
 		$this->accessControl = new AccessControl();
 
 		set_error_handler(function ($errno, $errstr, $errfile, $errline) {
-			throw new \Exception($errstr . ((!$this->config or $this->config->debug) ? ' - file:' . $errfile . ' line:' . $errline : ''), 501);
+			throw new \Exception(
+				$errstr .
+					((!$this->config or $this->config->debug)
+						? ' - file:' . $errfile . ' line:' . $errline
+						: ''),
+				501
+			);
 		});
 
 		set_exception_handler([$this, 'exceptionHandler']);
@@ -148,7 +167,6 @@ abstract class BaseApplication {
 
 		$this->action = $this->request->action;
 
-
 		$this->accessControl->setAccessList($this->config->accessControl);
 		Jodit::$app = $this;
 	}
@@ -159,25 +177,35 @@ abstract class BaseApplication {
 
 		$file = $this->request->name;
 
-		$box = (object)['w' => 0, 'h' => 0, 'x' => 0, 'y' => 0,];
+		$box = (object) ['w' => 0, 'h' => 0, 'x' => 0, 'y' => 0];
 
 		if ($this->request->box && is_array($this->request->box)) {
 			foreach ($box as $key => &$value) {
-				$value = isset($this->request->box[$key]) ? $this->request->box[$key] : 0;
+				$value = isset($this->request->box[$key])
+					? $this->request->box[$key]
+					: 0;
 			}
 		}
 
-		$newName = $this->request->newname ? Helper::makeSafe($this->request->newname) : '';
+		$newName = $this->request->newname
+			? Helper::makeSafe($this->request->newname)
+			: '';
 
-		if (!$path || !$file || !file_exists($path . $file) || !is_file($path . $file)) {
-			throw new \Exception('File not exists', Consts::ERROR_CODE_NOT_EXISTS);
+		if (
+			!$path ||
+			!$file ||
+			!file_exists($path . $file) ||
+			!is_file($path . $file)
+		) {
+			throw new \Exception(
+				'File not exists',
+				Consts::ERROR_CODE_NOT_EXISTS
+			);
 		}
 
 		$img = new SimpleImage();
 
-
 		$img->load($path . $file);
-
 
 		if ($newName) {
 			$info = pathinfo($path . $file);
@@ -187,20 +215,40 @@ abstract class BaseApplication {
 				$newName = $newName . '.' . $info['extension'];
 			}
 
-			if (!$this->config->allowReplaceSourceFile and file_exists($path . $newName)) {
-				throw new \Exception('File ' . $newName . ' already exists', Consts::ERROR_CODE_BAD_REQUEST);
+			if (
+				!$this->config->allowReplaceSourceFile and
+				file_exists($path . $newName)
+			) {
+				throw new \Exception(
+					'File ' . $newName . ' already exists',
+					Consts::ERROR_CODE_BAD_REQUEST
+				);
 			}
 		} else {
 			$newName = $file;
 		}
 
-		if (file_exists($path . $this->config->thumbFolderName . Consts::DS . $newName)) {
-			unlink($path . $this->config->thumbFolderName . Consts::DS . $newName);
+		if (
+			file_exists(
+				$path . $this->config->thumbFolderName . Consts::DS . $newName
+			)
+		) {
+			unlink(
+				$path . $this->config->thumbFolderName . Consts::DS . $newName
+			);
 		}
 
 		$info = $img->get_original_info();
 
-		return (object)['path' => $path, 'file' => $file, 'box' => $box, 'newname' => $newName, 'img' => $img, 'width' => $info['width'], 'height' => $info['height'],];
+		return (object) [
+			'path' => $path,
+			'file' => $file,
+			'box' => $box,
+			'newname' => $newName,
+			'img' => $img,
+			'width' => $info['width'],
+			'height' => $info['height'],
+		];
 	}
 
 	/**
@@ -214,7 +262,10 @@ abstract class BaseApplication {
 		if (!$this->config or $this->config->debug) {
 			do {
 				$traces = $e->getTrace();
-				$this->response->data->messages[] = implode(' - ', [$e->getFile(), $e->getLine()]);
+				$this->response->data->messages[] = implode(' - ', [
+					$e->getFile(),
+					$e->getLine(),
+				]);
 				foreach ($traces as $trace) {
 					$line = [];
 					if (isset($trace['file'])) {
@@ -249,10 +300,21 @@ abstract class BaseApplication {
 		$output = [];
 
 		try {
-			if (isset($files) and is_array($files) and isset($files['name']) and is_array($files['name']) and count($files['name'])) {
+			if (
+				isset($files) and
+				is_array($files) and
+				isset($files['name']) and
+				is_array($files['name']) and
+				count($files['name'])
+			) {
 				foreach ($files['name'] as $i => $file) {
 					if ($files['error'][$i]) {
-						throw new \Exception(isset(Helper::$upload_errors[$files['error'][$i]]) ? Helper::$upload_errors[$files['error'][$i]] : 'Error', $files['error'][$i]);
+						throw new \Exception(
+							isset(Helper::$upload_errors[$files['error'][$i]])
+								? Helper::$upload_errors[$files['error'][$i]]
+								: 'Error',
+							$files['error'][$i]
+						);
 					}
 
 					$path = $source->getPath();
@@ -261,16 +323,27 @@ abstract class BaseApplication {
 
 					if (!move_uploaded_file($tmp_name, $new_path)) {
 						if (!is_writable($path)) {
-							throw new \Exception('Destination directory is not writeble', Consts::ERROR_CODE_IS_NOT_WRITEBLE);
+							throw new \Exception(
+								'Destination directory is not writeble',
+								Consts::ERROR_CODE_IS_NOT_WRITEBLE
+							);
 						}
 
-						throw new \Exception('No files have been uploaded', Consts::ERROR_CODE_NO_FILES_UPLOADED);
+						throw new \Exception(
+							'No files have been uploaded',
+							Consts::ERROR_CODE_NO_FILES_UPLOADED
+						);
 					}
 
 					$file = new File($new_path);
 
 					try {
-						$this->accessControl->checkPermission($this->getUserRole(), $this->action, $source->getRoot(), pathinfo($file->getPath(), PATHINFO_EXTENSION));
+						$this->accessControl->checkPermission(
+							$this->getUserRole(),
+							$this->action,
+							$source->getRoot(),
+							pathinfo($file->getPath(), PATHINFO_EXTENSION)
+						);
 					} catch (\Exception $e) {
 						$file->remove();
 						throw $e;
@@ -278,12 +351,22 @@ abstract class BaseApplication {
 
 					if (!$file->isGoodFile($source)) {
 						$file->remove();
-						throw new \Exception('File type is not in white list', Consts::ERROR_CODE_FORBIDDEN);
+						throw new \Exception(
+							'File type is not in white list',
+							Consts::ERROR_CODE_FORBIDDEN
+						);
 					}
 
-					if ($source->maxFileSize and $file->getSize() > Helper::convertToBytes($source->maxFileSize)) {
+					if (
+						$source->maxFileSize and
+						$file->getSize() >
+							Helper::convertToBytes($source->maxFileSize)
+					) {
 						$file->remove();
-						throw new \Exception('File size exceeds the allowable', Consts::ERROR_CODE_FORBIDDEN);
+						throw new \Exception(
+							'File size exceeds the allowable',
+							Consts::ERROR_CODE_FORBIDDEN
+						);
 					}
 
 					$output[] = $file;
@@ -307,17 +390,28 @@ abstract class BaseApplication {
 	 * @return object
 	 * @throws \Exception
 	 */
-	public function read(Config $source) {
+	function read(Config $source) {
 		$path = $source->getPath();
 
-		$sourceData = (object)['baseurl' => $source->baseurl, 'path' => str_replace(realpath($source->getRoot()) . Consts::DS, '', $path), 'files' => [],];
+		$sourceData = (object) [
+			'baseurl' => $source->baseurl,
+			'path' => str_replace(
+				realpath($source->getRoot()) . Consts::DS,
+				'',
+				$path
+			),
+			'files' => [],
+		];
 
 		try {
-			$this->accessControl->checkPermission($this->getUserRole(), $this->action, $path);
+			$this->accessControl->checkPermission(
+				$this->getUserRole(),
+				$this->action,
+				$path
+			);
 		} catch (\Exception $e) {
 			return $sourceData;
 		}
-
 
 		$dir = opendir($path);
 
@@ -328,13 +422,19 @@ abstract class BaseApplication {
 				$file = new File($path . $file);
 
 				if ($file->isGoodFile($source)) {
-					$item = ['file' => $file->getPathByRoot($source),];
+					$item = ['file' => $file->getPathByRoot($source)];
 
 					if ($config->createThumb || !$file->isImage()) {
-						$item['thumb'] = Image::getThumb($file, $source)->getPathByRoot($source);
+						$item['thumb'] = Image::getThumb(
+							$file,
+							$source
+						)->getPathByRoot($source);
 					}
 
-					$item['changed'] = date($config->datetimeFormat, $file->getTime());
+					$item['changed'] = date(
+						$config->datetimeFormat,
+						$file->getTime()
+					);
 					$item['size'] = Helper::humanFileSize($file->getSize());
 					$item['isImage'] = $file->isImage();
 
@@ -360,7 +460,10 @@ abstract class BaseApplication {
 		$source = $this->config->getSource($this->request->source);
 
 		if (!$source) {
-			throw new \Exception('Source not found', Consts::ERROR_CODE_NOT_EXISTS);
+			throw new \Exception(
+				'Source not found',
+				Consts::ERROR_CODE_NOT_EXISTS
+			);
 		}
 
 		return $source;
@@ -371,36 +474,57 @@ abstract class BaseApplication {
 		$sourceName = Helper::makeSafe($this->request->name);
 		$fromPath = $source->getPath() . $sourceName;
 
-		$this->accessControl->checkPermission($this->getUserRole(), $this->action, $fromPath);
+		$this->accessControl->checkPermission(
+			$this->getUserRole(),
+			$this->action,
+			$fromPath
+		);
 
 		$newName = Helper::makeSafe($this->request->newname);
 		$destinationPath = $source->getPath() . $newName;
 
-		$this->accessControl->checkPermission($this->getUserRole(), $this->action, $destinationPath);
-
+		$this->accessControl->checkPermission(
+			$this->getUserRole(),
+			$this->action,
+			$destinationPath
+		);
 
 		if (!$fromPath) {
-			throw new \Exception('Need source path', Consts::ERROR_CODE_BAD_REQUEST);
+			throw new \Exception(
+				'Need source path',
+				Consts::ERROR_CODE_BAD_REQUEST
+			);
 		}
 
 		if (!$destinationPath) {
-			throw new \Exception('Need destination path', Consts::ERROR_CODE_BAD_REQUEST);
+			throw new \Exception(
+				'Need destination path',
+				Consts::ERROR_CODE_BAD_REQUEST
+			);
 		}
 
 		if (!is_file($fromPath) and !is_dir($fromPath)) {
-			throw new \Exception('Path not exists', Consts::ERROR_CODE_NOT_EXISTS);
+			throw new \Exception(
+				'Path not exists',
+				Consts::ERROR_CODE_NOT_EXISTS
+			);
 		}
 
 		if (is_file($fromPath)) {
 			$ext = strtolower(pathinfo($fromPath, PATHINFO_EXTENSION));
-			$newExt = strtolower(pathinfo($destinationPath, PATHINFO_EXTENSION));
+			$newExt = strtolower(
+				pathinfo($destinationPath, PATHINFO_EXTENSION)
+			);
 			if ($newExt !== $ext) {
 				$destinationPath .= '.' . $ext;
 			}
 		}
 
 		if (is_file($destinationPath) or is_dir($destinationPath)) {
-			throw new \Exception("New " . basename($destinationPath) . " already exists", Consts::ERROR_CODE_BAD_REQUEST);
+			throw new \Exception(
+				'New ' . basename($destinationPath) . ' already exists',
+				Consts::ERROR_CODE_BAD_REQUEST
+			);
 		}
 
 		rename($fromPath, $destinationPath);

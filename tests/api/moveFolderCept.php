@@ -5,7 +5,10 @@ $I->wantTo('Check moving folder to another directory');
 
 $files_root = realpath(__DIR__ . '/../files') . '/';
 
-mkdir($files_root . 'testMove', 0777);
+if (!file_exists($files_root . 'testMove')) {
+    mkdir($files_root . 'testMove', 0777);
+}
+
 file_put_contents($files_root . 'testMove/test.txt', 'test');
 
 $I->sendGET('?action=folderMove&source=test&from=testMove&path=folder1');

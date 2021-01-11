@@ -14,9 +14,11 @@
     "require": {
         "php": ">=5.4.0",
         "ext-curl": ">=6.0.0",
-        "abeautifulsite/simpleimage": "^2.6"
+        "abeautifulsite/simpleimage": "^2.7",
+        "ext-gd": "*",
+        "ext-json": "*"
     },
     "require-dev": {
-        "codeception/codeception": "^2.3"
+        "codeception/codeception": "^2.5.6"
     }
 }
