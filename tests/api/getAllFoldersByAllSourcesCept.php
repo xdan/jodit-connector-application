@@ -1,4 +1,5 @@
 <?php
+/** @var object $scenario */
 $I = new ApiTester($scenario);
 
 $I->wantTo('Get all folders from all sources');
