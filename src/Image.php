@@ -163,6 +163,7 @@ HTML;
 				} catch (\Exception $e) {
 					return $file;
 				}
+
 			} else {
 				self::generateIcon($file, $thumbName);
 			}
