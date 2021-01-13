@@ -60,63 +60,23 @@ class Image {
 		return 255 - $diff;
 	}
 
-	static function ImageRectangleWithRoundedCorners(
-		&$im,
-		$x1,
-		$y1,
-		$x2,
-		$y2,
-		$radius,
-		$color
-	) {
-		imagefilledrectangle(
-			$im,
-			$x1 + $radius,
-			$y1,
-			$x2 - $radius,
-			$y2,
-			$color
-		);
-		imagefilledrectangle(
-			$im,
-			$x1,
-			$y1 + $radius,
-			$x2,
-			$y2 - $radius,
-			$color
-		);
-		imagefilledellipse(
-			$im,
-			$x1 + $radius,
-			$y1 + $radius,
-			$radius * 2,
-			$radius * 2,
-			$color
-		);
-		imagefilledellipse(
-			$im,
-			$x2 - $radius,
-			$y1 + $radius,
-			$radius * 2,
-			$radius * 2,
-			$color
-		);
-		imagefilledellipse(
-			$im,
-			$x1 + $radius,
-			$y2 - $radius,
-			$radius * 2,
-			$radius * 2,
-			$color
-		);
-		imagefilledellipse(
-			$im,
-			$x2 - $radius,
-			$y2 - $radius,
-			$radius * 2,
-			$radius * 2,
-			$color
-		);
+	static function fromRGB($R, $G, $B) {
+		$R = dechex($R);
+		if (strlen($R) < 2) {
+			$R = '0' . $R;
+		}
+
+		$G = dechex($G);
+		if (strlen($G) < 2) {
+			$G = '0' . $G;
+		}
+
+		$B = dechex($B);
+		if (strlen($B) < 2) {
+			$B = '0' . $B;
+		}
+
+		return '#' . $R . $G . $B;
 	}
 
 	static function generateIcon(
@@ -125,145 +85,47 @@ class Image {
 		$width = 100,
 		$height = 100
 	) {
-		$im = imagecreatetruecolor($width, $height);
-		imageantialias($im, true);
-
-		$black = imagecolorallocate($im, 0, 0, 0);
-		imagecolortransparent($im, $black);
-		$word = $file->getExtension();
+		$word = strtoupper($file->getExtension());
 		$code = ord($word[0]) % count(self::$colors);
 		$color = self::$colors[$code];
 		$darkColor = self::luminate($color, 30);
 		$shadowColor = self::luminate($color, 45);
 
-		$main = imagecolorallocate($im, $color[0], $color[1], $color[2]);
-		$dark = imagecolorallocate(
-			$im,
-			$darkColor[0],
-			$darkColor[1],
-			$darkColor[2]
-		);
-		$shadow = imagecolorallocate(
-			$im,
-			$shadowColor[0],
-			$shadowColor[1],
-			$shadowColor[2]
-		);
-		$white = imagecolorallocate($im, 255, 255, 255);
+		$main = self::fromRGB($color[0], $color[1], $color[2]);
+		$dark = self::fromRGB($darkColor[0], $darkColor[1], $darkColor[2]);
+		$shadow = self::fromRGB($shadowColor[0], $shadowColor[1], $shadowColor[2]);
 
-		$offset = $width / 4;
+		$labelX = 13;
+		$labelY = 55;
+		$labelWidth = strlen($word) < 5 ? 54 : 70;
+		$labelHeight = 22;
+		$textX = $labelX + $labelWidth / 2;
+		$textY = $labelY + $labelHeight / 2 + 2;
 
-		// canvas
-		self::ImageRectangleWithRoundedCorners(
-			$im,
-			$width / 5,
-			0,
-			$width,
-			$height,
-			10,
-			$main
-		);
+		$svg = <<<HTML
+	<svg width="{$width}" height="{$height}" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+		<path d="M20 19C20 14.5817 23.5817 11 28 11H56L80 34.5V82C80 86.4183 76.4183 90 72 90H28C23.5817 90 20 86.4183 20 82V19Z" fill="{$main}"/>
+		<path d="M64.5 56.5L80 72V82.54V82.54C79.7186 86.7384 76.2078 90 72 90V90H52L20.5 77L64.5 56.5Z" fill="{$shadow}" fill-opacity="0.5"/>
+		<g>
+			<rect x="{$labelX}" y="{$labelY}" width="{$labelWidth}" height="{$labelHeight}" rx="4" fill="{$dark}"/>
+			<text
+          x="{$textX}"
+          y="{$textY}"
+          dominant-baseline="middle"
+          text-anchor="middle"
+          fill="white"
+          font-family="Arial"
+          font-size="16"
+      >
+      	{$word}
+      </text>
+		</g>
+		<path d="M79.5 34L80 36.5V42L64 33.5L60.5 31L79.5 34Z" fill="{$shadow}" fill-opacity="0.5"/>
+		<path d="M56 11L80 34.5L66.063 34.1832C61.4741 34.079 57.699 30.538 57.3013 25.9652L56 11Z" fill="{$dark}"/>
+	</svg>
+HTML;
 
-		// label shadow
-		imagefilledpolygon(
-			$im,
-			[
-				$width - $width / 5,
-				$height / 2 + 3,
-				$width,
-				$height / 2 + $height / 6 - 2,
-				$width,
-				$height - 10,
-				$width - 10,
-				$height,
-				$width / 2 + 10,
-				$height,
-				$width / 5,
-				$height - $width / 6,
-			],
-			6,
-			$shadow
-		);
-		imagefilledellipse(
-			$im,
-			$width - 10,
-			$height - 10,
-			10 * 2,
-			10 * 2,
-			$shadow
-		);
-
-		// label
-		self::ImageRectangleWithRoundedCorners(
-			$im,
-			0,
-			$height / 2,
-			$width - $width / 5,
-			$height - $width / 6,
-			5,
-			$dark
-		);
-
-		// crease shadow
-		imagefilledpolygon(
-			$im,
-			[
-				$width - $offset,
-				$offset - 5,
-				$width,
-				$offset - 5,
-				$width,
-				$offset + 10,
-			],
-			3,
-			$shadow
-		);
-
-		// crease
-		self::ImageRectangleWithRoundedCorners(
-			$im,
-			$width - $offset,
-			-$height + $offset,
-			2 * $width - $offset,
-			$offset,
-			10,
-			$dark
-		);
-
-		// transparent right top angle
-		imagefilledpolygon(
-			$im,
-			[$width - $offset, 0, $width, 0, $width, $offset],
-			3,
-			$black
-		);
-
-		// text
-		$box = imagettfbbox(
-			20,
-			0,
-			__DIR__ . '/assets/arial.ttf',
-			strtoupper($word)
-		);
-		$px = ($width - $width / 5 - ($box[2] - $box[0])) / 2;
-		imagettftext(
-			$im,
-			20,
-			0,
-			$px,
-			$height - $height / 4.5,
-			$white,
-			__DIR__ . '/assets/arial.ttf',
-			strtoupper($word)
-		);
-
-		imagepng($im, $iconname);
-		imagecolordeallocate($im, $black);
-		imagecolordeallocate($im, $main);
-		imagecolordeallocate($im, $dark);
-		imagecolordeallocate($im, $shadow);
-		imagecolordeallocate($im, $white);
-		imagedestroy($im);
+		file_put_contents($iconname, $svg);
 	}
 
 	/**
@@ -280,13 +142,14 @@ class Image {
 
 		$thumbName =
 			$path . $config->thumbFolderName . Consts::DS . $file->getName();
+
 		if (!$file->isImage()) {
 			$thumbName =
 				$path .
 				$config->thumbFolderName .
 				Consts::DS .
 				$file->getName() .
-				'.png';
+				'.svg';
 		}
 
 		if (!file_exists($thumbName)) {
