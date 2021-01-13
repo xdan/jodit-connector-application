@@ -15,8 +15,13 @@ composer install
 
 Start PHP server
 ```bash
-php -S localhost:8181 -t ./
+npm start
 ```
+or
+```bash
+cd ./docker && docker-compose up
+```
+
 Run tests
 ```bash
 ./vendor/bin/codecept run

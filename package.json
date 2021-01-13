@@ -4,7 +4,7 @@
   "description": "Official Jodit connector",
   "main": "index.js",
   "scripts": {
-    "start": "php -S localhost:8181 -t ./tests/",
+    "start": "cd ./docker && docker-compose up",
     "test": "./vendor/bin/codecept run",
     "prettier": "prettier ./src/**.php --write --config .prettierrc",
     "newversion": "npm version patch --no-git-tag-version && npm run github",
