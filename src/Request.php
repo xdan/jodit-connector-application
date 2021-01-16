@@ -11,7 +11,6 @@ namespace Jodit;
 
 /**
  * Class Request
- * @package jodit
  * @property string $action
  * @property string $source
  * @property string $name
@@ -21,37 +20,51 @@ namespace Jodit;
  * @property array $box
  */
 class Request {
-	private $_raw_data = [];
+	private $rawData = [];
 
-	function __construct() {
+	public function __construct () {
 		$data = file_get_contents('php://input');
 
 		if ($data) {
 			switch ($_SERVER['CONTENT_TYPE']) {
 				case 'application/json':
-					$this->_raw_data = json_decode($data, true);
+					$this->rawData = json_decode($data, true);
 					break;
 				default:
-					parse_str($data, $this->_raw_data);
+					parse_str($data, $this->rawData);
 			}
 		}
 	}
 
-	function get($key, $default_value = null) {
+	/**
+	 * @param $key
+	 * @param null $default_value
+	 * @return mixed|null
+	 */
+	public function get ($key, $default_value = null) {
 		if (isset($_REQUEST[$key])) {
 			return $_REQUEST[$key];
 		}
-		if (isset($this->_raw_data[$key])) {
-			return $this->_raw_data[$key];
+		if (isset($this->rawData[$key])) {
+			return $this->rawData[$key];
 		}
 		return $default_value;
 	}
 
-	function __get($key) {
+	/**
+	 * @param $key
+	 * @return mixed|null
+	 */
+	public function __get ($key) {
 		return $this->get($key);
 	}
 
-	function post($keys, $default_value = null) {
+	/**
+	 * @param $keys
+	 * @param null $default_value
+	 * @return array|mixed
+	 */
+	public function post ($keys, $default_value = null) {
 		$keys_chain = explode('/', $keys);
 		$result = $_POST;
 
@@ -65,5 +78,12 @@ class Request {
 		}
 
 		return $result;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getMethod() {
+		return strtoupper(getenv('REQUEST_METHOD'));
 	}
 }

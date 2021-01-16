@@ -9,11 +9,13 @@
 
 namespace Jodit;
 
+use Exception;
+
 /**
  * Class Config
  * @property string $thumbFolderName
  * @property bool $allowCrossOrigin
- * @property \Jodit\AccessControl $access
+ * @property AccessControl $access
  * @property bool $createThumb
  * @property bool $debug
  * @property string[] $excludeDirectoryNames
@@ -109,16 +111,89 @@ class Config {
 	 */
 	public $sources = [];
 
-	function __set($key, $value) {
+	public $sourceName = 'default';
+
+	/**
+	 * @var AccessControl
+	 */
+	public $access;
+
+	/**
+	 * @return Config[]
+	 * @throws Exception
+	 */
+	public function getSources() {
+		$sources = [];
+		$request = Jodit::$app->request;
+		$action = Jodit::$app->action;
+
+		foreach ($this->sources as $key => $source) {
+			if (
+				$request->source &&
+				$request->source !== 'default' &&
+				$key !== $request->source &&
+				$request->path !== './'
+			) {
+				continue;
+			}
+
+			$path = $source->getPath();
+
+			try {
+				$this->access->checkPermission(
+					$this->getUserRole(),
+					$action,
+					$path
+				);
+			} catch (Exception $e) {
+				continue;
+			}
+
+			$sources[] = $source;
+		}
+
+		if (count($sources) === 0) {
+			throw new Exception(
+				'Need valid source',
+				Consts::ERROR_CODE_NOT_EXISTS
+			);
+		}
+
+		return $sources;
+	}
+
+	/**
+	 * Get user role
+	 * @return string
+	 */
+	public function getUserRole() {
+		return isset($_SESSION[$this->roleSessionVar])
+			? $_SESSION[$this->roleSessionVar]
+			: $this->defaultRole;
+	}
+
+	/**
+	 * @param $key
+	 * @param $value
+	 */
+	public function __set($key, $value) {
 		$this->data->{$key} = $value;
 	}
 
-	function __get($key) {
+	/**
+	 * @param $key
+	 * @return null
+	 */
+	public function __get($key) {
 		if (isset($this->data->{$key})) {
 			return $this->data->{$key};
 		}
 
-		return $this->parent ? $this->parent->{$key} : null;
+		if ($this->parent) {
+			return $this->parent->{$key};
+		} else {
+			return null;
+		}
 	}
 
 	/**
@@ -126,11 +201,14 @@ class Config {
 	 *
 	 * @param array $data
 	 * @param null | false | Config $parent
+	 * @param string $sourceName
 	 */
-	function __construct($data, $parent = null) {
+	function __construct($data, $parent = null, $sourceName = 'default') {
 		$this->parent = $parent;
 		$data = (object) $data;
 		$this->data = $data;
+		$this->sourceName = $sourceName;
+		$this->access = new AccessControl();
 
 		if ($parent === null) {
 			if (!$this->baseurl) {
@@ -143,6 +221,7 @@ class Config {
 						: '') .
 					'/';
 			}
+
 			$this->parent = new Config(self::$defaultOptions, false);
 		}
 
@@ -152,7 +231,7 @@ class Config {
 			count($data->sources)
 		) {
 			foreach ($data->sources as $key => $source) {
-				$this->sources[$key] = new Config($source, $this);
+				$this->sources[$key] = new Config($source, $this, $key);
 			}
 		} else {
 			$this->sources['default'] = $this;
@@ -163,12 +242,12 @@ class Config {
 	 * Get full path for $source->root with trailing slash
 	 *
 	 * @return string
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function getRoot() {
 		if ($this->root) {
 			if (!is_dir($this->root)) {
-				throw new \Exception(
+				throw new Exception(
 					'Root directory not exists ' . $this->root,
 					Consts::ERROR_CODE_NOT_EXISTS
 				);
@@ -177,7 +256,7 @@ class Config {
 			return realpath($this->root) . Consts::DS;
 		}
 
-		throw new \Exception(
+		throw new Exception(
 			'Set root directory for source',
 			Consts::ERROR_CODE_NOT_IMPLEMENTED
 		);
@@ -186,7 +265,7 @@ class Config {
 	/**
 	 * Get full path for $_REQUEST[$name] relative path with trailing slash(if directory)
 	 *
-	 * @param string $relativePath
+	 * @param string|bool $relativePath
 	 * @return bool|string
 	 * @throws \Exception
 	 */
@@ -208,7 +287,7 @@ class Config {
 				$root .= Consts::DS;
 			}
 		} else {
-			throw new \Exception(
+			throw new Exception(
 				'Path does not exist',
 				Consts::ERROR_CODE_NOT_EXISTS
 			);
@@ -220,9 +299,9 @@ class Config {
 	/**
 	 * Get source by name
 	 *
-	 * @param string  $sourceName
+	 * @param string $sourceName
 	 *
-	 * @return \Jodit\Config | null
+	 * @return Config | null
 	 */
 	public function getSource($sourceName = null) {
 		if ($sourceName === 'default') {
@@ -248,6 +327,11 @@ class Config {
 		return $this;
 	}
 
+	/**
+	 * @param string|null $sourceName
+	 * @return $this|Config
+	 * @throws Exception
+	 */
 	public function getCompatibleSource($sourceName = null) {
 		if ($sourceName === 'default') {
 			$sourceName = null;
@@ -257,14 +341,14 @@ class Config {
 			$source = $this->getSource($sourceName);
 
 			if (!$source) {
-				throw new \Exception(
+				throw new Exception(
 					'Source not found',
 					Consts::ERROR_CODE_NOT_EXISTS
 				);
 			}
 
-			Jodit::$app->accessControl->checkPermission(
-				Jodit::$app->getUserRole(),
+			$this->access->checkPermission(
+				$this->getUserRole(),
 				Jodit::$app->action,
 				$source->getPath()
 			);
@@ -277,13 +361,13 @@ class Config {
 				try {
 					$source = $item->getCompatibleSource(false);
 					return $source;
-				} catch (\Exception $e) {
+				} catch (Exception $e) {
 				}
 			}
 		}
 
-		Jodit::$app->accessControl->checkPermission(
-			Jodit::$app->getUserRole(),
+		$this->access->checkPermission(
+			$this->getUserRole(),
 			Jodit::$app->action,
 			$this->getPath()
 		);

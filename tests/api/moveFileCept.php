@@ -1,11 +1,15 @@
 <?php
+/** @var \Codeception\Scenario $scenario */
+
+use Codeception\Util\HttpCode;
+
 $I = new ApiTester($scenario);
 
 $I->wantTo('Check moving file to another directory');
 
-$I->sendGET('?action=fileMove&source=test&from=artio.jpg&path=folder1');
+$I->sendGet('?action=fileMove&source=test&from=artio.jpg&path=folder1');
 
-$I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK); // 200
+$I->seeResponseCodeIs(HttpCode::OK); // 200
 $I->seeResponseIsJson();
 
 $I->seeResponseContainsJson([
@@ -16,7 +20,7 @@ $I->seeResponseContainsJson([
 ]);
 
 
-$I->sendGET('?action=fileMove&source=test&path=&from=folder1/artio.jpg');
+$I->sendGet('?action=fileMove&source=test&path=&from=folder1/artio.jpg');
 
 
 

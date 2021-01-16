@@ -8,7 +8,7 @@ $files_root = realpath(__DIR__ . '/../files') . '/';
 
 $I->wantTo('Check rename file');
 
-$I->sendGET('?action=folderRename&source=test&name=folder1&path=&newname=folder2');
+$I->sendGet('?action=folderRename&source=test&name=folder1&path=&newname=folder2');
 
 $I->seeResponseCodeIs(HttpCode::OK); // 200
 $I->seeResponseIsJson();
@@ -22,7 +22,7 @@ $I->seeResponseContainsJson([
 
 $I->assertFileExists($files_root . 'folder2');
 
-$I->sendGET('?action=folderRename&source=test&name=folder1&path=&newname=folder2');
+$I->sendGet('?action=folderRename&source=test&name=folder1&path=&newname=folder2');
 
 $I->seeResponseContainsJson([
 	"success" => false,
@@ -32,7 +32,7 @@ $I->seeResponseContainsJson([
 ]);
 
 
-$I->sendGET('?action=folderRename&source=test&name=folder2&path=&newname=ceicom');
+$I->sendGet('?action=folderRename&source=test&name=folder2&path=&newname=ceicom');
 
 $I->seeResponseContainsJson([
 	"success" => false,
@@ -41,7 +41,7 @@ $I->seeResponseContainsJson([
 	]
 ]);
 
-$I->sendGET('?action=folderRename&source=test&name=folder2&path=&newname=folder1');
+$I->sendGet('?action=folderRename&source=test&name=folder2&path=&newname=folder1');
 
 
 $I->assertFileExists($files_root . 'folder1');

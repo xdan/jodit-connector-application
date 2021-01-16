@@ -9,8 +9,15 @@
 
 namespace Jodit;
 
+use Exception;
+use InvalidArgumentException;
+
+/**
+ * Class Helper
+ * @package Jodit
+ */
 abstract class Helper {
-	static $upload_errors = [
+	public static $uploadErrors = [
 		0 => 'There is no error, the file uploaded with success',
 		1 => 'The uploaded file exceeds the upload_max_filesize directive in php.ini',
 		2 => 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form',
@@ -28,9 +35,10 @@ abstract class Helper {
 	 * @param int $decimals
 	 * @return string
 	 */
-	static function humanFileSize($bytes, $decimals = 2) {
+	public static function humanFileSize($bytes, $decimals = 2) {
 		$size = ['B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
 		$factor = floor((strlen($bytes) - 1) / 3);
+
 		return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)) .
 			$size[(int) $factor];
 	}
@@ -41,7 +49,7 @@ abstract class Helper {
 	 * @param {string|int} human readable file size. Example 1gb or 11.2mb
 	 * @return int
 	 */
-	static function convertToBytes($from) {
+	public static function convertToBytes($from) {
 		if (is_numeric($from)) {
 			return (int) $from;
 		}
@@ -55,7 +63,11 @@ abstract class Helper {
 			: (int) $from;
 	}
 
-	static function translit($str) {
+	/**
+	 * @param string $str
+	 * @return string
+	 */
+	public static function translate($str) {
 		$str = (string) $str;
 
 		$replace = [
@@ -133,8 +145,12 @@ abstract class Helper {
 		return $str;
 	}
 
-	static function makeSafe($file) {
-		$file = rtrim(self::translit($file), '.');
+	/**
+	 * @param string $file
+	 * @return string
+	 */
+	public static function makeSafe($file) {
+		$file = rtrim(self::translate($file), '.');
 		$regex = ['#(\.){2,}#', '#[^A-Za-z0-9\.\_\- ]#', '#^\.#'];
 		return trim(preg_replace($regex, '', $file));
 	}
@@ -144,11 +160,11 @@ abstract class Helper {
 	 *
 	 * @param string $url
 	 * @param string $destinationFilename
-	 * @throws \Exception
+	 * @throws Exception
 	 */
-	static function downloadRemoteFile($url, $destinationFilename) {
+	public static function downloadRemoteFile($url, $destinationFilename) {
 		if (!ini_get('allow_url_fopen')) {
-			throw new \Exception('allow_url_fopen is disable', 501);
+			throw new Exception('allow_url_fopen is disable', 501);
 		}
 
 		$message = 'File was not loaded';
@@ -156,8 +172,8 @@ abstract class Helper {
 		if (function_exists('curl_init')) {
 			try {
 				$raw = file_get_contents($url);
-			} catch (\Exception $e) {
-				throw new \Exception($message, Consts::ERROR_CODE_BAD_REQUEST);
+			} catch (Exception $e) {
+				throw new Exception($message, Consts::ERROR_CODE_BAD_REQUEST);
 			}
 		} else {
 			$ch = curl_init($url);
@@ -185,7 +201,7 @@ abstract class Helper {
 			$raw = curl_exec($ch);
 
 			if (!$raw) {
-				throw new \Exception($message, Consts::ERROR_CODE_BAD_REQUEST);
+				throw new Exception($message, Consts::ERROR_CODE_BAD_REQUEST);
 			}
 
 			curl_close($ch);
@@ -194,16 +210,15 @@ abstract class Helper {
 		if ($raw) {
 			file_put_contents($destinationFilename, $raw);
 		} else {
-			throw new \Exception($message, Consts::ERROR_CODE_BAD_REQUEST);
+			throw new Exception($message, Consts::ERROR_CODE_BAD_REQUEST);
 		}
 	}
 
 	/**
-	 * @param $string
-	 *
+	 * @param string $string
 	 * @return string
 	 */
-	static function Upperize($string) {
+	public static function upperize($string) {
 		$string = preg_replace('#([a-z])([A-Z])#', '\1_\2', $string);
 		return strtoupper($string);
 	}
@@ -213,7 +228,7 @@ abstract class Helper {
 	 *
 	 * @return string
 	 */
-	static function CamelCase($string) {
+	public static function camelCase($string) {
 		$string = preg_replace_callback(
 			'#([_])(\w)#',
 			function ($m) {
@@ -228,9 +243,9 @@ abstract class Helper {
 	/**
 	 * @param string $dirPath
 	 */
-	static function removeDirectory(string $dirPath) {
+	public static function removeDirectory($dirPath) {
 		if (!is_dir($dirPath)) {
-			throw new \InvalidArgumentException("$dirPath must be a directory");
+			throw new InvalidArgumentException("$dirPath must be a directory");
 		}
 
 		if (substr($dirPath, strlen($dirPath) - 1, 1) != Consts::DS) {
@@ -251,11 +266,13 @@ abstract class Helper {
 	}
 
 	/**
-	 * @param string $dirPath
+	 * @param string $source
+	 * @param string $dest
+	 * @return bool
 	 */
-	static function copy(string $source, string $dest) {
+	public static function copy($source, $dest) {
 		if (!file_exists($source)) {
-			throw new \InvalidArgumentException(
+			throw new InvalidArgumentException(
 				"$source must be file or directory"
 			);
 		}
@@ -269,27 +286,33 @@ abstract class Helper {
 		}
 
 		$dir_handle = opendir($source);
-		$DS = Consts::DS;
+		$ds = Consts::DS;
 
 		while ($file = readdir($dir_handle)) {
 			if ($file != '.' && $file != '..') {
-				if (is_dir($source . $DS . $file)) {
-					if (!is_dir($dest . $DS . $file)) {
+				if (is_dir($source . $ds . $file)) {
+					if (!is_dir($dest . $ds . $file)) {
 						mkdir(
-							$dest . $DS . $file,
-							fileperms($source . $DS . $file)
+							$dest . $ds . $file,
+							fileperms($source . $ds . $file)
 						);
 					}
 				}
 
-				self::copy($source . $DS . $file, $dest . $DS . $file);
+				self::copy($source . $ds . $file, $dest . $ds . $file);
 			}
 		}
 
 		closedir($dir_handle);
+
+		return true;
 	}
 
-	public static function NormalizePath($path) {
+	/**
+	 * @param string $path
+	 * @return string
+	 */
+	public static function normalizePath($path) {
 		return preg_replace('#[\\\\/]+#', '/', $path);
 	}
 }

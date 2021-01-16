@@ -9,9 +9,13 @@
 
 namespace Jodit;
 
+/**
+ * Class Jodit
+ * @package Jodit
+ */
 class Jodit {
 	/**
 	 * @var \Jodit\BaseApplication
 	 */
-	static $app;
+	public static $app;
 }

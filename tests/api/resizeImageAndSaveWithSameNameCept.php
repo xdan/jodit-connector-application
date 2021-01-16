@@ -1,4 +1,8 @@
 <?php
+/** @var \Codeception\Scenario $scenario */
+
+use Codeception\Util\HttpCode;
+
 $I = new ApiTester($scenario);
 
 $I->wantTo('Resize image and save it with same name');
@@ -6,7 +10,7 @@ $I->wantTo('Resize image and save it with same name');
 $name = 'test' . rand(10000, 20000);
 copy(__DIR__ . '/../files/artio.jpg', __DIR__ . '/../files/' . $name . '.jpg');
 
-$I->sendPOST('',  [
+$I->sendPost('',  [
     'action' => 'imageResize',
     'source' => 'test',
     'box' => [
@@ -17,7 +21,7 @@ $I->sendPOST('',  [
     'newname' => $name
 ]);
 
-$I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK); // 200
+$I->seeResponseCodeIs(HttpCode::OK); // 200
 $I->seeResponseIsJson();
 
 $I->seeResponseContainsJson([

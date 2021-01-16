@@ -1,11 +1,15 @@
 <?php
+/** @var \Codeception\Scenario $scenario */
+
+use Codeception\Util\HttpCode;
+
 $I = new ApiTester($scenario);
 
 $I->wantTo('Resize image');
 
 $name = 'test' . rand(10000, 20000);
 
-$I->sendPOST('',  [
+$I->sendPost('',  [
     'action' => 'imageResize',
     'source' => 'test',
     'box' => [
@@ -16,7 +20,7 @@ $I->sendPOST('',  [
     'newname' => $name
 ]);
 
-$I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK); // 200
+$I->seeResponseCodeIs(HttpCode::OK); // 200
 $I->seeResponseIsJson();
 
 $I->seeResponseContainsJson([
@@ -28,8 +32,8 @@ $I->seeResponseContainsJson([
 
 
 // remove new file
-$I->sendGET('?action=fileRemove&source=test&name=' . $name . '.jpg');
-$I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK); // 200
+$I->sendGet('?action=fileRemove&source=test&name=' . $name . '.jpg');
+$I->seeResponseCodeIs(HttpCode::OK); // 200
 $I->seeResponseIsJson();
 
 $I->seeResponseContainsJson([

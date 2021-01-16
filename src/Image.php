@@ -9,7 +9,12 @@
 namespace Jodit;
 
 use abeautifulsite\SimpleImage;
+use Exception;
 
+/**
+ * Class Image
+ * @package Jodit
+ */
 class Image {
 	static $colors = [
 		[228, 84, 83],
@@ -28,7 +33,12 @@ class Image {
 		[0, 106, 180],
 	];
 
-	static function luminate($color, $percent) {
+	/**
+	 * @param $color
+	 * @param $percent
+	 * @return mixed
+	 */
+	public static function luminate($color, $percent) {
 		foreach ($color as &$value) {
 			$value = min(max(0, self::luminateValue($value, $percent)), 255);
 		}
@@ -36,6 +46,11 @@ class Image {
 		return $color;
 	}
 
+	/**
+	 * @param $value
+	 * @param $percent
+	 * @return float|int
+	 */
 	static function luminateValue($value, $percent) {
 		// no change
 		if ($percent == 50) {
@@ -60,26 +75,38 @@ class Image {
 		return 255 - $diff;
 	}
 
-	static function fromRGB($R, $G, $B) {
-		$R = dechex($R);
-		if (strlen($R) < 2) {
-			$R = '0' . $R;
+	/**
+	 * @param $r
+	 * @param $g
+	 * @param $b
+	 * @return string
+	 */
+	public static function fromRGB($r, $g, $b) {
+		$r = dechex($r);
+		if (strlen($r) < 2) {
+			$r = '0' . $r;
 		}
 
-		$G = dechex($G);
-		if (strlen($G) < 2) {
-			$G = '0' . $G;
+		$g = dechex($g);
+		if (strlen($g) < 2) {
+			$g = '0' . $g;
 		}
 
-		$B = dechex($B);
-		if (strlen($B) < 2) {
-			$B = '0' . $B;
+		$b = dechex($b);
+		if (strlen($b) < 2) {
+			$b = '0' . $b;
 		}
 
-		return '#' . $R . $G . $B;
+		return '#' . $r . $g . $b;
 	}
 
-	static function generateIcon(
+	/**
+	 * @param File $file
+	 * @param $iconname
+	 * @param int $width
+	 * @param int $height
+	 */
+	public static function generateIcon(
 		File $file,
 		$iconname,
 		$width = 100,
@@ -93,7 +120,11 @@ class Image {
 
 		$main = self::fromRGB($color[0], $color[1], $color[2]);
 		$dark = self::fromRGB($darkColor[0], $darkColor[1], $darkColor[2]);
-		$shadow = self::fromRGB($shadowColor[0], $shadowColor[1], $shadowColor[2]);
+		$shadow = self::fromRGB(
+			$shadowColor[0],
+			$shadowColor[1],
+			$shadowColor[2]
+		);
 
 		$labelX = 13;
 		$labelY = 55;
@@ -129,11 +160,11 @@ HTML;
 	}
 
 	/**
-	 * @param \Jodit\File $file
-	 *
-	 * @return \Jodit\File
+	 * @param File $file
+	 * @return File
+	 * @throws Exception
 	 */
-	static function getThumb(File $file, Config $config) {
+	public static function getThumb(File $file, Config $config) {
 		$path = $file->getFolder();
 
 		if (!is_dir($path . $config->thumbFolderName)) {
@@ -160,10 +191,9 @@ HTML;
 						$thumbName,
 						$config->quality
 					);
-				} catch (\Exception $e) {
+				} catch (Exception $e) {
 					return $file;
 				}
-
 			} else {
 				self::generateIcon($file, $thumbName);
 			}

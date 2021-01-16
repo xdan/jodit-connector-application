@@ -6,7 +6,7 @@ use Codeception\Util\HttpCode;
 $I = new ApiTester($scenario);
 
 $I->wantTo('Get all files root and config without source field');
-$I->sendGET('?action=files&custom_config=' . rawurlencode(json_encode([
+$I->sendGet('?action=files&custom_config=' . rawurlencode(json_encode([
 	'sources' => null
 ])));
 

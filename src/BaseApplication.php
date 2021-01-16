@@ -10,7 +10,12 @@
 namespace Jodit;
 
 use abeautifulsite\SimpleImage;
+use Exception;
 
+/**
+ * Class BaseApplication
+ * @package Jodit
+ */
 abstract class BaseApplication {
 	/**
 	 * @property Response $response
@@ -33,11 +38,6 @@ abstract class BaseApplication {
 	public $config;
 
 	/**
-	 * @var \Jodit\AccessControl
-	 */
-	public $accessControl;
-
-	/**
 	 * Check whether the user has the ability to view files
 	 * You can define JoditCheckPermissions function in config.php and use it
 	 */
@@ -56,7 +56,7 @@ abstract class BaseApplication {
 		);
 		header('Access-Control-Max-Age: 86400'); // cache for 1 day
 
-		if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+		if ($this->request->getMethod() === 'OPTIONS') {
 			if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD'])) {
 				header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 			}
@@ -72,7 +72,7 @@ abstract class BaseApplication {
 			}
 			header('Content-Type: application/json');
 		} else {
-			$this->response->eslapsedTime =
+			$this->response->elapsedTime =
 				microtime(true) - $this->startedTime;
 		}
 
@@ -86,28 +86,20 @@ abstract class BaseApplication {
 	}
 
 	/**
-	 * Get user role
-	 *
-	 * @return string
+	 * @throws Exception
 	 */
-	public function getUserRole() {
-		return isset($_SESSION[$this->config->roleSessionVar])
-			? $_SESSION[$this->config->roleSessionVar]
-			: $this->config->defaultRole;
-	}
-
 	public function execute() {
 		$methods = get_class_methods($this);
 
 		if (!in_array('action' . ucfirst($this->action), $methods)) {
-			throw new \Exception(
+			throw new Exception(
 				'Action "' . htmlspecialchars($this->action) . '" not found',
 				Consts::ERROR_CODE_NOT_EXISTS
 			);
 		}
 
-		$this->accessControl->checkPermission(
-			$this->getUserRole(),
+		$this->config->access->checkPermission(
+			$this->config->getUserRole(),
 			$this->action
 		);
 
@@ -126,7 +118,7 @@ abstract class BaseApplication {
 	 * Constructor FileBrowser
 	 *
 	 * @param {array} $config
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 
 	private $startedTime;
@@ -136,20 +128,19 @@ abstract class BaseApplication {
 	 *
 	 * @param $config
 	 *
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	function __construct($config) {
 		ob_start();
 		$this->startedTime = microtime(true);
 
 		$this->response = new Response();
-		$this->accessControl = new AccessControl();
 
-		set_error_handler(function ($errno, $errstr, $errfile, $errline) {
-			throw new \Exception(
-				$errstr .
+		set_error_handler(function ($ignore, $error, $errorFile, $errorLine) {
+			throw new Exception(
+				$error .
 					((!$this->config or $this->config->debug)
-						? ' - file:' . $errfile . ' line:' . $errline
+						? ' - file:' . $errorFile . ' line:' . $errorLine
 						: ''),
 				501
 			);
@@ -158,19 +149,22 @@ abstract class BaseApplication {
 		set_exception_handler([$this, 'exceptionHandler']);
 
 		$this->config = new Config($config, null);
+		$this->request = new Request();
 
 		if ($this->config->allowCrossOrigin) {
 			$this->corsHeaders();
 		}
 
-		$this->request = new Request();
-
 		$this->action = $this->request->action;
 
-		$this->accessControl->setAccessList($this->config->accessControl);
+		$this->config->access->setAccessList($this->config->accessControl);
 		Jodit::$app = $this;
 	}
 
+	/**
+	 * @return object
+	 * @throws Exception
+	 */
 	protected function getImageEditorInfo() {
 		$source = $this->getSource();
 		$path = $source->getPath();
@@ -197,7 +191,7 @@ abstract class BaseApplication {
 			!file_exists($path . $file) ||
 			!is_file($path . $file)
 		) {
-			throw new \Exception(
+			throw new Exception(
 				'File not exists',
 				Consts::ERROR_CODE_NOT_EXISTS
 			);
@@ -219,7 +213,7 @@ abstract class BaseApplication {
 				!$this->config->allowReplaceSourceFile and
 				file_exists($path . $newName)
 			) {
-				throw new \Exception(
+				throw new Exception(
 					'File ' . $newName . ' already exists',
 					Consts::ERROR_CODE_BAD_REQUEST
 				);
@@ -252,7 +246,7 @@ abstract class BaseApplication {
 	}
 
 	/**
-	 * @param \Exception $e
+	 * @param Exception $e
 	 */
 	public function exceptionHandler($e) {
 		$this->response->success = false;
@@ -287,10 +281,9 @@ abstract class BaseApplication {
 	}
 
 	/**
-	 * @param \Jodit\Config $source
-	 *
-	 * @return \Jodit\File[]
-	 * @throws \Exception
+	 * @param Config $source
+	 * @return File[]
+	 * @throws Exception
 	 */
 	public function move(Config $source) {
 		$files = $_FILES[$source->defaultFilesKey];
@@ -309,9 +302,9 @@ abstract class BaseApplication {
 			) {
 				foreach ($files['name'] as $i => $file) {
 					if ($files['error'][$i]) {
-						throw new \Exception(
-							isset(Helper::$upload_errors[$files['error'][$i]])
-								? Helper::$upload_errors[$files['error'][$i]]
+						throw new Exception(
+							isset(Helper::$uploadErrors[$files['error'][$i]])
+								? Helper::$uploadErrors[$files['error'][$i]]
 								: 'Error',
 							$files['error'][$i]
 						);
@@ -323,13 +316,13 @@ abstract class BaseApplication {
 
 					if (!move_uploaded_file($tmp_name, $new_path)) {
 						if (!is_writable($path)) {
-							throw new \Exception(
+							throw new Exception(
 								'Destination directory is not writeble',
 								Consts::ERROR_CODE_IS_NOT_WRITEBLE
 							);
 						}
 
-						throw new \Exception(
+						throw new Exception(
 							'No files have been uploaded',
 							Consts::ERROR_CODE_NO_FILES_UPLOADED
 						);
@@ -338,20 +331,20 @@ abstract class BaseApplication {
 					$file = new File($new_path);
 
 					try {
-						$this->accessControl->checkPermission(
-							$this->getUserRole(),
+						$this->config->access->checkPermission(
+							$this->config->getUserRole(),
 							$this->action,
 							$source->getRoot(),
 							pathinfo($file->getPath(), PATHINFO_EXTENSION)
 						);
-					} catch (\Exception $e) {
+					} catch (Exception $e) {
 						$file->remove();
 						throw $e;
 					}
 
 					if (!$file->isGoodFile($source)) {
 						$file->remove();
-						throw new \Exception(
+						throw new Exception(
 							'File type is not in white list',
 							Consts::ERROR_CODE_FORBIDDEN
 						);
@@ -363,7 +356,7 @@ abstract class BaseApplication {
 							Helper::convertToBytes($source->maxFileSize)
 					) {
 						$file->remove();
-						throw new \Exception(
+						throw new Exception(
 							'File size exceeds the allowable',
 							Consts::ERROR_CODE_FORBIDDEN
 						);
@@ -372,7 +365,7 @@ abstract class BaseApplication {
 					$output[] = $file;
 				}
 			}
-		} catch (\Exception $e) {
+		} catch (Exception $e) {
 			foreach ($output as $file) {
 				$file->remove();
 			}
@@ -385,12 +378,12 @@ abstract class BaseApplication {
 	/**
 	 * Read folder and retrun filelist
 	 *
-	 * @param \Jodit\Config $source
+	 * @param Config $source
 	 *
 	 * @return object
-	 * @throws \Exception
+	 * @throws Exception
 	 */
-	function read(Config $source) {
+	function read($source) {
 		$path = $source->getPath();
 
 		$sourceData = (object) [
@@ -404,12 +397,12 @@ abstract class BaseApplication {
 		];
 
 		try {
-			$this->accessControl->checkPermission(
-				$this->getUserRole(),
+			$this->config->access->checkPermission(
+				$this->config->getUserRole(),
 				$this->action,
 				$path
 			);
-		} catch (\Exception $e) {
+		} catch (Exception $e) {
 			return $sourceData;
 		}
 
@@ -446,6 +439,9 @@ abstract class BaseApplication {
 		return $sourceData;
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getRoot() {
 		return realpath($_SERVER['DOCUMENT_ROOT']) . Consts::DS;
 	}
@@ -453,29 +449,38 @@ abstract class BaseApplication {
 	/**
 	 * Return current source
 	 *
-	 * @return \Jodit\Config
-	 * @throws \Exception
+	 * @return Config
+	 * @throws Exception
 	 */
 	public function getSource() {
 		$source = $this->config->getSource($this->request->source);
 
 		if (!$source) {
-			throw new \Exception(
+			throw new Exception(
 				'Source not found',
 				Consts::ERROR_CODE_NOT_EXISTS
 			);
 		}
 
+		$this->config->access->checkPermission(
+			$this->config->getUserRole(),
+			$this->action,
+			$source->getPath()
+		);
+
 		return $source;
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	protected function renamePath() {
 		$source = $this->getSource();
-		$sourceName = Helper::makeSafe($this->request->name);
-		$fromPath = $source->getPath() . $sourceName;
+		$fromName = Helper::makeSafe($this->request->name);
+		$fromPath = $source->getPath() . $fromName;
 
-		$this->accessControl->checkPermission(
-			$this->getUserRole(),
+		$this->config->access->checkPermission(
+			$this->config->getUserRole(),
 			$this->action,
 			$fromPath
 		);
@@ -483,28 +488,28 @@ abstract class BaseApplication {
 		$newName = Helper::makeSafe($this->request->newname);
 		$destinationPath = $source->getPath() . $newName;
 
-		$this->accessControl->checkPermission(
-			$this->getUserRole(),
+		$this->config->access->checkPermission(
+			$this->config->getUserRole(),
 			$this->action,
 			$destinationPath
 		);
 
 		if (!$fromPath) {
-			throw new \Exception(
+			throw new Exception(
 				'Need source path',
 				Consts::ERROR_CODE_BAD_REQUEST
 			);
 		}
 
 		if (!$destinationPath) {
-			throw new \Exception(
+			throw new Exception(
 				'Need destination path',
 				Consts::ERROR_CODE_BAD_REQUEST
 			);
 		}
 
 		if (!is_file($fromPath) and !is_dir($fromPath)) {
-			throw new \Exception(
+			throw new Exception(
 				'Path not exists',
 				Consts::ERROR_CODE_NOT_EXISTS
 			);
@@ -521,7 +526,7 @@ abstract class BaseApplication {
 		}
 
 		if (is_file($destinationPath) or is_dir($destinationPath)) {
-			throw new \Exception(
+			throw new Exception(
 				'New ' . basename($destinationPath) . ' already exists',
 				Consts::ERROR_CODE_BAD_REQUEST
 			);

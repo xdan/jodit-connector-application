@@ -1,37 +1,50 @@
 <?php
 
+use Codeception\Test\Unit;
+use Jodit\Helper;
 
-class HelperTest extends \Codeception\Test\Unit
-{
-    /**
-     * @var \UnitTester
-     */
-    protected $tester;
+/**
+ * Class HelperTest
+ */
+class HelperTest extends Unit {
+	/**
+	 * @var UnitTester $tester
+	 */
+	protected $tester;
 
-    protected function _before()
-    {
-    }
-
-    protected function _after()
-    {
-    }
-
-    // tests
-    public function testUpperaze()
-    {
-		$this->assertEquals('FILE_UPLOAD', \Jodit\Helper::Upperize('fileUpload'));
-		$this->assertEquals('FILE_UPLOAD', \Jodit\Helper::Upperize('FileUpload'));
-		$this->assertEquals('FIL_EUPLOAD', \Jodit\Helper::Upperize('FilEUpload'));
-		$this->assertEquals('FILE', \Jodit\Helper::Upperize('File'));
-    }
+	// tests
+	public function testUpperaze() {
+		$this->assertEquals('FILE_UPLOAD', Helper::upperize('fileUpload'));
+		$this->assertEquals(
+			'FILE_UPLOAD',
+			Helper::upperize('FileUpload')
+		);
+		$this->assertEquals(
+			'FIL_EUPLOAD',
+			Helper::upperize('FilEUpload')
+		);
+		$this->assertEquals('FILE', Helper::upperize('File'));
+	}
 
 	public function testCamelCase() {
-		$this->assertEquals('FileUpload', \Jodit\Helper::CamelCase('FILE_UPLOAD'));
-		$this->assertEquals('File', \Jodit\Helper::CamelCase('FILE'));
+		$this->assertEquals(
+			'FileUpload',
+			Helper::camelCase('FILE_UPLOAD')
+		);
+		$this->assertEquals('File', Helper::camelCase('FILE'));
 	}
 	public function testNormalizePath() {
-		$this->assertEquals('C:/sdfsdf/', \Jodit\Helper::NormalizePath('C:\\sdfsdf\\'));
-		$this->assertEquals('C:/sdfsdf/', \Jodit\Helper::NormalizePath('C:/sdfsdf/'));
-		$this->assertEquals('C:/sdfsdf/', \Jodit\Helper::NormalizePath('C://\\sdfsdf/'));
+		$this->assertEquals(
+			'C:/sdfsdf/',
+			Helper::normalizePath('C:\\sdfsdf\\')
+		);
+		$this->assertEquals(
+			'C:/sdfsdf/',
+			Helper::normalizePath('C:/sdfsdf/')
+		);
+		$this->assertEquals(
+			'C:/sdfsdf/',
+			Helper::normalizePath('C://\\sdfsdf/')
+		);
 	}
 }

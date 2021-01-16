@@ -14,7 +14,14 @@ namespace Jodit;
  * @package jodit
  */
 class Response {
+	/**
+	 * @var bool
+	 */
 	public $success = true;
+
+	/**
+	 * @var string
+	 */
 	public $time;
 
 	public $data = [
@@ -22,8 +29,13 @@ class Response {
 		'code' => 220,
 	];
 
-	function __construct() {
+	/**
+	 * @var float|string
+	 */
+	public $elapsedTime;
+
+	public function __construct () {
 		$this->time = date('Y-m-d H:i:s');
-		$this->data = (object) $this->data;
+		$this->data = (object)$this->data;
 	}
 }

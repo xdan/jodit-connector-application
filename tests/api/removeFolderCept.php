@@ -14,7 +14,7 @@ $I->assertFileNotExists($files_root . 'folder2');
 Jodit\Helper::copy($files_root . 'ceicom', $files_root . 'folder2');
 $I->assertFileExists($files_root . 'folder2');
 
-$I->sendGET('?action=folderRemove&source=test&name=folder2&path=');
+$I->sendGet('?action=folderRemove&source=test&name=folder2&path=');
 
 $I->seeResponseCodeIs(HttpCode::OK); // 200
 $I->seeResponseIsJson();
@@ -28,7 +28,7 @@ $I->seeResponseContainsJson([
 
 $I->assertFileNotExists($files_root . 'folder2');
 
-$I->sendGET(
+$I->sendGet(
 	'?action=folderRemove&source=test&name=folder2&path=&newname=folder2'
 );
 

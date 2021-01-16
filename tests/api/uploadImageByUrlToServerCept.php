@@ -1,10 +1,14 @@
 <?php
+/** @var \Codeception\Scenario $scenario */
+
+use Codeception\Util\HttpCode;
+
 $I = new ApiTester($scenario);
 
 $I->wantTo('Check uploading remote image from another site');
 
-$I->sendGET('?action=fileUploadRemote&source=test&url=' . urlencode('http://xdsoft.net/jodit/stuf/icon-joomla.png1'));
-$I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK); // 200
+$I->sendGet('?action=fileUploadRemote&source=test&url=' . urlencode('http://xdsoft.net/jodit/stuf/icon-joomla.png1'));
+$I->seeResponseCodeIs(HttpCode::OK); // 200
 $I->seeResponseIsJson();
 
 $I->seeResponseContainsJson([
@@ -14,8 +18,8 @@ $I->seeResponseContainsJson([
     ]
 ]);
 
-$I->sendGET('?action=fileUploadRemote&source=test&url=' . urlencode('icon-joomla.png'));
-$I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK); // 200
+$I->sendGet('?action=fileUploadRemote&source=test&url=' . urlencode('icon-joomla.png'));
+$I->seeResponseCodeIs(HttpCode::OK); // 200
 $I->seeResponseIsJson();
 
 $I->seeResponseContainsJson([
@@ -26,8 +30,8 @@ $I->seeResponseContainsJson([
 ]);
 
 
-$I->sendGET('?action=fileUploadRemote&source=test&url=' . urlencode('http://xdsoft.net/jodit/stuf/icon-joomla.png'));
-$I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK); // 200
+$I->sendGet('?action=fileUploadRemote&source=test&url=' . urlencode('http://xdsoft.net/jodit/stuf/icon-joomla.png'));
+$I->seeResponseCodeIs(HttpCode::OK); // 200
 $I->seeResponseIsJson();
 
 $I->seeResponseContainsJson([
@@ -40,7 +44,7 @@ $I->seeResponseContainsJson([
 $I->seeResponseJsonMatchesXpath('//data/newfilename');
 
 
-$I->sendGET('?action=fileRemove&source=test&name=icon-joomla.png');
+$I->sendGet('?action=fileRemove&source=test&name=icon-joomla.png');
 $I->seeResponseIsJson();
 
 $I->seeResponseContainsJson([

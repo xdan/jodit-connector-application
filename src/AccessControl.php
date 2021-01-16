@@ -9,6 +9,12 @@
 
 namespace Jodit;
 
+use Exception;
+
+/**
+ * Class AccessControl
+ * @package Jodit
+ */
 class AccessControl {
 	private $accessList = [];
 
@@ -42,6 +48,14 @@ class AccessControl {
 		$this->accessList = $list;
 	}
 
+	/**
+	 * @param $role
+	 * @param $action
+	 * @param string $path
+	 * @param string $fileExtension
+	 * @return bool
+	 * @throws Exception
+	 */
 	public function checkPermission(
 		$role,
 		$action,
@@ -49,17 +63,20 @@ class AccessControl {
 		$fileExtension = '*'
 	) {
 		if (!$this->isAllow($role, $action, $path, $fileExtension)) {
-			throw new \Exception('Access denied', Consts::ERROR_CODE_FORBIDDEN);
+			throw new Exception('Access denied', Consts::ERROR_CODE_FORBIDDEN);
 		}
 		return true;
 	}
 
 	/**
-	 * @param {string} $role
-	 * @param {string} $action
+	 * @param string $role
+	 * @param string $action
+	 * @param string $path
+	 * @param string $fileExtension
+	 * @return bool
 	 */
 	public function isAllow($role, $action, $path = '/', $fileExtension = '*') {
-		$action = Helper::Upperize($action);
+		$action = Helper::upperize($action);
 
 		$allow = null;
 
@@ -72,8 +89,8 @@ class AccessControl {
 				if (isset($rule['path'])) {
 					if (
 						strpos(
-							Helper::NormalizePath($path),
-							Helper::NormalizePath($rule['path'])
+							Helper::normalizePath($path),
+							Helper::normalizePath($rule['path'])
 						) !== 0
 					) {
 						continue;
@@ -82,6 +99,7 @@ class AccessControl {
 
 				if (isset($rule['extensions'])) {
 					$allowExtensions = ['*'];
+
 					if (is_string($rule['extensions'])) {
 						$rule['extensions'] = preg_split(
 							'#[,\s]+#',
@@ -91,7 +109,7 @@ class AccessControl {
 
 					if (is_array($rule['extensions'])) {
 						$allowExtensions = array_map(
-							['\Jodit\Helper', 'Upperize'],
+							['\Jodit\Helper', 'upperize'],
 							$rule['extensions']
 						);
 					}

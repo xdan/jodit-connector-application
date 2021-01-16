@@ -1,11 +1,15 @@
-<?php 
+<?php
+/** @var \Codeception\Scenario $scenario */
+
+use Codeception\Util\HttpCode;
+
 $I = new ApiTester($scenario);
 $I->wantTo('check get permissions for path');
 
 
-$I->sendGET('?action=permissions&source=test');
+$I->sendGet('?action=permissions&source=test');
 
-$I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK); // 200
+$I->seeResponseCodeIs(HttpCode::OK); // 200
 $I->seeResponseIsJson();
 
 $I->seeResponseContainsJson([
@@ -32,9 +36,9 @@ $I->seeResponseContainsJson([
 ]);
 
 
-$I->sendGET('?action=permissions&source=test&path=/ceicom/');
+$I->sendGet('?action=permissions&source=test&path=/ceicom/');
 
-$I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK); // 200
+$I->seeResponseCodeIs(HttpCode::OK); // 200
 $I->seeResponseIsJson();
 
 $I->seeResponseContainsJson([
@@ -60,9 +64,9 @@ $I->seeResponseContainsJson([
 
 ]);
 
-$I->sendGET('?action=permissions');
+$I->sendGet('?action=permissions');
 
-$I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK); // 200
+$I->seeResponseCodeIs(HttpCode::OK); // 200
 $I->seeResponseIsJson();
 
 $I->seeResponseContainsJson([

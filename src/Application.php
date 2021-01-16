@@ -9,71 +9,49 @@
 
 namespace Jodit;
 
+use Exception;
+
+/**
+ * Class Application
+ * @package Jodit
+ */
 abstract class Application extends BaseApplication {
 	/**
 	 * Load all files from folder ore source or sources
+	 * @throws Exception
 	 */
 	public function actionFiles() {
 		$sources = [];
 
-		$currentSource = $this->getSource();
-
-		foreach ($this->config->sources as $key => $source) {
-			if (
-				$this->request->source &&
-				$this->request->source !== 'default' &&
-				$currentSource !== $source &&
-				$this->request->path !== './'
-			) {
-				continue;
-			}
-
-			if (
-				$this->accessControl->isAllow(
-					$this->getUserRole(),
-					$this->action,
-					$source->getPath()
-				)
-			) {
+		foreach ($this->config->getSources() as $source) {
 				$sourceData = $this->read($source);
-				$sourceData->name = $key;
+				$sourceData->name = $source->sourceName;
 				$sources[] = $sourceData;
-			}
 		}
 
 		return ['sources' => $sources];
 	}
 
 	/**
+	 * Load tree of directories
+	 */
+	public function actionTree() {
+		$sources = [];
+		return $sources;
+	}
+
+	/**
 	 * Load all folders from folder ore source or sources
+	 * @throws Exception
 	 */
 	public function actionFolders() {
 		$sources = [];
 
-		foreach ($this->config->sources as $key => $source) {
-			if (
-				$this->request->source &&
-				$this->request->source !== 'default' &&
-				$key !== $this->request->source &&
-				$this->request->path !== './'
-			) {
-				continue;
-			}
-
+		foreach ($this->config->getSources() as $source) {
 			$path = $source->getPath();
 
-			try {
-				$this->accessControl->checkPermission(
-					$this->getUserRole(),
-					$this->action,
-					$path
-				);
-			} catch (\Exception $e) {
-				continue;
-			}
-
 			$sourceData = (object) [
-				'name' => $key,
+				'name' => $source->sourceName,
 				'baseurl' => $source->baseurl,
 				'path' => str_replace(
 					realpath($source->getRoot()) . Consts::DS,
@@ -83,14 +61,14 @@ abstract class Application extends BaseApplication {
 				'folders' => [],
 			];
 
-			$sourceData->folders[] = $path == $source->getRoot() ? '.' : '..';
+			$sourceData->folders[] = $path === $source->getRoot() ? '.' : '..';
 
 			$dir = opendir($path);
 			while ($file = readdir($dir)) {
 				if (
 					$file != '.' && $file != '..' && is_dir($path . $file) and
 					!$this->config->createThumb ||
-						$file !== $this->config->thumbFolderName and
+					$file !== $this->config->thumbFolderName and
 					!in_array($file, $this->config->excludeDirectoryNames)
 				) {
 					$sourceData->folders[] = $file;
@@ -111,7 +89,7 @@ abstract class Application extends BaseApplication {
 		$url = $this->request->url;
 
 		if (!$url) {
-			throw new \Exception(
+			throw new Exception(
 				'Need url parameter',
 				Consts::ERROR_CODE_BAD_REQUEST
 			);
@@ -120,7 +98,7 @@ abstract class Application extends BaseApplication {
 		$result = parse_url($url);
 
 		if (!isset($result['host']) || !isset($result['path'])) {
-			throw new \Exception(
+			throw new Exception(
 				'Not valid URL',
 				Consts::ERROR_CODE_BAD_REQUEST
 			);
@@ -129,7 +107,7 @@ abstract class Application extends BaseApplication {
 		$filename = Helper::makeSafe(basename($result['path']));
 
 		if (!$filename) {
-			throw new \Exception(
+			throw new Exception(
 				'Not valid URL',
 				Consts::ERROR_CODE_BAD_REQUEST
 			);
@@ -143,16 +121,16 @@ abstract class Application extends BaseApplication {
 
 		try {
 			if (!$file->isGoodFile($source)) {
-				throw new \Exception('Bad file', Consts::ERROR_CODE_FORBIDDEN);
+				throw new Exception('Bad file', Consts::ERROR_CODE_FORBIDDEN);
 			}
 
-			$this->accessControl->checkPermission(
-				$this->getUserRole(),
+			$this->config->access->checkPermission(
+				$this->config->getUserRole(),
 				$this->action,
 				$source->getRoot(),
 				$file->getExtension()
 			);
-		} catch (\Exception $e) {
+		} catch (Exception $e) {
 			$file->remove();
 			throw $e;
 		}
@@ -175,8 +153,8 @@ abstract class Application extends BaseApplication {
 		$root = $source->getRoot();
 		$path = $source->getPath();
 
-		$this->accessControl->checkPermission(
-			$this->getUserRole(),
+		$this->config->access->checkPermission(
+			$this->config->getUserRole(),
 			$this->action,
 			$path
 		);
@@ -198,7 +176,7 @@ abstract class Application extends BaseApplication {
 		$files);
 
 		if (!count($files)) {
-			throw new \Exception(
+			throw new Exception(
 				'No files have been uploaded',
 				Consts::ERROR_CODE_NO_FILES_UPLOADED
 			);
@@ -224,12 +202,6 @@ abstract class Application extends BaseApplication {
 
 		$path = $source->getPath();
 
-		$this->accessControl->checkPermission(
-			$this->getUserRole(),
-			$this->action,
-			$path
-		);
-
 		$target = $this->request->name;
 
 		if (
@@ -240,7 +212,7 @@ abstract class Application extends BaseApplication {
 		}
 
 		if (!$file_path || !file_exists($file_path)) {
-			throw new \Exception(
+			throw new Exception(
 				'File or directory not exists ' . $path . $target,
 				Consts::ERROR_CODE_NOT_EXISTS
 			);
@@ -250,13 +222,14 @@ abstract class Application extends BaseApplication {
 			$file = new File($file_path);
 			if (!$file->remove()) {
 				$error = (object) error_get_last();
-				throw new \Exception(
+
+				throw new Exception(
 					'Delete failed! ' . $error->message,
 					Consts::ERROR_CODE_IS_NOT_WRITEBLE
 				);
 			}
 		} else {
-			throw new \Exception(
+			throw new Exception(
 				'It is not a file!',
 				Consts::ERROR_CODE_IS_NOT_WRITEBLE
 			);
@@ -266,7 +239,7 @@ abstract class Application extends BaseApplication {
 	/**
 	 * Remove folder
 	 *
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function actionFolderRemove() {
 		$source = $this->getSource();
@@ -275,8 +248,8 @@ abstract class Application extends BaseApplication {
 
 		$path = $source->getPath();
 
-		$this->accessControl->checkPermission(
-			$this->getUserRole(),
+		$this->config->access->checkPermission(
+			$this->config->getUserRole(),
 			$this->action,
 			$path
 		);
@@ -304,13 +277,13 @@ abstract class Application extends BaseApplication {
 
 				Helper::removeDirectory($file_path);
 			} else {
-				throw new \Exception(
+				throw new Exception(
 					'It is not a directory!',
 					Consts::ERROR_CODE_IS_NOT_WRITEBLE
 				);
 			}
 		} else {
-			throw new \Exception(
+			throw new Exception(
 				'Directory not exists',
 				Consts::ERROR_CODE_NOT_EXISTS
 			);
@@ -319,14 +292,14 @@ abstract class Application extends BaseApplication {
 
 	/**
 	 * Create directory
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function actionFolderCreate() {
 		$source = $this->getSource();
 		$destinationPath = $source->getPath();
 
-		$this->accessControl->checkPermission(
-			$this->getUserRole(),
+		$this->config->access->checkPermission(
+			$this->config->getUserRole(),
 			$this->action,
 			$destinationPath
 		);
@@ -345,22 +318,26 @@ abstract class Application extends BaseApplication {
 							'messages' => ['Directory successfully created'],
 						];
 					}
-					throw new \Exception(
+
+					throw new Exception(
 						'Directory was not created',
 						Consts::ERROR_CODE_NOT_EXISTS
 					);
 				}
-				throw new \Exception(
+
+				throw new Exception(
 					'Directory already exists',
 					Consts::ERROR_CODE_NOT_ACCEPTABLE
 				);
 			}
-			throw new \Exception(
+
+			throw new Exception(
 				'The name for new directory has not been set',
 				Consts::ERROR_CODE_NOT_ACCEPTABLE
 			);
 		}
-		throw new \Exception(
+
+		throw new Exception(
 			'The destination directory has not been set',
 			Consts::ERROR_CODE_NOT_ACCEPTABLE
 		);
@@ -368,21 +345,21 @@ abstract class Application extends BaseApplication {
 
 	/**
 	 * Move file or directory to another folder
-	 *
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	private function movePath() {
 		$source = $this->getSource();
 		$destinationPath = $source->getPath();
 		$sourcePath = $source->getPath($this->request->from);
 
-		$this->accessControl->checkPermission(
-			$this->getUserRole(),
+		$this->config->access->checkPermission(
+			$this->config->getUserRole(),
 			$this->action,
 			$destinationPath
 		);
-		$this->accessControl->checkPermission(
-			$this->getUserRole(),
+
+		$this->config->access->checkPermission(
+			$this->config->getUserRole(),
 			$this->action,
 			$sourcePath
 		);
@@ -395,19 +372,19 @@ abstract class Application extends BaseApplication {
 						$destinationPath . basename($sourcePath)
 					);
 				} else {
-					throw new \Exception(
+					throw new Exception(
 						'Not file',
 						Consts::ERROR_CODE_NOT_EXISTS
 					);
 				}
 			} else {
-				throw new \Exception(
+				throw new Exception(
 					'Need destination path',
 					Consts::ERROR_CODE_BAD_REQUEST
 				);
 			}
 		} else {
-			throw new \Exception(
+			throw new Exception(
 				'Need source path',
 				Consts::ERROR_CODE_BAD_REQUEST
 			);
@@ -454,8 +431,8 @@ abstract class Application extends BaseApplication {
 	public function actionImageResize() {
 		$source = $this->getSource();
 
-		$this->accessControl->checkPermission(
-			$this->getUserRole(),
+		$this->config->access->checkPermission(
+			$this->config->getUserRole(),
 			$this->action,
 			$source->getPath()
 		);
@@ -463,14 +440,14 @@ abstract class Application extends BaseApplication {
 		$info = $this->getImageEditorInfo();
 
 		if (!$info->box || (int) $info->box->w <= 0) {
-			throw new \Exception(
+			throw new Exception(
 				'Width not specified',
 				Consts::ERROR_CODE_BAD_REQUEST
 			);
 		}
 
 		if (!$info->box || (int) $info->box->h <= 0) {
-			throw new \Exception(
+			throw new Exception(
 				'Height not specified',
 				Consts::ERROR_CODE_BAD_REQUEST
 			);
@@ -481,11 +458,14 @@ abstract class Application extends BaseApplication {
 			->save($info->path . $info->newname, $source->quality);
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	public function actionImageCrop() {
 		$source = $this->getSource();
 
-		$this->accessControl->checkPermission(
-			$this->getUserRole(),
+		$this->config->access->checkPermission(
+			$this->config->getUserRole(),
 			$this->action,
 			$source->getPath()
 		);
@@ -496,7 +476,7 @@ abstract class Application extends BaseApplication {
 			(int) $info->box->x < 0 ||
 			(int) $info->box->x > (int) $info->width
 		) {
-			throw new \Exception(
+			throw new Exception(
 				'Start X not specified',
 				Consts::ERROR_CODE_BAD_REQUEST
 			);
@@ -506,21 +486,21 @@ abstract class Application extends BaseApplication {
 			(int) $info->box->y < 0 ||
 			(int) $info->box->y > (int) $info->height
 		) {
-			throw new \Exception(
+			throw new Exception(
 				'Start Y not specified',
 				Consts::ERROR_CODE_BAD_REQUEST
 			);
 		}
 
 		if ((int) $info->box->w <= 0) {
-			throw new \Exception(
+			throw new Exception(
 				'Width not specified',
 				Consts::ERROR_CODE_BAD_REQUEST
 			);
 		}
 
 		if ((int) $info->box->h <= 0) {
-			throw new \Exception(
+			throw new Exception(
 				'Height not specified',
 				Consts::ERROR_CODE_BAD_REQUEST
 			);
@@ -538,13 +518,13 @@ abstract class Application extends BaseApplication {
 
 	/**
 	 * Get filepath by URL for local files
-	 *
-	 * @metod actionGetFileByURL
+	 * @throws Exception
 	 */
 	public function actionGetLocalFileByUrl() {
 		$url = $this->request->url;
+
 		if (!$url) {
-			throw new \Exception(
+			throw new Exception(
 				'Need full url',
 				Consts::ERROR_CODE_BAD_REQUEST
 			);
@@ -553,25 +533,10 @@ abstract class Application extends BaseApplication {
 		$parts = parse_url($url);
 
 		if (empty($parts['path'])) {
-			throw new \Exception('Empty url', Consts::ERROR_CODE_BAD_REQUEST);
+			throw new Exception('Empty url', Consts::ERROR_CODE_BAD_REQUEST);
 		}
 
-		$found = false;
-		$path = '';
-		$root = '';
-
-		$key = 0;
-
-		foreach ($this->config->sources as $key => $source) {
-			if (
-				$this->request->source &&
-				$this->request->source !== 'default' &&
-				$key !== $this->request->source &&
-				$this->request->path !== './'
-			) {
-				continue;
-			}
-
+		foreach ($this->config->getSources() as $source) {
 			$base = parse_url($source->baseurl);
 
 			$path = preg_replace(
@@ -585,30 +550,29 @@ abstract class Application extends BaseApplication {
 			if (file_exists($root . $path) && is_file($root . $path)) {
 				$file = new File($root . $path);
 				if ($file->isGoodFile($source)) {
-					$found = true;
-					break;
+					return [
+						'path' => str_replace(
+							$root,
+							'',
+							dirname($root . $path) . Consts::DS
+						),
+						'name' => basename($path),
+						'source' => $source->sourceName,
+					];
 				}
 			}
 		}
 
-		if (!$found) {
-			throw new \Exception(
-				'File does not exist or is above the root of the connector',
-				Consts::ERROR_CODE_FAILED
-			);
-		}
-
-		return [
-			'path' => str_replace(
-				$root,
-				'',
-				dirname($root . $path) . Consts::DS
-			),
-			'name' => basename($path),
-			'source' => $key,
-		];
+		throw new Exception(
+			'File does not exist or is above the root of the connector',
+			Consts::ERROR_CODE_FAILED
+		);
 	}
 
+	/**
+	 * @return array[]
+	 * @throws Exception
+	 */
 	public function actionPermissions() {
 		$result = [];
 		$source = $this->getSource();
@@ -616,16 +580,18 @@ abstract class Application extends BaseApplication {
 		foreach (AccessControl::$defaultRule as $permission => $tmp) {
 			if (preg_match('#^[A-Z_]+$#', $permission)) {
 				$allow = false;
+
 				try {
-					$this->accessControl->checkPermission(
-						$this->getUserRole(),
+					$this->config->access->checkPermission(
+						$this->config->getUserRole(),
 						$permission,
 						$source->getPath()
 					);
 					$allow = true;
-				} catch (\Exception $e) {
+				} catch (Exception $e) {
 				}
-				$result['allow' . Helper::CamelCase($permission)] = $allow;
+
+				$result['allow' . Helper::camelCase($permission)] = $allow;
 			}
 		}
 

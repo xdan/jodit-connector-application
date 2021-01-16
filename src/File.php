@@ -10,6 +10,8 @@
 
 namespace Jodit;
 
+use Exception;
+
 /**
  * Class Files
  */
@@ -17,13 +19,14 @@ class File {
 	private $path = '';
 
 	/**
-	 * @param {string} $path
+	 * @param string $path
+	 * @throws Exception
 	 */
-	function __construct($path) {
+	public function __construct($path) {
 		$path = realpath($path);
 
 		if (!$path) {
-			throw new \Exception(
+			throw new Exception(
 				'File not exists',
 				Consts::ERROR_CODE_NOT_EXISTS
 			);
@@ -35,10 +38,10 @@ class File {
 	/**
 	 * Check file extension
 	 *
-	 * @param {Source} $source
+	 * @param Config $source
 	 * @return bool
 	 */
-	public function isGoodFile(Config $source) {
+	public function isGoodFile($source) {
 		$info = pathinfo($this->path);
 
 		if (
@@ -62,6 +65,7 @@ class File {
 
 	/**
 	 * Remove file
+	 * @throws Exception
 	 */
 	public function remove() {
 		$file = basename($this->path);
@@ -87,8 +91,7 @@ class File {
 	 * @return string
 	 */
 	public function getPath() {
-		$path = str_replace('\\', Consts::DS, $this->path);
-		return $path;
+		return str_replace('\\', Consts::DS, $this->path);
 	}
 
 	/**
@@ -112,6 +115,9 @@ class File {
 		return filesize($this->getPath());
 	}
 
+	/**
+	 * @return false|int
+	 */
 	public function getTime() {
 		return filemtime($this->getPath());
 	}
@@ -125,7 +131,12 @@ class File {
 		return pathinfo($this->getPath(), PATHINFO_EXTENSION);
 	}
 
-	function getPathByRoot(Config $source) {
+	/**
+	 * @param Config $source
+	 * @return string|string[]
+	 * @throws Exception
+	 */
+	public function getPathByRoot($source) {
 		$path = preg_replace('#[\\\\/]#', '/', $this->getPath());
 		$root = preg_replace('#[\\\\/]#', '/', $source->getPath());
 
@@ -134,7 +145,6 @@ class File {
 
 	/**
 	 * Check by mimetype what file is image
-	 *
 	 * @return bool
 	 */
 	public function isImage() {
@@ -143,6 +153,10 @@ class File {
 				!function_exists('exif_imagetype') &&
 				!function_exists('Jodit\exif_imagetype')
 			) {
+				/**
+				 * @param $filename
+				 * @return false|mixed
+				 */
 				function exif_imagetype($filename) {
 					if ((list(, , $type) = getimagesize($filename)) !== false) {
 						return $type;
@@ -158,7 +172,7 @@ class File {
 				IMAGETYPE_PNG,
 				IMAGETYPE_BMP,
 			]);
-		} catch (\Exception $e) {
+		} catch (Exception $e) {
 			return false;
 		}
 	}

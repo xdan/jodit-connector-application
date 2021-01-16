@@ -6,7 +6,7 @@ use Codeception\Util\HttpCode;
 $I = new ApiTester($scenario);
 
 $I->wantTo('Get all folders from all sources');
-$I->sendGET('?action=folders');
+$I->sendGet('?action=folders');
 $I->seeResponseCodeIs(HttpCode::OK); // 200
 $I->seeResponseIsJson();
 

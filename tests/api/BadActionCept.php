@@ -1,12 +1,12 @@
 <?php
 /** @var \Codeception\Scenario $scenario */
 
-use Codeception\Util\HttpCode;
+use \Codeception\Util\HttpCode;
 
 $I = new ApiTester($scenario);
 $I->wantTo('Check bad action');
 
-$I->sendGET('?action=blabla'); // see file TestApplication.php
+$I->sendGet('?action=blabla'); // see file TestApplication.php
 $I->seeResponseCodeIs(HttpCode::OK); // 200
 $I->seeResponseIsJson();
 
@@ -19,7 +19,7 @@ $I->seeResponseContainsJson([
 
 $I->assertEquals(true, preg_match('#Action \\\\"blabla\\\\" not found#usi', $I->grabResponse()));
 
-$I->sendGET('?action=<script>alert(1)</script>'); // see file TestApplication.php
+$I->sendGet('?action=<script>alert(1)</script>'); // see file TestApplication.php
 $I->seeResponseCodeIs(HttpCode::OK); // 200
 $I->seeResponseIsJson();
 

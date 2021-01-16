@@ -7,7 +7,7 @@ $I = new ApiTester($scenario);
 
 $I->wantTo('Check uploading image from another site');
 
-$I->sendPOST('?',  [
+$I->sendPost('?',  [
     'action' => 'fileUpload',
     'source' => 'test'
 ], ['files' => [
@@ -37,7 +37,7 @@ $I->seeResponseContainsJson([
 ]);
 
 
-$I->sendPOST('',  [
+$I->sendPost('',  [
     'action' => 'fileUpload',
     'source' => 'test'
 ], ['files' => [
@@ -56,7 +56,7 @@ $I->seeResponseContainsJson([
 
 
 
-$I->sendPOST('',  [
+$I->sendPost('',  [
     'action' => 'fileUpload',
     'source' => 'folder1' // see config.php and maxfilesize option
 ], ['files' => [
@@ -74,7 +74,7 @@ $I->seeResponseContainsJson([
 ]);
 
 
-$I->sendGET('?action=fileRemove&source=test&name=test.png');
+$I->sendGet('?action=fileRemove&source=test&name=test.png');
 $I->seeResponseIsJson();
 
 $I->seeResponseContainsJson([

@@ -1,4 +1,8 @@
 <?php
+/** @var \Codeception\Scenario $scenario */
+
+use Codeception\Util\HttpCode;
+
 $I = new ApiTester($scenario);
 
 $I->wantTo('Check moving folder to another directory');
@@ -11,9 +15,9 @@ if (!file_exists($files_root . 'testMove')) {
 
 file_put_contents($files_root . 'testMove/test.txt', 'test');
 
-$I->sendGET('?action=folderMove&source=test&from=testMove&path=folder1');
+$I->sendGet('?action=folderMove&source=test&from=testMove&path=folder1');
 
-$I->seeResponseCodeIs(\Codeception\Util\HttpCode::OK); // 200
+$I->seeResponseCodeIs(HttpCode::OK); // 200
 
 $I->seeResponseIsJson();
 
