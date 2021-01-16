@@ -52,6 +52,7 @@ $I->seeResponseContainsJson([
 			"allowFileRemove" => true,
 			"allowFileRename" => false,
 			"allowFolders" => true,
+			"allowFolderTree" => true,
 			"allowFolderMove" => true,
 			"allowFolderCreate" => false,
 			"allowFolderRemove" => true,
@@ -68,6 +69,7 @@ $I->sendGet('?action=permissions');
 
 $I->seeResponseCodeIs(HttpCode::OK); // 200
 $I->seeResponseIsJson();
+echo $I->grabResponse();
 
 $I->seeResponseContainsJson([
 	"success" => true,
@@ -82,6 +84,7 @@ $I->seeResponseContainsJson([
 			"allowFolders" => true,
 			"allowFolderMove" => true,
 			"allowFolderCreate" => true,
+			"allowFolderTree" => true,
 			"allowFolderRemove" => true,
 			"allowFolderRename" => true,
 			"allowImageResize" => true,

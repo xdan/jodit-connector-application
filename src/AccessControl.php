@@ -36,6 +36,7 @@ class AccessControl {
 		'FOLDER_CREATE' => true,
 		'FOLDER_REMOVE' => true,
 		'FOLDER_RENAME' => true,
+		'FOLDER_TREE' => true,
 
 		'IMAGE_RESIZE' => true,
 		'IMAGE_CROP' => true,

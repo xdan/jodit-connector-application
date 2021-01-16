@@ -299,32 +299,31 @@ class Config {
 	/**
 	 * Get source by name
 	 *
-	 * @param string $sourceName
-	 *
+	 * @param string | null $sourceName
 	 * @return Config | null
+	 * @throws Exception
 	 */
-	public function getSource($sourceName = null) {
-		if ($sourceName === 'default') {
-			$sourceName = null;
+	public function getSource($sourceName) {
+		if (!$sourceName) {
+			$sourceName = array_key_first($this->sources);
 		}
 
-		foreach ($this->sources as $key => $item) {
-			if (!$sourceName || $sourceName === $key) {
-				return $item;
-			}
+		$source = isset($this->sources[$sourceName]) ? $this->sources[$sourceName] : null;
 
-			$source = $item !== $this ? $item->getSource($sourceName) : null;
-
-			if ($source) {
-				return $source;
-			}
+		if (!$source) {
+			throw new Exception(
+				'Source not found',
+				Consts::ERROR_CODE_NOT_EXISTS
+			);
 		}
 
-		if ($sourceName) {
-			return null;
-		}
+		$source->access->checkPermission(
+			$source->getUserRole(),
+			Jodit::$app->action,
+			$source->getPath()
+		);
 
-		return $this;
+		return $source;
 	}
 
 	/**

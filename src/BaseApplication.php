@@ -166,7 +166,7 @@ abstract class BaseApplication {
 	 * @throws Exception
 	 */
 	protected function getImageEditorInfo() {
-		$source = $this->getSource();
+		$source = $this->config->getSource($this->request->source);
 		$path = $source->getPath();
 
 		$file = $this->request->name;
@@ -285,7 +285,11 @@ abstract class BaseApplication {
 	 * @return File[]
 	 * @throws Exception
 	 */
-	public function move(Config $source) {
+	public function move($source) {
+		if (!isset($_FILES[$source->defaultFilesKey])) {
+			throw new Exception('Incorrect request', Consts::ERROR_CODE_BAD_REQUEST);
+		}
+
 		$files = $_FILES[$source->defaultFilesKey];
 		/**
 		 * @var $output File[]
@@ -447,35 +451,11 @@ abstract class BaseApplication {
 	}
 
 	/**
-	 * Return current source
-	 *
-	 * @return Config
-	 * @throws Exception
-	 */
-	public function getSource() {
-		$source = $this->config->getSource($this->request->source);
-
-		if (!$source) {
-			throw new Exception(
-				'Source not found',
-				Consts::ERROR_CODE_NOT_EXISTS
-			);
-		}
-
-		$this->config->access->checkPermission(
-			$this->config->getUserRole(),
-			$this->action,
-			$source->getPath()
-		);
-
-		return $source;
-	}
-
-	/**
 	 * @throws Exception
 	 */
 	protected function renamePath() {
-		$source = $this->getSource();
+		$source = $this->config->getSource($this->request->source);
+
 		$fromName = Helper::makeSafe($this->request->name);
 		$fromPath = $source->getPath() . $fromName;
 

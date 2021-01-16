@@ -72,7 +72,8 @@ class File {
 		$thumb =
 			dirname($this->path) .
 			Consts::DS .
-			Jodit::$app->getSource()->thumbFolderName .
+			Jodit::$app->config->getSource(Jodit::$app->request->source)
+				->thumbFolderName .
 			Consts::DS .
 			$file;
 
