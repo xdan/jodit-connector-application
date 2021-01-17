@@ -2,10 +2,10 @@
 
 namespace Jodit\actions;
 
-use Jodit\Config;
+use Jodit\components\Config;
+use Jodit\components\Request;
 use Jodit\Consts;
 use Jodit\Helper;
-use Jodit\Request;
 use Exception;
 
 /**
@@ -59,7 +59,7 @@ trait File {
 
 		Helper::downloadRemoteFile($url, $source->getRoot() . $filename);
 
-		$file = new \Jodit\File($source->getRoot() . $filename);
+		$file = new \Jodit\components\File($source->getRoot() . $filename);
 
 		try {
 			if (!$file->isGoodFile($source)) {
@@ -103,20 +103,15 @@ trait File {
 
 		$messages = [];
 
-		$files = $this->move($source);
+		$files = $this->uploadedFiles($source);
 
 		$isImages = [];
 
-		$files = array_map(function ($file) use (
-			$source,
-			$root,
-			&$isImages
-		) {
+		$files = array_map(function ($file) use ($source, $root, &$isImages) {
 			$messages[] = 'File ' . $file->getName() . ' was uploaded';
 			$isImages[] = $file->isImage();
 			return str_replace($root, '', $file->getPath());
-		},
-		$files);
+		}, $files);
 
 		if (!count($files)) {
 			throw new Exception(
@@ -139,60 +134,25 @@ trait File {
 	 * @throws Exception
 	 */
 	public function actionFileRemove() {
-		$source = $this->config->getSource($this->request->source);
-
-		$file_path = false;
-
-		$path = $source->getPath();
-
-		$target = $this->request->name;
-
-		if (
-			realpath($path . $target) &&
-			strpos(realpath($path . $target), $source->getRoot()) !== false
-		) {
-			$file_path = realpath($path . $target);
-		}
-
-		if (!$file_path || !file_exists($file_path)) {
-			throw new Exception(
-				'File or directory not exists ' . $path . $target,
-				Consts::ERROR_CODE_NOT_EXISTS
-			);
-		}
-
-		if (is_file($file_path)) {
-			$file = new \Jodit\File($file_path);
-			if (!$file->remove()) {
-				$error = (object) error_get_last();
-
-				throw new Exception(
-					'Delete failed! ' . $error->message,
-					Consts::ERROR_CODE_IS_NOT_WRITEBLE
-				);
-			}
-		} else {
-			throw new Exception(
-				'It is not a file!',
-				Consts::ERROR_CODE_IS_NOT_WRITEBLE
-			);
-		}
+		$this->config
+			->getSource($this->request->source)
+			->fileRemove($this->request->name);
 	}
 
 	/**
 	 * @param Config $source
-	 * @return \Jodit\File[]
+	 * @return \Jodit\components\File[]
 	 */
-	abstract public function move($source);
-	abstract public function movePath();
-	abstract public function renamePath();
+	abstract protected function uploadedFiles($source);
 
 	/**
 	 * Move file
 	 * @throws Exception
 	 */
 	public function actionFileMove() {
-		$this->movePath();
+		$this->config
+			->getSource($this->request->source)
+			->movePath($this->request->from);
 	}
 
 	/**
@@ -200,7 +160,9 @@ trait File {
 	 * @throws Exception
 	 */
 	public function actionFileRename() {
-		$this->renamePath();
+		$this->config
+			->getSource($this->request->source)
+			->renamePath($this->request->name, $this->request->newname);
 	}
 
 	/**
@@ -235,7 +197,7 @@ trait File {
 			$root = $source->getPath();
 
 			if (file_exists($root . $path) && is_file($root . $path)) {
-				$file = new \Jodit\File($root . $path);
+				$file = new \Jodit\components\File($root . $path);
 				if ($file->isGoodFile($source)) {
 					return [
 						'path' => str_replace(

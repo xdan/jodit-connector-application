@@ -6,10 +6,11 @@
  * @license    GNU General Public License version 2 or later; see LICENSE
  * @link       https://xdsoft.net/jodit/
  */
-namespace Jodit;
+namespace Jodit\components;
 
 use abeautifulsite\SimpleImage;
 use Exception;
+use Jodit\Consts;
 
 /**
  * Class Image

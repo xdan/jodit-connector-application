@@ -7,7 +7,7 @@
  * @link       https://xdsoft.net/jodit/
  */
 
-namespace Jodit;
+namespace Jodit\components;
 
 /**
  * Class Jodit
@@ -15,7 +15,7 @@ namespace Jodit;
  */
 class Jodit {
 	/**
-	 * @var \Jodit\BaseApplication
+	 * @var \Jodit\components\BaseApplication
 	 */
 	public static $app;
 }

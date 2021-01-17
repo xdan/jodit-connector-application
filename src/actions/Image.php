@@ -2,7 +2,7 @@
 
 namespace Jodit\actions;
 
-use Jodit\Config;
+use Jodit\components\Config;
 use Jodit\Consts;
 use Exception;
 

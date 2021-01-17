@@ -8,9 +8,10 @@
  * @link       https://xdsoft.net/jodit/
  */
 
-namespace Jodit;
+namespace Jodit\components;
 
 use Exception;
+use Jodit\Consts;
 
 /**
  * Class Files

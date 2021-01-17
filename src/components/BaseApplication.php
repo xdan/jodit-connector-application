@@ -7,10 +7,12 @@
  * @link       https://xdsoft.net/jodit/
  */
 
-namespace Jodit;
+namespace Jodit\components;
 
 use abeautifulsite\SimpleImage;
 use Exception;
+use Jodit\Consts;
+use Jodit\Helper;
 
 /**
  * Class BaseApplication
@@ -285,7 +287,7 @@ abstract class BaseApplication {
 	 * @return File[]
 	 * @throws Exception
 	 */
-	public function move($source) {
+	public function uploadedFiles($source) {
 		if (!isset($_FILES[$source->defaultFilesKey])) {
 			throw new Exception('Incorrect request', Consts::ERROR_CODE_BAD_REQUEST);
 		}
@@ -380,70 +382,6 @@ abstract class BaseApplication {
 	}
 
 	/**
-	 * Read folder and retrun filelist
-	 *
-	 * @param Config $source
-	 *
-	 * @return object
-	 * @throws Exception
-	 */
-	function read($source) {
-		$path = $source->getPath();
-
-		$sourceData = (object) [
-			'baseurl' => $source->baseurl,
-			'path' => str_replace(
-				realpath($source->getRoot()) . Consts::DS,
-				'',
-				$path
-			),
-			'files' => [],
-		];
-
-		try {
-			$this->config->access->checkPermission(
-				$this->config->getUserRole(),
-				$this->action,
-				$path
-			);
-		} catch (Exception $e) {
-			return $sourceData;
-		}
-
-		$dir = opendir($path);
-
-		$config = $this->config;
-
-		while ($file = readdir($dir)) {
-			if ($file != '.' && $file != '..' && is_file($path . $file)) {
-				$file = new File($path . $file);
-
-				if ($file->isGoodFile($source)) {
-					$item = ['file' => $file->getPathByRoot($source)];
-
-					if ($config->createThumb || !$file->isImage()) {
-						$item['thumb'] = Image::getThumb(
-							$file,
-							$source
-						)->getPathByRoot($source);
-					}
-
-					$item['changed'] = date(
-						$config->datetimeFormat,
-						$file->getTime()
-					);
-					$item['size'] = Helper::humanFileSize($file->getSize());
-					$item['isImage'] = $file->isImage();
-
-					$sourceData->files[] = $item;
-				}
-			}
-		}
-
-		return $sourceData;
-	}
-
-	/**
 	 * @return string
 	 */
 	public function getRoot() {
@@ -451,22 +389,13 @@ abstract class BaseApplication {
 	}
 
 	/**
+	 * Move file or directory to another folder
 	 * @throws Exception
 	 */
-	protected function renamePath() {
+	protected function movePath() {
 		$source = $this->config->getSource($this->request->source);
-
-		$fromName = Helper::makeSafe($this->request->name);
-		$fromPath = $source->getPath() . $fromName;
-
-		$this->config->access->checkPermission(
-			$this->config->getUserRole(),
-			$this->action,
-			$fromPath
-		);
-
-		$newName = Helper::makeSafe($this->request->newname);
-		$destinationPath = $source->getPath() . $newName;
+		$destinationPath = $source->getPath();
+		$sourcePath = $source->getPath($this->request->from);
 
 		$this->config->access->checkPermission(
 			$this->config->getUserRole(),
@@ -474,7 +403,13 @@ abstract class BaseApplication {
 			$destinationPath
 		);
 
-		if (!$fromPath) {
+		$this->config->access->checkPermission(
+			$this->config->getUserRole(),
+			$this->action,
+			$sourcePath
+		);
+
+		if (!$sourcePath) {
 			throw new Exception(
 				'Need source path',
 				Consts::ERROR_CODE_BAD_REQUEST
@@ -488,30 +423,10 @@ abstract class BaseApplication {
 			);
 		}
 
-		if (!is_file($fromPath) and !is_dir($fromPath)) {
-			throw new Exception(
-				'Path not exists',
-				Consts::ERROR_CODE_NOT_EXISTS
-			);
+		if (is_file($sourcePath) or is_dir($sourcePath)) {
+			rename($sourcePath, $destinationPath . basename($sourcePath));
+		} else {
+			throw new Exception('Not file', Consts::ERROR_CODE_NOT_EXISTS);
 		}
-
-		if (is_file($fromPath)) {
-			$ext = strtolower(pathinfo($fromPath, PATHINFO_EXTENSION));
-			$newExt = strtolower(
-				pathinfo($destinationPath, PATHINFO_EXTENSION)
-			);
-			if ($newExt !== $ext) {
-				$destinationPath .= '.' . $ext;
-			}
-		}
-
-		if (is_file($destinationPath) or is_dir($destinationPath)) {
-			throw new Exception(
-				'New ' . basename($destinationPath) . ' already exists',
-				Consts::ERROR_CODE_BAD_REQUEST
-			);
-		}
-
-		rename($fromPath, $destinationPath);
 	}
 }

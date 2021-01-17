@@ -1,7 +1,7 @@
 <?php
 namespace Jodit\actions;
 
-use Jodit\Config;
+use Jodit\components\Config;
 use Exception;
 
 
@@ -22,17 +22,11 @@ trait Files {
 		$sources = [];
 
 		foreach ($this->config->getSources() as $source) {
-			$sourceData = $this->read($source);
+			$sourceData = $source->items();
 			$sourceData->name = $source->sourceName;
 			$sources[] = $sourceData;
 		}
 
 		return ['sources' => $sources];
 	}
-
-	/**
-	 * @param $source
-	 * @return mixed
-	 */
-	abstract function read($source);
 }

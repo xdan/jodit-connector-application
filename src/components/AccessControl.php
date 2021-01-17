@@ -7,9 +7,11 @@
  * @link       https://xdsoft.net/jodit/
  */
 
-namespace Jodit;
+namespace Jodit\components;
 
 use Exception;
+use Jodit\Consts;
+use Jodit\Helper;
 
 /**
  * Class AccessControl

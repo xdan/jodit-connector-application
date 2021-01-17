@@ -7,9 +7,13 @@
  * @link       https://xdsoft.net/jodit/
  */
 
-namespace Jodit;
+namespace Jodit\components;
 
 use Exception;
+use Jodit\Consts;
+use Jodit\ISource;
+
+$defaultConfig = include __DIR__ . '/../defaultConfig.php';
 
 /**
  * Class Config
@@ -30,82 +34,10 @@ class Config {
 	 */
 	private $parent;
 
-	static $defaultOptions = [
-		'defaultFilesKey' => 'files',
-		'debug' => true, // must be true
-		'sources' => [],
-		'datetimeFormat' => 'm/d/Y g:i A',
-		'quality' => 90,
-		'defaultPermission' => 0775,
-		'createThumb' => true,
-		'thumbFolderName' => '_thumbs',
-		'excludeDirectoryNames' => ['.tmb', '.quarantine'],
-		'maxFileSize' => '8mb',
-		'allowCrossOrigin' => false,
-
-		/**
-		 * @var array
-		 * @see https://github.com/xdan/jodit-connectors#access-control
-		 */
-		'accessControl' => [],
-		'roleSessionVar' => 'JoditUserRole',
-		'defaultRole' => 'guest',
-		'allowReplaceSourceFile' => true,
-		'baseurl' => '',
-		'root' => '',
-		'extensions' => [
-			'jpg',
-			'png',
-			'gif',
-			'jpeg',
-			'bmp',
-			'ico',
-			'jpeg',
-			'psd',
-			'svg',
-			'ttf',
-			'tif',
-			'ai',
-			'txt',
-			'css',
-			'html',
-			'js',
-			'htm',
-			'ini',
-			'xml',
-			'zip',
-			'rar',
-			'7z',
-			'gz',
-			'tar',
-			'pps',
-			'ppt',
-			'pptx',
-			'odp',
-			'xls',
-			'xlsx',
-			'csv',
-			'doc',
-			'docx',
-			'pdf',
-			'rtf',
-			'',
-			'',
-			'',
-			'avi',
-			'flv',
-			'3gp',
-			'mov',
-			'mkv',
-			'mp4',
-			'wmv',
-		],
-		'imageExtensions' => ['jpg', 'png', 'gif', 'jpeg', 'bmp', 'svg', 'ico'],
-		'maxImageWidth' => 1900,
-		'maxImageHeight' => 1900,
-	];
+	static $defaultOptions;
 
 	private $data = [];
+
 	/**
 	 * @var Config[]
 	 */
@@ -119,7 +51,32 @@ class Config {
 	public $access;
 
 	/**
-	 * @return Config[]
+	 * @param $source
+	 * @param Config $param
+	 * @param $key
+	 * @return \Jodit\ISource
+	 * @throws Exception
+	 */
+	private static function makeSource($source, Config $param, $key) {
+		$className = !empty($source['sourceClassName'])
+			? $source['sourceClassName']
+			: $param->sourceClassName;
+
+		if (!$className) {
+			$className = self::$defaultOptions['sourceClassName'];
+		}
+
+		$instance = new $className($source, $param, $key);
+
+		if ($instance instanceof ISource) {
+			return $instance;
+		}
+
+		throw new Exception("Class '{$className}' does not implement ISource");
+	}
+
+	/**
+	 * @return ISource[]
 	 * @throws Exception
 	 */
 	public function getSources() {
@@ -231,7 +188,7 @@ class Config {
 			count($data->sources)
 		) {
 			foreach ($data->sources as $key => $source) {
-				$this->sources[$key] = new Config($source, $this, $key);
+				$this->sources[$key] = self::makeSource($source, $this, $key);
 			}
 		} else {
 			$this->sources['default'] = $this;
@@ -308,7 +265,9 @@ class Config {
 			$sourceName = array_key_first($this->sources);
 		}
 
-		$source = isset($this->sources[$sourceName]) ? $this->sources[$sourceName] : null;
+		$source = isset($this->sources[$sourceName])
+			? $this->sources[$sourceName]
+			: null;
 
 		if (!$source) {
 			throw new Exception(
@@ -374,3 +333,5 @@ class Config {
 		return $this;
 	}
 }
+
+Config::$defaultOptions = $defaultConfig;
