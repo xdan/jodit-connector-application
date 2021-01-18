@@ -43,12 +43,22 @@ class Request {
 	 */
 	public function get ($key, $default_value = null) {
 		if (isset($_REQUEST[$key])) {
-			return $_REQUEST[$key];
+			return $this->prepareValue($_REQUEST[$key]);
 		}
+
 		if (isset($this->rawData[$key])) {
-			return $this->rawData[$key];
+			return $this->prepareValue($this->rawData[$key]);
 		}
+
 		return $default_value;
+	}
+
+	private function prepareValue($str) {
+		if ($str === 'false' || $str === 'true') {
+			return $str === 'true';
+		}
+
+		return $str;
 	}
 
 	/**

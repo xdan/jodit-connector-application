@@ -16,7 +16,7 @@
 		}
 	},
 	"require": {
-		"php": ">=5.4.0",
+		"php": ">=5.5",
 		"ext-curl": ">=6.0.0",
 		"abeautifulsite/simpleimage": "^2.7",
 		"ext-gd": "*",

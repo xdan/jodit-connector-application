@@ -8,6 +8,7 @@ use Exception;
 use Jodit\components\Config;
 use Jodit\components\File;
 use Jodit\components\Image;
+use Jodit\components\Jodit;
 use Jodit\Consts;
 use Jodit\Helper;
 use Jodit\interfaces\IFile;
@@ -161,7 +162,9 @@ class FileSystem extends ISource {
 			'folders' => [],
 		];
 
-		$sourceData->folders[] = $path === $this->getRoot() ? '.' : '..';
+		if (Jodit::$app->request->dots !== false) {
+			$sourceData->folders[] = $path === $this->getRoot() ? '.' : '..';
+		}
 
 		$dir = opendir($path);
 		while ($file = readdir($dir)) {
