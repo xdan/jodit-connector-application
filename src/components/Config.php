@@ -13,7 +13,7 @@ use Exception;
 use Jodit\Consts;
 use Jodit\interfaces\ISource;
 
-$defaultConfig = include __DIR__ . '/../defaultConfig.php';
+$defaultConfig = include __DIR__ . '/../configs/defaultConfig.php';
 
 /**
  * Class Config

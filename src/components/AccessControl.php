@@ -20,29 +20,7 @@ use Jodit\Helper;
 class AccessControl {
 	private $accessList = [];
 
-	public static $defaultRule = [
-		'role' => '*',
-
-		'extensions' => '*',
-		'path' => '/',
-
-		'FILES' => true,
-		'FILE_MOVE' => true,
-		'FILE_UPLOAD' => true,
-		'FILE_UPLOAD_REMOTE' => true,
-		'FILE_REMOVE' => true,
-		'FILE_RENAME' => true,
-
-		'FOLDERS' => true,
-		'FOLDER_MOVE' => true,
-		'FOLDER_CREATE' => true,
-		'FOLDER_REMOVE' => true,
-		'FOLDER_RENAME' => true,
-		'FOLDER_TREE' => true,
-
-		'IMAGE_RESIZE' => true,
-		'IMAGE_CROP' => true,
-	];
+	public static $defaultRule;
 
 	/**
 	 * @param array $list
@@ -167,3 +145,5 @@ class AccessControl {
 		return true;
 	}
 }
+
+AccessControl::$defaultRule = include(__DIR__ . '/../configs/defaultRules.php');

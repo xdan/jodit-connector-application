@@ -189,7 +189,9 @@ class FileSystem extends ISource {
 	 * @return mixed
 	 */
 	public function tree($path) {
-		return $this->getTree($path);
+		return [
+			'tree' => $this->getTree($path)
+		];
 	}
 
 	/**
@@ -200,13 +202,19 @@ class FileSystem extends ISource {
 		$dir = opendir($path);
 		$tree = [];
 
+		$this->access->checkPermission(
+			$this->getUserRole(),
+			'FOLDER_TREE',
+			$path
+		);
+
 		while ($file = readdir($dir)) {
 			if (is_dir($path . $file) and !$this->isExcluded($file)) {
 				$tree[] = [
 					'name' => $file,
 					'path' => $path . $file,
 					'sourceName' => $this->sourceName,
-					'children' => $this->getTree($path . $file),
+					'children' => $this->getTree($path . $file . '/'),
 				];
 			}
 		}
