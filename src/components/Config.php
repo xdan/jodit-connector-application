@@ -11,7 +11,7 @@ namespace Jodit\components;
 
 use Exception;
 use Jodit\Consts;
-use Jodit\ISource;
+use Jodit\interfaces\ISource;
 
 $defaultConfig = include __DIR__ . '/../defaultConfig.php';
 
@@ -26,6 +26,7 @@ $defaultConfig = include __DIR__ . '/../defaultConfig.php';
  * @property number $quality
  * @property string $datetimeFormat
  * @property string $baseurl
+ * @property number $defaultPermission
  * @package jodit
  */
 class Config {
@@ -39,7 +40,7 @@ class Config {
 	private $data = [];
 
 	/**
-	 * @var Config[]
+	 * @var ISource[]
 	 */
 	public $sources = [];
 
@@ -54,7 +55,7 @@ class Config {
 	 * @param $source
 	 * @param Config $param
 	 * @param $key
-	 * @return \Jodit\ISource
+	 * @return \Jodit\interfaces\ISource
 	 * @throws Exception
 	 */
 	private static function makeSource($source, Config $param, $key) {
@@ -159,6 +160,7 @@ class Config {
 	 * @param array $data
 	 * @param null | false | Config $parent
 	 * @param string $sourceName
+	 * @throws Exception
 	 */
 	function __construct($data, $parent = null, $sourceName = 'default') {
 		$this->parent = $parent;
@@ -180,18 +182,19 @@ class Config {
 			}
 
 			$this->parent = new Config(self::$defaultOptions, false);
-		}
 
-		if (
-			isset($data->sources) and
-			is_array($data->sources) and
-			count($data->sources)
-		) {
-			foreach ($data->sources as $key => $source) {
-				$this->sources[$key] = self::makeSource($source, $this, $key);
+
+			if (
+				isset($data->sources) and
+				is_array($data->sources) and
+				count($data->sources)
+			) {
+				foreach ($data->sources as $key => $source) {
+					$this->sources[$key] = self::makeSource($source, $this, $key);
+				}
+			} else {
+				$this->sources['default'] = self::makeSource([], $this, 'default');;
 			}
-		} else {
-			$this->sources['default'] = $this;
 		}
 	}
 
@@ -257,7 +260,7 @@ class Config {
 	 * Get source by name
 	 *
 	 * @param string | null $sourceName
-	 * @return Config | null
+	 * @return ISource | null
 	 * @throws Exception
 	 */
 	public function getSource($sourceName) {
@@ -287,7 +290,7 @@ class Config {
 
 	/**
 	 * @param string|null $sourceName
-	 * @return $this|Config
+	 * @return $this|ISource
 	 * @throws Exception
 	 */
 	public function getCompatibleSource($sourceName = null) {

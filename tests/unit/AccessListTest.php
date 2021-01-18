@@ -4,17 +4,17 @@
 class AccessListTest extends \Codeception\Test\Unit
 {
     /**
-     * @var \UnitTester
+     * @var UnitTester
      */
     protected $tester;
 	/**
-	 * @var \Jodit\AccessControl
+	 * @var \Jodit\components\AccessControl
 	 */
     protected $access;
 
     protected function _before()
     {
-	    $this->access = new \Jodit\AccessControl();
+	    $this->access = new \Jodit\components\AccessControl();
     }
 
     protected function _after()

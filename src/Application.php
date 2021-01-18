@@ -9,7 +9,6 @@
 
 namespace Jodit;
 
-use Exception;
 use Jodit\components\BaseApplication;
 use Jodit\actions\Folder;
 use Jodit\actions\Tree;

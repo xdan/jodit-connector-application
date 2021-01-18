@@ -12,7 +12,7 @@ $I->sendGet('?action=files&custom_config=' . rawurlencode(json_encode([
 
 $I->seeResponseCodeIs(HttpCode::OK); // 200
 $I->seeResponseIsJson();
-echo $I->grabResponse();
+
 $I->seeResponseContainsJson([
 	"success" => true,
 	"data" => [

@@ -2,19 +2,82 @@
 
 namespace Jodit\sources;
 
+use abeautifulsite\SimpleImage;
+
 use Exception;
 use Jodit\components\Config;
 use Jodit\components\File;
 use Jodit\components\Image;
 use Jodit\Consts;
 use Jodit\Helper;
-use Jodit\ISource;
+use Jodit\interfaces\IFile;
+use Jodit\interfaces\ISource;
 
 /**
  * Class FileSystem
  * @package Jodit\sources
  */
 class FileSystem extends ISource {
+	/**
+	 * @param string $path
+	 * @param string $content
+	 * @return IFile
+	 * @throws Exception
+	 */
+	public function makeFile($path, $content = null) {
+		if ($content !== null) {
+			file_put_contents($path, $content);
+		}
+
+		return File::create($path);
+	}
+
+	/**
+	 * @param string $path
+	 */
+	public function makeFolder($path) {
+		mkdir($path, $this->defaultPermission);
+	}
+
+	/**
+	 * @param IFile $file
+	 * @return mixed
+	 */
+	public function makeThumb(IFile $file) {
+		$path = $file->getFolder();
+
+		if (!is_dir($path . $this->thumbFolderName)) {
+			$this->makeFolder($path . $this->thumbFolderName);
+		}
+
+		$thumbName =
+			$path . $this->thumbFolderName . Consts::DS . $file->getName();
+
+		if (!$file->isImage()) {
+			$thumbName =
+				$path .
+				$this->thumbFolderName .
+				Consts::DS .
+				$file->getName() .
+				'.svg';
+		}
+
+		if (!file_exists($thumbName)) {
+			if ($file->isImage()) {
+				try {
+					$img = new SimpleImage($file->getPath());
+					$img->best_fit(150, 150)->save($thumbName, $this->quality);
+				} catch (Exception $e) {
+					return $file;
+				}
+			} else {
+				Image::generateIcon($file, $thumbName, $this);
+			}
+		}
+
+		return $this->makeFile($thumbName);
+	}
+
 	/**
 	 * @return mixed
 	 */
@@ -55,16 +118,15 @@ class FileSystem extends ISource {
 
 		while ($file = readdir($dir)) {
 			if ($file != '.' && $file != '..' && is_file($path . $file)) {
-				$file = new File($path . $file);
+				$file = $this->makeFile($path . $file);
 
 				if ($file->isGoodFile($this)) {
 					$item = ['file' => $file->getPathByRoot($this)];
 
 					if ($config->createThumb || !$file->isImage()) {
-						$item['thumb'] = Image::getThumb(
-							$file,
+						$item['thumb'] = $this->makeThumb($file)->getPathByRoot(
 							$this
-						)->getPathByRoot($this);
+						);
 					}
 
 					$item['changed'] = date(
@@ -292,7 +354,7 @@ class FileSystem extends ISource {
 		}
 
 		if (is_file($file_path)) {
-			$file = new \Jodit\components\File($file_path);
+			$file = $this->makeFile($file_path);
 
 			if (!$file->remove()) {
 				$error = (object) error_get_last();
@@ -358,5 +420,36 @@ class FileSystem extends ISource {
 				Consts::ERROR_CODE_NOT_EXISTS
 			);
 		}
+	}
+
+	/**
+	 * @param string $url
+	 * @return mixed
+	 */
+	public function resolveFileByUrl($url) {
+		$base = parse_url($this->baseurl);
+		$parts = parse_url($url);
+
+		$path = preg_replace('#^(/)?' . $base['path'] . '#', '', $parts['path']);
+
+		$root = $this->getPath();
+
+		if (file_exists($root . $path) && is_file($root . $path)) {
+			$file = $this->makeFile($root . $path);
+
+			if ($file->isGoodFile($this)) {
+				return [
+					'path' => str_replace(
+						$root,
+						'',
+						dirname($root . $path) . Consts::DS
+					),
+					'name' => basename($path),
+					'source' => $this->sourceName,
+				];
+			}
+		}
+
+		return null;
 	}
 }

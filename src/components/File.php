@@ -12,18 +12,28 @@ namespace Jodit\components;
 
 use Exception;
 use Jodit\Consts;
+use Jodit\interfaces\IFile;
 
 /**
  * Class Files
  */
-class File {
+class File extends IFile {
+	/**
+	 * @param string $path
+	 * @return File
+	 * @throws Exception
+	 */
+	public static function create ($path) {
+		return new File($path);
+	}
+
 	private $path = '';
 
 	/**
 	 * @param string $path
 	 * @throws Exception
 	 */
-	public function __construct($path) {
+	protected function __construct ($path) {
 		$path = realpath($path);
 
 		if (!$path) {
@@ -42,7 +52,7 @@ class File {
 	 * @param Config $source
 	 * @return bool
 	 */
-	public function isGoodFile($source) {
+	public function isGoodFile ($source) {
 		$info = pathinfo($this->path);
 
 		if (
@@ -68,7 +78,7 @@ class File {
 	 * Remove file
 	 * @throws Exception
 	 */
-	public function remove() {
+	public function remove () {
 		$file = basename($this->path);
 		$thumb =
 			dirname($this->path) .
@@ -92,35 +102,35 @@ class File {
 	/**
 	 * @return string
 	 */
-	public function getPath() {
+	public function getPath () {
 		return str_replace('\\', Consts::DS, $this->path);
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getFolder() {
+	public function getFolder () {
 		return dirname($this->getPath()) . Consts::DS;
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getName() {
+	public function getName () {
 		return basename($this->path);
 	}
 
 	/**
 	 * @return int
 	 */
-	public function getSize() {
+	public function getSize () {
 		return filesize($this->getPath());
 	}
 
 	/**
 	 * @return false|int
 	 */
-	public function getTime() {
+	public function getTime () {
 		return filemtime($this->getPath());
 	}
 
@@ -129,7 +139,7 @@ class File {
 	 *
 	 * @return string
 	 */
-	public function getExtension() {
+	public function getExtension () {
 		return pathinfo($this->getPath(), PATHINFO_EXTENSION);
 	}
 
@@ -138,7 +148,7 @@ class File {
 	 * @return string|string[]
 	 * @throws Exception
 	 */
-	public function getPathByRoot($source) {
+	public function getPathByRoot ($source) {
 		$path = preg_replace('#[\\\\/]#', '/', $this->getPath());
 		$root = preg_replace('#[\\\\/]#', '/', $source->getPath());
 
@@ -149,7 +159,7 @@ class File {
 	 * Check by mimetype what file is image
 	 * @return bool
 	 */
-	public function isImage() {
+	public function isImage () {
 		try {
 			if (
 				!function_exists('exif_imagetype') &&
@@ -159,7 +169,7 @@ class File {
 				 * @param $filename
 				 * @return false|mixed
 				 */
-				function exif_imagetype($filename) {
+				function exif_imagetype ($filename) {
 					if ((list(, , $type) = getimagesize($filename)) !== false) {
 						return $type;
 					}

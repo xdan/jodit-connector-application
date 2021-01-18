@@ -13,6 +13,8 @@ use abeautifulsite\SimpleImage;
 use Exception;
 use Jodit\Consts;
 use Jodit\Helper;
+use Jodit\interfaces\IFile;
+use Jodit\interfaces\ISource;
 
 /**
  * Class BaseApplication
@@ -283,8 +285,8 @@ abstract class BaseApplication {
 	}
 
 	/**
-	 * @param Config $source
-	 * @return File[]
+	 * @param ISource $source
+	 * @return IFile[]
 	 * @throws Exception
 	 */
 	public function uploadedFiles($source) {
@@ -334,7 +336,7 @@ abstract class BaseApplication {
 						);
 					}
 
-					$file = new File($new_path);
+					$file = $source->makeFile($new_path);
 
 					try {
 						$this->config->access->checkPermission(
@@ -386,47 +388,5 @@ abstract class BaseApplication {
 	 */
 	public function getRoot() {
 		return realpath($_SERVER['DOCUMENT_ROOT']) . Consts::DS;
-	}
-
-	/**
-	 * Move file or directory to another folder
-	 * @throws Exception
-	 */
-	protected function movePath() {
-		$source = $this->config->getSource($this->request->source);
-		$destinationPath = $source->getPath();
-		$sourcePath = $source->getPath($this->request->from);
-
-		$this->config->access->checkPermission(
-			$this->config->getUserRole(),
-			$this->action,
-			$destinationPath
-		);
-
-		$this->config->access->checkPermission(
-			$this->config->getUserRole(),
-			$this->action,
-			$sourcePath
-		);
-
-		if (!$sourcePath) {
-			throw new Exception(
-				'Need source path',
-				Consts::ERROR_CODE_BAD_REQUEST
-			);
-		}
-
-		if (!$destinationPath) {
-			throw new Exception(
-				'Need destination path',
-				Consts::ERROR_CODE_BAD_REQUEST
-			);
-		}
-
-		if (is_file($sourcePath) or is_dir($sourcePath)) {
-			rename($sourcePath, $destinationPath . basename($sourcePath));
-		} else {
-			throw new Exception('Not file', Consts::ERROR_CODE_NOT_EXISTS);
-		}
 	}
 }

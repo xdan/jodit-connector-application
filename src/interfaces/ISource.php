@@ -1,13 +1,13 @@
 <?php
 
-namespace Jodit;
+namespace Jodit\interfaces;
 
 
 use Jodit\components\Config;
 
 /**
  * Interface ISource
- * @package Jodit\sources
+ * @package Jodit\interfaces
  */
 abstract class ISource extends Config {
 	/**
@@ -19,6 +19,18 @@ abstract class ISource extends Config {
 	 * @return mixed
 	 */
 	abstract public function folders();
+
+	/**
+	 * @param string $path
+	 * @return mixed
+	 */
+	abstract public function makeFolder($path);
+
+	/**
+	 * @param IFile $file
+	 * @return mixed
+	 */
+	abstract public function makeThumb(IFile $file);
 
 	/**
 	 * @param string $file
@@ -57,8 +69,21 @@ abstract class ISource extends Config {
 	abstract public function fileRemove($path);
 
 	/**
-	 * @param $name
+	 * @param string $name
 	 * @return mixed
 	 */
 	abstract public function folderRemove($name);
+
+	/**
+	 * @param string $url
+	 * @return mixed
+	 */
+	abstract public function resolveFileByUrl($url);
+
+	/**
+	 * @param string $path
+	 * @param string $content
+	 * @return IFile
+	 */
+	abstract public function makeFile($path, $content = null);
 }

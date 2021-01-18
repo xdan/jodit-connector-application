@@ -7,6 +7,8 @@ use Jodit\components\Request;
 use Jodit\Consts;
 use Jodit\Helper;
 use Exception;
+use Jodit\interfaces\IFile;
+use Jodit\interfaces\ISource;
 
 /**
  * Trait File
@@ -59,7 +61,7 @@ trait File {
 
 		Helper::downloadRemoteFile($url, $source->getRoot() . $filename);
 
-		$file = new \Jodit\components\File($source->getRoot() . $filename);
+		$file = $source->makeFile($source->getRoot() . $filename);
 
 		try {
 			if (!$file->isGoodFile($source)) {
@@ -140,8 +142,8 @@ trait File {
 	}
 
 	/**
-	 * @param Config $source
-	 * @return \Jodit\components\File[]
+	 * @param ISource $source
+	 * @return IFile[]
 	 */
 	abstract protected function uploadedFiles($source);
 
@@ -186,29 +188,10 @@ trait File {
 		}
 
 		foreach ($this->config->getSources() as $source) {
-			$base = parse_url($source->baseurl);
+			$result = $source->resolveFileByUrl($url);
 
-			$path = preg_replace(
-				'#^(/)?' . $base['path'] . '#',
-				'',
-				$parts['path']
-			);
-
-			$root = $source->getPath();
-
-			if (file_exists($root . $path) && is_file($root . $path)) {
-				$file = new \Jodit\components\File($root . $path);
-				if ($file->isGoodFile($source)) {
-					return [
-						'path' => str_replace(
-							$root,
-							'',
-							dirname($root . $path) . Consts::DS
-						),
-						'name' => basename($path),
-						'source' => $source->sourceName,
-					];
-				}
+			if ($result) {
+				return $result;
 			}
 		}
 

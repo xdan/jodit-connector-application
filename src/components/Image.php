@@ -8,9 +8,8 @@
  */
 namespace Jodit\components;
 
-use abeautifulsite\SimpleImage;
-use Exception;
-use Jodit\Consts;
+use Jodit\interfaces\IFile;
+use Jodit\interfaces\ISource;
 
 /**
  * Class Image
@@ -102,14 +101,16 @@ class Image {
 	}
 
 	/**
-	 * @param File $file
-	 * @param $iconname
+	 * @param IFile $file
+	 * @param string $iconName
+	 * @param ISource $source
 	 * @param int $width
 	 * @param int $height
 	 */
 	public static function generateIcon(
-		File $file,
-		$iconname,
+		IFile $file,
+		$iconName,
+		ISource $source,
 		$width = 100,
 		$height = 100
 	) {
@@ -157,49 +158,6 @@ class Image {
 	</svg>
 HTML;
 
-		file_put_contents($iconname, $svg);
-	}
-
-	/**
-	 * @param File $file
-	 * @return File
-	 * @throws Exception
-	 */
-	public static function getThumb(File $file, Config $config) {
-		$path = $file->getFolder();
-
-		if (!is_dir($path . $config->thumbFolderName)) {
-			mkdir($path . $config->thumbFolderName, 0777);
-		}
-
-		$thumbName =
-			$path . $config->thumbFolderName . Consts::DS . $file->getName();
-
-		if (!$file->isImage()) {
-			$thumbName =
-				$path .
-				$config->thumbFolderName .
-				Consts::DS .
-				$file->getName() .
-				'.svg';
-		}
-
-		if (!file_exists($thumbName)) {
-			if ($file->isImage()) {
-				try {
-					$img = new SimpleImage($file->getPath());
-					$img->best_fit(150, 150)->save(
-						$thumbName,
-						$config->quality
-					);
-				} catch (Exception $e) {
-					return $file;
-				}
-			} else {
-				self::generateIcon($file, $thumbName);
-			}
-		}
-
-		return new File($thumbName);
+		$source->makeFile($iconName, $svg);
 	}
 }
