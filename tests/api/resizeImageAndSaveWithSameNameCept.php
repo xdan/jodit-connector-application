@@ -8,7 +8,7 @@ $I = new ApiTester($scenario);
 $I->wantTo('Resize image and save it with same name');
 
 $name = 'test' . rand(10000, 20000);
-copy(__DIR__ . '/../files/artio.jpg', __DIR__ . '/../files/' . $name . '.jpg');
+copy(__DIR__ . '/../files/pexels-yuri-manei-2337448.jpg', __DIR__ . '/../files/' . $name . '.jpg');
 
 $I->sendPost('',  [
     'action' => 'imageResize',

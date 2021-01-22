@@ -40,13 +40,6 @@ abstract class ISource extends Config {
 
 
 	/**
-	 * @param string $path
-	 * @return mixed
-	 */
-	abstract public function tree($path);
-
-
-	/**
 	 * @param $fromName
 	 * @return mixed
 	 */

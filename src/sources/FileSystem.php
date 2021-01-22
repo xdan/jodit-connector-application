@@ -238,16 +238,6 @@ class FileSystem extends ISource {
 
 	/**
 	 * @param string $path
-	 * @return mixed
-	 */
-	public function tree($path) {
-		return [
-			'tree' => $this->getTree($path),
-		];
-	}
-
-	/**
-	 * @param string $path
 	 * @return array
 	 */
 	private function getTree($path) {

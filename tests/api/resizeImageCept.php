@@ -16,7 +16,7 @@ $I->sendPost('',  [
         'w' => 30,
         'h' => 30,
     ],
-    'name' => 'artio.jpg',
+    'name' => 'pexels-yuri-manei-2337448.jpg',
     'newname' => $name
 ]);
 

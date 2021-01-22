@@ -7,23 +7,7 @@ $I = new ApiTester($scenario);
 
 $I->wantTo('Get all folders from Test source');
 
-//$I->sendGet('?action=folders&source=test&path=folder1');
-//$I->seeResponseCodeIs(HttpCode::OK); // 200
-//$I->seeResponseIsJson();
-//
-//$I->seeResponseContainsJson([
-//    "success" => true,
-//    "data" => [
-//        "code" => 220
-//    ]
-//]);
-//
-//$json = json_decode($I->grabResponse());
-//
-//$I->assertContains('..', $json->data->sources[0]->folders);
-
 $I->sendGet('?action=folders&source=test&path=folder1&dots=false');
-echo $I->grabResponse();
 $json = json_decode($I->grabResponse());
 
 $I->assertNotContains('..', $json->data->sources[0]->folders);

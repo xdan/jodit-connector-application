@@ -46,5 +46,7 @@ $I->sendGet('?action=folderRename&source=test&name=folder2&path=&newname=folder1
 
 $I->assertFileExists($files_root . 'folder1');
 
+$I->recurseRemove($files_root . 'subfolder');
+
 
 

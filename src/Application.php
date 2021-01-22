@@ -11,7 +11,6 @@ namespace Jodit;
 
 use Jodit\components\BaseApplication;
 use Jodit\actions\Folder;
-use Jodit\actions\Tree;
 use Jodit\actions\Files;
 use Jodit\actions\File;
 use Jodit\actions\Image;
@@ -22,7 +21,6 @@ use Jodit\actions\Permissions;
  * @package Jodit
  */
 abstract class Application extends BaseApplication {
-	use Tree;
 	use Files;
 	use Folder;
 	use File;
