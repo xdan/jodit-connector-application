@@ -14,6 +14,11 @@ abstract class IFile {
 	 */
 	abstract public function isGoodFile($source);
 
+	/**
+	 * @return bool
+	 */
+	abstract public function isDirectory(): bool;
+
 	abstract public function remove();
 
 	/**

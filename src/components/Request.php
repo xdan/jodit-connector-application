@@ -53,9 +53,16 @@ class Request {
 		return $default_value;
 	}
 
+	/**
+	 * @param $str
+	 */
 	private function prepareValue($str) {
 		if ($str === 'false' || $str === 'true') {
 			return $str === 'true';
+		}
+
+		if (is_numeric($str)) {
+			return floatval($str);
 		}
 
 		return $str;
@@ -95,5 +102,31 @@ class Request {
 	 */
 	public function getMethod() {
 		return strtoupper(getenv('REQUEST_METHOD'));
+	}
+
+	/**
+	 * @param string $keys
+	 * @param null $default_value
+	 * @return bool|mixed|null
+	 */
+	public function getField(string $keys, $default_value = null) {
+		$keys_chain = explode('/', $keys);
+		$result = $this->get($keys_chain[0]);
+
+		if ($result == null) {
+			return $default_value;
+		}
+
+		$result = (array)$result;
+
+		foreach (array_slice($keys_chain, 1) as $key) {
+			if ($key and is_array($result) && isset($result[$key])) {
+				$result = $result[$key];
+			} else {
+				return $default_value;
+			}
+		}
+
+		return $this->prepareValue($result);
 	}
 }

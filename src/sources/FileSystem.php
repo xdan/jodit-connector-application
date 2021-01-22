@@ -67,7 +67,10 @@ class FileSystem extends ISource {
 			if ($file->isImage()) {
 				try {
 					$img = new SimpleImage($file->getPath());
-					$img->best_fit(150, 150)->save($thumbName, $this->quality);
+					$img->best_fit($this->thumbSize, $this->thumbSize)->save(
+						$thumbName,
+						$this->quality
+					);
 				} catch (Exception $e) {
 					return $file;
 				}
@@ -81,6 +84,7 @@ class FileSystem extends ISource {
 
 	/**
 	 * @return mixed
+	 * @throws Exception
 	 */
 	public function items() {
 		/**
@@ -106,39 +110,80 @@ class FileSystem extends ISource {
 		try {
 			$this->access->checkPermission(
 				$this->getUserRole(),
-				$this->action,
+				Jodit::$app->action,
 				$path
 			);
 		} catch (Exception $e) {
 			return $sourceData;
 		}
 
-		$dir = opendir($path);
-
 		$config = $this;
 
-		while ($file = readdir($dir)) {
-			if ($file != '.' && $file != '..' && is_file($path . $file)) {
-				$file = $this->makeFile($path . $file);
+		$offset = Jodit::$app->request->getField('mods/offset', 0);
+		$limit = Jodit::$app->request->getField(
+			'mods/limit',
+			$this->countInChunk
+		);
+		$withFolders = Jodit::$app->request->getField(
+			'mods/withFolders',
+			false
+		);
+		$sortBy = (string) Jodit::$app->request->getField(
+			'mods/sortBy',
+			$this->defaultSortBy
+		);
 
-				if ($file->isGoodFile($this)) {
-					$item = ['file' => $file->getPathByRoot($this)];
+		$files = array_filter(scandir($path), function ($file) use (
+			$path,
+			$withFolders
+		) {
+			if (is_dir($path . $file) && !$withFolders) {
+				return false;
+			}
 
-					if ($config->createThumb || !$file->isImage()) {
-						$item['thumb'] = $this->makeThumb($file)->getPathByRoot(
-							$this
-						);
-					}
+			return !$this->isExcluded($file);
+		});
 
-					$item['changed'] = date(
-						$config->datetimeFormat,
-						$file->getTime()
+		if ($files === false) {
+			throw new Exception('Files not found');
+		}
+
+		$this->sortByMode($path, $files, $sortBy);
+
+		foreach (array_slice($files, $offset, $limit - 1) as $index => $fileName) {
+			$file = $this->makeFile($path . $fileName);
+
+			if ($file->isGoodFile($this)) {
+				$item = [
+					'file' => $file->getPathByRoot($this),
+					'name' => $fileName,
+					'type' => $file->isImage() ? 'image' : 'file'
+				];
+
+				if ($config->createThumb || !$file->isImage()) {
+					$item['thumb'] = $this->makeThumb($file)->getPathByRoot(
+						$this
 					);
-					$item['size'] = Helper::humanFileSize($file->getSize());
-					$item['isImage'] = $file->isImage();
-
-					$sourceData->files[] = $item;
 				}
+
+				$item['changed'] = date(
+					$config->datetimeFormat,
+					$file->getTime()
+				);
+
+				$item['size'] = Helper::humanFileSize($file->getSize());
+				$item['isImage'] = $file->isImage();
+
+				$sourceData->files[] = $item;
+			} elseif ($file->isDirectory()) {
+				$item = [
+					'file' => $file->getPathByRoot($this),
+					'name' => $fileName,
+					'thumb' => $this->makeThumb($file)->getPathByRoot($this),
+					'type' => 'folder'
+				];
+
+				$sourceData->files[] = $item;
 			}
 		}
 
@@ -193,7 +238,7 @@ class FileSystem extends ISource {
 	 */
 	public function tree($path) {
 		return [
-			'tree' => $this->getTree($path)
+			'tree' => $this->getTree($path),
 		];
 	}
 
@@ -441,7 +486,11 @@ class FileSystem extends ISource {
 		$base = parse_url($this->baseurl);
 		$parts = parse_url($url);
 
-		$path = preg_replace('#^(/)?' . $base['path'] . '#', '', $parts['path']);
+		$path = preg_replace(
+			'#^(/)?' . $base['path'] . '#',
+			'',
+			$parts['path']
+		);
 
 		$root = $this->getPath();
 
@@ -462,5 +511,51 @@ class FileSystem extends ISource {
 		}
 
 		return null;
+	}
+
+	/**
+	 * @param string $path
+	 * @param array $files
+	 * @param string $sortBy
+	 */
+	private function sortByMode(string $path, array &$files, string $sortBy) {
+		switch ($sortBy) {
+			case 'name-asc':
+				sort($files);
+				break;
+
+			case 'name-desc':
+				rsort($files);
+				break;
+
+			case 'changed-desc':
+			case 'changed-asc':
+			case 'size-asc':
+			case 'size-desc':
+				usort($files, function ($fileA, $fileB) use ($sortBy, $path) {
+					switch ($sortBy) {
+						case 'changed-desc':
+						case 'changed-asc':
+							$a = filemtime($path . $fileA);
+							$b = filemtime($path . $fileB);
+							return $sortBy === 'changed-asc'
+								? $a - $b
+								: $b - $a;
+
+						case 'size-desc':
+						case 'size-asc':
+							$a = filesize($path . $fileA);
+							$b = filesize($path . $fileB);
+							return $sortBy === 'size-asc' ? $a - $b : $b - $a;
+					}
+
+					return 0;
+				});
+
+				break;
+
+			default:
+				rsort($files);
+		}
 	}
 }

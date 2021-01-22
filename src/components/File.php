@@ -75,6 +75,13 @@ class File extends IFile {
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isDirectory(): bool {
+		return is_dir($this->path);
+	}
+
+	/**
 	 * Remove file
 	 * @throws Exception
 	 */

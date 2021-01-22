@@ -11,6 +11,7 @@ namespace Jodit\components;
 
 use Exception;
 use Jodit\Consts;
+use Jodit\Helper;
 use Jodit\interfaces\ISource;
 
 $defaultConfig = include __DIR__ . '/../configs/defaultConfig.php';
@@ -18,6 +19,9 @@ $defaultConfig = include __DIR__ . '/../configs/defaultConfig.php';
 /**
  * Class Config
  * @property string $thumbFolderName
+ * @property number $countInChunk
+ * @property string $defaultSortBy
+ * @property number $thumbSize
  * @property bool $allowCrossOrigin
  * @property AccessControl $access
  * @property bool $createThumb
@@ -183,17 +187,24 @@ class Config {
 
 			$this->parent = new Config(self::$defaultOptions, false);
 
-
 			if (
 				isset($data->sources) and
 				is_array($data->sources) and
 				count($data->sources)
 			) {
 				foreach ($data->sources as $key => $source) {
-					$this->sources[$key] = self::makeSource($source, $this, $key);
+					$this->sources[$key] = self::makeSource(
+						$source,
+						$this,
+						$key
+					);
 				}
 			} else {
-				$this->sources['default'] = self::makeSource([], $this, 'default');;
+				$this->sources['default'] = self::makeSource(
+					[],
+					$this,
+					'default'
+				);
 			}
 		}
 	}
@@ -236,13 +247,11 @@ class Config {
 			$relativePath = Jodit::$app->request->path ?: '';
 		}
 
+		$path = realpath(Helper::normalizePath($root . $relativePath));
+
 		//always check whether we are below the root category is not reached
-		if (
-			realpath($root . $relativePath) &&
-			strpos(realpath($root . $relativePath) . Consts::DS, $root) !==
-				false
-		) {
-			$root = realpath($root . $relativePath);
+		if ($path && strpos($path . Consts::DS, $root) !== false) {
+			$root = $path;
 			if (is_dir($root)) {
 				$root .= Consts::DS;
 			}
@@ -320,8 +329,7 @@ class Config {
 		if ($sourceName === null) {
 			foreach ($this->sources as $key => $item) {
 				try {
-					$source = $item->getCompatibleSource(false);
-					return $source;
+					return $item->getCompatibleSource(false);
 				} catch (Exception $e) {
 				}
 			}
@@ -333,7 +341,7 @@ class Config {
 			$this->getPath()
 		);
 
-		return $this;
+		return self::makeSource([], $this, 'default');
 	}
 }
 
