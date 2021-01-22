@@ -35,7 +35,7 @@ $I->seeResponseContainsJson([
 ]);
 
 
-$I->sendGet('?action=folderCreate&source=test&path=/ceicom/&name=' . $name); // deny create folder for this path
+$I->sendGet('?action=folderCreate&source=test&path=/subfolder/&name=' . $name); // deny create folder for this path
 
 $I->seeResponseCodeIs(HttpCode::OK); // 200
 $I->seeResponseIsJson();

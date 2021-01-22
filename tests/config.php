@@ -45,7 +45,7 @@ $config['accessControl'][] = [
 
 $config['accessControl'][] = [
 	'role' => '*',
-	'path' => __DIR__ . '/files/folder2/',
+	'path' => __DIR__ . '/files/images/',
 
 	'FILE_MOVE' => false,
 	'FILE_UPLOAD' => false,

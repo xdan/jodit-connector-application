@@ -36,7 +36,7 @@ $I->seeResponseContainsJson([
 ]);
 
 
-$I->sendGet('?action=permissions&source=test&path=/ceicom/');
+$I->sendGet('?action=permissions&source=test&path=/subfolder/');
 
 $I->seeResponseCodeIs(HttpCode::OK); // 200
 $I->seeResponseIsJson();

@@ -32,7 +32,7 @@ $I->seeResponseContainsJson([
 ]);
 
 
-$I->sendGet('?action=folderRename&source=test&name=folder2&path=&newname=ceicom');
+$I->sendGet('?action=folderRename&source=test&name=folder2&path=&newname=subfolder');
 
 $I->seeResponseContainsJson([
 	"success" => false,

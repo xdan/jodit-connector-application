@@ -11,7 +11,7 @@ $files_root = realpath(__DIR__ . '/../files') . '/';
 $I->wantTo('Check remove folder');
 
 $I->assertFileNotExists($files_root . 'folder2');
-Jodit\Helper::copy($files_root . 'ceicom', $files_root . 'folder2');
+Jodit\Helper::copy($files_root . 'subfolder', $files_root . 'folder2');
 $I->assertFileExists($files_root . 'folder2');
 
 $I->sendGet('?action=folderRemove&source=test&name=folder2&path=');
