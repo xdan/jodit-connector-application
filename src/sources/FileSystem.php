@@ -150,14 +150,17 @@ class FileSystem extends ISource {
 
 		$this->sortByMode($path, $files, $sortBy);
 
-		foreach (array_slice($files, $offset, $limit - 1) as $index => $fileName) {
+		foreach (
+			array_slice($files, $offset, $limit - 1)
+			as $index => $fileName
+		) {
 			$file = $this->makeFile($path . $fileName);
 
 			if ($file->isGoodFile($this)) {
 				$item = [
 					'file' => $file->getPathByRoot($this),
 					'name' => $fileName,
-					'type' => $file->isImage() ? 'image' : 'file'
+					'type' => $file->isImage() ? 'image' : 'file',
 				];
 
 				if ($config->createThumb || !$file->isImage()) {
@@ -180,7 +183,7 @@ class FileSystem extends ISource {
 					'file' => $file->getPathByRoot($this),
 					'name' => $fileName,
 					'thumb' => $this->makeThumb($file)->getPathByRoot($this),
-					'type' => 'folder'
+					'type' => 'folder',
 				];
 
 				$sourceData->files[] = $item;
@@ -198,6 +201,7 @@ class FileSystem extends ISource {
 
 		$sourceData = (object) [
 			'name' => $this->sourceName,
+			'title' => $this->title,
 			'baseurl' => $this->baseurl,
 			'path' => str_replace(
 				realpath($this->getRoot()) . Consts::DS,
@@ -556,6 +560,24 @@ class FileSystem extends ISource {
 
 			default:
 				rsort($files);
+		}
+
+		$foldersPosition = Jodit::$app->request->getField('mods/foldersPosition', 'default');
+
+		if ($foldersPosition !== 'default') {
+			usort($files, function ($fileA, $fileB) use ($sortBy, $path, $foldersPosition) {
+				if (is_dir($path . $fileA) && !is_dir($path . $fileB)) {
+					return $foldersPosition === 'top' ? -1 : 1;
+				}
+
+				if (!is_dir($path . $fileA) && is_dir($path . $fileB)) {
+					return $foldersPosition === 'top' ? 1 : -1;
+				}
+
+				if (is_dir($path . $fileA) && is_dir($path . $fileB)) {
+					return $fileA > $fileB ? 1 : -1;
+				}
+			});
 		}
 	}
 }

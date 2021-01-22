@@ -4,10 +4,12 @@ $config = [
 	'root' => realpath(__DIR__ . '/files') . '/',
 	'sources' => [
 		'test' => [
+			'title' => 'Some files',
 			'root' => realpath(__DIR__ . '/files') . '/',
 			'baseurl' => 'http://localhost:8081/files/',
 		],
 		'folder1' => [
+			'title' => 'Small files',
 			'root' => realpath(__DIR__ . '/files/folder1') . '/',
 			'baseurl' => 'http://localhost:8081/files/folder1/',
 			'maxFileSize' => '1kb',
@@ -43,7 +45,7 @@ $config['accessControl'][] = [
 
 $config['accessControl'][] = [
 	'role' => '*',
-	'path' => __DIR__ . '/files/ceicom/',
+	'path' => __DIR__ . '/files/folder2/',
 
 	'FILE_MOVE' => false,
 	'FILE_UPLOAD' => false,

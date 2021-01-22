@@ -18,6 +18,7 @@ $defaultConfig = include __DIR__ . '/../configs/defaultConfig.php';
 
 /**
  * Class Config
+ * @property string $title
  * @property string $thumbFolderName
  * @property number $countInChunk
  * @property string $defaultSortBy

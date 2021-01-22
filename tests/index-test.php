@@ -12,6 +12,8 @@ if (isset($_GET['custom_config']) and json_decode($_GET['custom_config'])) {
 	$config = array_merge($config, json_decode($_GET['custom_config'], true));
 }
 
+ini_set('memory_limit', '256M');
+
 $fileBrowser = new JoditRestTestApplication($config);
 
 try {
