@@ -6,4 +6,5 @@ composer.lock
 /tests/files/_thumbs/
 /tests/files/folder1/_thumbs/
 _thumbs/
+tests/files/subfolder/_thumbs
 
