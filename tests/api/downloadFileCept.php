@@ -5,7 +5,7 @@ use Codeception\Util\HttpCode;
 
 $I = new ApiTester($scenario);
 $files_root = realpath(__DIR__ . '/../files') . '/folder1/subfolder/';
-$filename = 'pexels-andrea-piacquadio-775091.jpg';
+$filename = 'pexels-pixabay-262113.jpg';
 $I->wantTo('Check download file');
 
 $I->sendGet(
