@@ -28,11 +28,13 @@ $config['accessControl'][] = [
 	'extensions' => '*',
 	'path' => '/',
 	'FILES' => true,
+
 	'FILE_MOVE' => true,
 	'FILE_UPLOAD' => true,
 	'FILE_UPLOAD_REMOTE' => true,
 	'FILE_REMOVE' => true,
 	'FILE_RENAME' => true,
+	'FILE_DOWNLOAD' => true,
 
 	'FOLDERS' => true,
 	'FOLDER_MOVE' => true,

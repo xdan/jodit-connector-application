@@ -56,10 +56,16 @@ abstract class ISource extends Config {
 	);
 
 	/**
-	 * @param string $path
+	 * @param string $target
 	 * @return mixed
 	 */
-	abstract public function fileRemove($path);
+	abstract public function fileRemove($target);
+
+	/**
+	 * @param string $target
+	 * @return mixed
+	 */
+	abstract public function fileDownload($target);
 
 	/**
 	 * @param string $name

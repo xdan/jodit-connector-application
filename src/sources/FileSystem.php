@@ -422,6 +422,56 @@ class FileSystem extends ISource {
 		}
 	}
 
+
+	/**
+	 * Download file
+	 * @param string $target
+	 * @throws Exception
+	 */
+	public function fileDownload($target) {
+		$file_path = false;
+
+		$path = $this->getPath();
+
+		$this->access->checkPermission(
+			$this->getUserRole(),
+			'FILE_DOWNLOAD',
+			$path
+		);
+
+		if (
+			realpath($path . $target) &&
+			strpos(realpath($path . $target), $this->getRoot()) !== false
+		) {
+			$file_path = realpath($path . $target);
+		}
+
+		if (!$file_path || !file_exists($file_path)) {
+			throw new Exception(
+				'File or directory not exists ' . $path . $target,
+				Consts::ERROR_CODE_NOT_EXISTS
+			);
+		}
+
+		if (is_file($file_path)) {
+			$file = $this->makeFile($file_path);
+
+			if (!$file->send()) {
+				$error = (object) error_get_last();
+
+				throw new Exception(
+					'Download failed! ' . $error->message,
+					Consts::ERROR_CODE_IS_NOT_WRITEBLE
+				);
+			}
+		} else {
+			throw new Exception(
+				'It is not a file!',
+				Consts::ERROR_CODE_IS_NOT_WRITEBLE
+			);
+		}
+	}
+
 	/**
 	 * Remove folder
 	 *

@@ -20,6 +20,7 @@ abstract class IFile {
 	abstract public function isDirectory(): bool;
 
 	abstract public function remove();
+	abstract public function send();
 
 	/**
 	 * @return string

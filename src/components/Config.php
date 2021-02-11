@@ -274,7 +274,7 @@ class Config {
 	 * @throws Exception
 	 */
 	public function getSource($sourceName) {
-		if (!$sourceName) {
+		if (!$sourceName || $sourceName === 'default') {
 			$sourceName = array_key_first($this->sources);
 		}
 

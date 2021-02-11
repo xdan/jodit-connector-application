@@ -200,4 +200,13 @@ trait File {
 			Consts::ERROR_CODE_FAILED
 		);
 	}
+
+	/**
+	 * Send file by path, source and name
+	 */
+	public function actionFileDownload() {
+		$this->config
+			->getSource($this->request->source)
+			->fileDownload($this->request->name);
+	}
 }
