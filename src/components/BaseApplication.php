@@ -70,6 +70,9 @@ abstract class BaseApplication {
 	}
 
 	public function display() {
+		$version = json_decode(file_get_contents(__DIR__ . '/../../package.json'))->version;
+		header('X-App-version: ' . $version);
+
 		if ($this->config && !$this->config->debug) {
 			if (ob_get_length()) {
 				ob_end_clean();
