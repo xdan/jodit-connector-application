@@ -13,7 +13,6 @@ use Exception;
 use Jodit\Consts;
 use Jodit\Helper;
 use Jodit\interfaces\ISource;
-use function array_key_first;
 
 $defaultConfig = include __DIR__ . '/../configs/defaultConfig.php';
 
@@ -276,7 +275,7 @@ class Config {
 	 */
 	public function getSource($sourceName) {
 		if (!$sourceName || $sourceName === 'default') {
-			$sourceName = array_key_first($this->sources);
+			$sourceName = Helper::arrayKeyFirst($this->sources);
 		}
 
 		$source = isset($this->sources[$sourceName])

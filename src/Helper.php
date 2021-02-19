@@ -315,4 +315,18 @@ abstract class Helper {
 	public static function normalizePath($path) {
 		return preg_replace('#[\\\\/]+#', '/', $path);
 	}
+
+	/**
+	 * Return first of keys
+	 * @param array $array
+	 * @return int|string|null
+	 */
+	public static function arrayKeyFirst(array $array){
+		if (count($array)) {
+			reset($array);
+			return key($array);
+		}
+
+		return null;
+	}
 }
