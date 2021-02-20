@@ -23,6 +23,7 @@ $defaultConfig = include __DIR__ . '/../configs/defaultConfig.php';
  * @property number $countInChunk
  * @property string $defaultSortBy
  * @property string $maxFileSize
+ * @property string $memoryLimit
  * @property number $thumbSize
  * @property bool $allowCrossOrigin
  * @property AccessControl $access
