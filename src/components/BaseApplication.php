@@ -159,8 +159,6 @@ abstract class BaseApplication {
 		$this->config = new Config($config, null);
 		$this->request = new Request();
 
-		ini_set('memory_limit', $this->config->memoryLimit ?: -1);
-
 		if ($this->config->allowCrossOrigin) {
 			$this->corsHeaders();
 		}

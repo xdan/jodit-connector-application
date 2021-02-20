@@ -31,7 +31,6 @@ $defaultConfig = include __DIR__ . '/../configs/defaultConfig.php';
  * @property number $quality
  * @property string $datetimeFormat
  * @property string $baseurl
- * @property string $memoryLimit
  * @property number $defaultPermission
  * @package jodit
  */
