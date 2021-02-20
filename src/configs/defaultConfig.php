@@ -12,6 +12,7 @@ return [
 	'defaultPermission' => 0775,
 	'createThumb' => true,
 	'thumbSize' => 250,
+	'memoryLimit' => -1,
 	'thumbFolderName' => '_thumbs',
 	'excludeDirectoryNames' => ['.tmb', '.quarantine'],
 	'maxFileSize' => '8mb',

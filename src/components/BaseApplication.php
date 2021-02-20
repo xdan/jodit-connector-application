@@ -139,6 +139,7 @@ abstract class BaseApplication {
 	 */
 	function __construct($config) {
 		ob_start();
+
 		$this->startedTime = microtime(true);
 
 		$this->response = new Response();
@@ -157,6 +158,8 @@ abstract class BaseApplication {
 
 		$this->config = new Config($config, null);
 		$this->request = new Request();
+
+		ini_set('memory_limit', $this->config->memoryLimit ?: -1);
 
 		if ($this->config->allowCrossOrigin) {
 			$this->corsHeaders();
