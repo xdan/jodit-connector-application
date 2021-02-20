@@ -7,6 +7,18 @@ use Jodit\Consts;
 use Exception;
 
 /**
+ * @property \claviska\SimpleImage $img
+ * @property string $path
+ * @property string $file
+ * @property object $box
+ * @property string $newname
+ * @property int $width
+ * @property int $height
+ */
+class ImageInfo extends \stdClass {
+}
+
+/**
  * Trait Image
  * @package Jodit\actions
  */
@@ -53,7 +65,11 @@ trait Image {
 
 		$info->img
 			->resize((int) $info->box->w, (int) $info->box->h)
-			->save($info->path . $info->newname, $source->quality);
+			->toFile(
+				$info->path . $info->newname,
+				$info->img->getMimeType(),
+				$source->quality
+			);
 	}
 
 	/**
@@ -111,11 +127,15 @@ trait Image {
 				(int) $info->box->x + (int) $info->box->w,
 				(int) $info->box->y + (int) $info->box->h
 			)
-			->save($info->path . $info->newname, $source->quality);
+			->toFile(
+				$info->path . $info->newname,
+				$info->img->getMimeType(),
+				$source->quality
+			);
 	}
 
 	/**
-	 * @return mixed
+	 * @return ImageInfo
 	 */
 	abstract function getImageEditorInfo();
 }

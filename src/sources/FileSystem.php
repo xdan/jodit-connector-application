@@ -67,8 +67,9 @@ class FileSystem extends ISource {
 			if ($file->isImage()) {
 				try {
 					$img = new SimpleImage($file->getPath());
-					$img->best_fit($this->thumbSize, $this->thumbSize)->save(
+					$img->bestFit($this->thumbSize, $this->thumbSize)->toFile(
 						$thumbName,
+						'image/jpeg',
 						$this->quality
 					);
 				} catch (Exception $e) {

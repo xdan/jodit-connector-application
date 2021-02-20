@@ -207,7 +207,7 @@ abstract class BaseApplication {
 
 		$img = new SimpleImage();
 
-		$img->load($path . $file);
+		$img->fromFile($path . $file);
 
 		if ($newName) {
 			$info = pathinfo($path . $file);
@@ -240,7 +240,6 @@ abstract class BaseApplication {
 			);
 		}
 
-		$info = $img->get_original_info();
 
 		return (object) [
 			'path' => $path,
@@ -248,8 +247,8 @@ abstract class BaseApplication {
 			'box' => $box,
 			'newname' => $newName,
 			'img' => $img,
-			'width' => $info['width'],
-			'height' => $info['height'],
+			'width' => $img->getWidth(),
+			'height' => $img->getHeight(),
 		];
 	}
 
