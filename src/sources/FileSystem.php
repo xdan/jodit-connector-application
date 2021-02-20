@@ -126,23 +126,13 @@ class FileSystem extends ISource {
 			'mods/limit',
 			$this->countInChunk
 		);
-		$withFolders = Jodit::$app->request->getField(
-			'mods/withFolders',
-			false
-		);
+
 		$sortBy = (string) Jodit::$app->request->getField(
 			'mods/sortBy',
 			$this->defaultSortBy
 		);
 
-		$files = array_filter(scandir($path), function ($file) use (
-			$path,
-			$withFolders
-		) {
-			if (is_dir($path . $file) && !$withFolders) {
-				return false;
-			}
-
+		$files = array_filter(scandir($path), function ($file) use ($path) {
 			return !$this->isExcluded($file);
 		});
 
@@ -567,10 +557,18 @@ class FileSystem extends ISource {
 	private function filterFiles($path, $files) {
 		$result = [];
 
+		$withFolders = Jodit::$app->request->getField(
+			'mods/withFolders',
+			false
+		);
+
 		foreach ($files as $index => $fileName) {
 			$file = $this->makeFile($path . $fileName);
 
-			if ($file->isGoodFile($this)) {
+			if (
+				($file->isDirectory() && $withFolders) ||
+				$file->isGoodFile($this)
+			) {
 				$result[] = $file;
 			}
 		}
