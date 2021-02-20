@@ -16,6 +16,7 @@ return [
 	'excludeDirectoryNames' => ['.tmb', '.quarantine'],
 	'maxFileSize' => '8mb',
 	'memoryLimit' => '256mb',
+	'timeoutLimit' => 60,
 	'allowCrossOrigin' => false,
 
 	'sourceClassName' => 'Jodit\sources\FileSystem',

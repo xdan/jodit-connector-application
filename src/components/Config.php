@@ -25,6 +25,7 @@ $defaultConfig = include __DIR__ . '/../configs/defaultConfig.php';
  * @property string $maxFileSize
  * @property string $memoryLimit
  * @property number $thumbSize
+ * @property number $timeoutLimit
  * @property bool $allowCrossOrigin
  * @property AccessControl $access
  * @property bool $createThumb
