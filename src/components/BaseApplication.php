@@ -70,7 +70,9 @@ abstract class BaseApplication {
 	}
 
 	public function display() {
-		$version = json_decode(file_get_contents(__DIR__ . '/../../package.json'))->version;
+		$version = json_decode(
+			file_get_contents(__DIR__ . '/../../package.json')
+		)->version;
 		header('X-App-version: ' . $version);
 
 		if ($this->config && !$this->config->debug) {
@@ -79,8 +81,7 @@ abstract class BaseApplication {
 			}
 			header('Content-Type: application/json');
 		} else {
-			$this->response->elapsedTime =
-				microtime(true) - $this->startedTime;
+			$this->response->elapsedTime = microtime(true) - $this->startedTime;
 		}
 
 		echo json_encode(
@@ -240,7 +241,6 @@ abstract class BaseApplication {
 			);
 		}
 
-
 		return (object) [
 			'path' => $path,
 			'file' => $file,
@@ -294,7 +294,10 @@ abstract class BaseApplication {
 	 */
 	public function uploadedFiles($source) {
 		if (!isset($_FILES[$source->defaultFilesKey])) {
-			throw new Exception('Incorrect request', Consts::ERROR_CODE_BAD_REQUEST);
+			throw new Exception(
+				'Incorrect request',
+				Consts::ERROR_CODE_BAD_REQUEST
+			);
 		}
 
 		$files = $_FILES[$source->defaultFilesKey];

@@ -150,18 +150,18 @@ class FileSystem extends ISource {
 			throw new Exception('Files not found');
 		}
 
-		$this->sortByMode($path, $files, $sortBy);
+		$files = $this->filterFiles($path, $files);
 
-		foreach (
-			array_slice($files, $offset, $limit - 1)
-			as $index => $fileName
-		) {
-			$file = $this->makeFile($path . $fileName);
+		$this->sortByMode($files, $sortBy);
 
+		foreach (array_slice($files, $offset, $limit) as $index => $file) {
+			/**
+			 * @var IFile $file
+			 */
 			if ($file->isGoodFile($this)) {
 				$item = [
 					'file' => $file->getPathByRoot($this),
-					'name' => $fileName,
+					'name' => $file->getName(),
 					'type' => $file->isImage() ? 'image' : 'file',
 				];
 
@@ -183,7 +183,7 @@ class FileSystem extends ISource {
 			} elseif ($file->isDirectory()) {
 				$item = [
 					'file' => $file->getPathByRoot($this),
-					'name' => $fileName,
+					'name' => $file->getName(),
 					'thumb' => $this->makeThumb($file)->getPathByRoot($this),
 					'type' => 'folder',
 				];
@@ -424,7 +424,6 @@ class FileSystem extends ISource {
 		}
 	}
 
-
 	/**
 	 * Download file
 	 * @param string $target
@@ -561,10 +560,29 @@ class FileSystem extends ISource {
 
 	/**
 	 * @param string $path
-	 * @param array $files
+	 * @param array<string> $files
+	 * @return array<IFile>
+	 * @throws Exception
+	 */
+	private function filterFiles($path, $files) {
+		$result = [];
+
+		foreach ($files as $index => $fileName) {
+			$file = $this->makeFile($path . $fileName);
+
+			if ($file->isGoodFile($this)) {
+				$result[] = $file;
+			}
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @param array<IFile> $files
 	 * @param string $sortBy
 	 */
-	private function sortByMode(string $path, array &$files, string $sortBy) {
+	private function sortByMode(array &$files, string $sortBy) {
 		switch ($sortBy) {
 			case 'name-asc':
 				sort($files);
@@ -578,20 +596,22 @@ class FileSystem extends ISource {
 			case 'changed-asc':
 			case 'size-asc':
 			case 'size-desc':
-				usort($files, function ($fileA, $fileB) use ($sortBy, $path) {
+				usort($files, function ($fileA, $fileB) use ($sortBy) {
 					switch ($sortBy) {
 						case 'changed-desc':
 						case 'changed-asc':
-							$a = filemtime($path . $fileA);
-							$b = filemtime($path . $fileB);
+							$a = $fileA->getTime();
+							$b = $fileB->getTime();
+
 							return $sortBy === 'changed-asc'
 								? $a - $b
 								: $b - $a;
 
 						case 'size-desc':
 						case 'size-asc':
-							$a = filesize($path . $fileA);
-							$b = filesize($path . $fileB);
+							$a = $fileA->getSize();
+							$b = $fileB->getSize();
+
 							return $sortBy === 'size-asc' ? $a - $b : $b - $a;
 					}
 
@@ -604,19 +624,25 @@ class FileSystem extends ISource {
 				rsort($files);
 		}
 
-		$foldersPosition = Jodit::$app->request->getField('mods/foldersPosition', 'default');
+		$foldersPosition = Jodit::$app->request->getField(
+			'mods/foldersPosition',
+			'default'
+		);
 
 		if ($foldersPosition !== 'default') {
-			usort($files, function ($fileA, $fileB) use ($sortBy, $path, $foldersPosition) {
-				if (is_dir($path . $fileA) && !is_dir($path . $fileB)) {
+			usort($files, function ($fileA, $fileB) use (
+				$sortBy,
+				$foldersPosition
+			) {
+				if ($fileA->isDirectory() && !$fileB->isDirectory()) {
 					return $foldersPosition === 'top' ? -1 : 1;
 				}
 
-				if (!is_dir($path . $fileA) && is_dir($path . $fileB)) {
+				if (!$fileA->isDirectory() && $fileB->isDirectory()) {
 					return $foldersPosition === 'top' ? 1 : -1;
 				}
 
-				if (is_dir($path . $fileA) && is_dir($path . $fileB)) {
+				if ($fileA->isDirectory() && $fileB->isDirectory()) {
 					return $fileA > $fileB ? 1 : -1;
 				}
 			});
