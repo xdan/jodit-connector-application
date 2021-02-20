@@ -2,7 +2,7 @@
 
 namespace Jodit\sources;
 
-use abeautifulsite\SimpleImage;
+use claviska\SimpleImage;
 
 use Exception;
 use Jodit\components\Config;

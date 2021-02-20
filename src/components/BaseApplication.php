@@ -9,7 +9,7 @@
 
 namespace Jodit\components;
 
-use abeautifulsite\SimpleImage;
+use claviska\SimpleImage;
 use Exception;
 use Jodit\Consts;
 use Jodit\Helper;
