@@ -15,6 +15,7 @@ return [
 	'thumbFolderName' => '_thumbs',
 	'excludeDirectoryNames' => ['.tmb', '.quarantine'],
 	'maxFileSize' => '8mb',
+	'memoryLimit' => '256mb',
 	'allowCrossOrigin' => false,
 
 	'sourceClassName' => 'Jodit\sources\FileSystem',
