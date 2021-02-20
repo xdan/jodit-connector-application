@@ -72,6 +72,7 @@ class FileSystem extends ISource {
 						'image/jpeg',
 						$this->quality
 					);
+					unset($img);
 				} catch (Exception $e) {
 					return $file;
 				}
