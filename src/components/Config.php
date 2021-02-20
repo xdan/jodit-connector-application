@@ -22,6 +22,7 @@ $defaultConfig = include __DIR__ . '/../configs/defaultConfig.php';
  * @property string $thumbFolderName
  * @property number $countInChunk
  * @property string $defaultSortBy
+ * @property string $maxFileSize
  * @property number $thumbSize
  * @property bool $allowCrossOrigin
  * @property AccessControl $access
