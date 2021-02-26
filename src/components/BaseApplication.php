@@ -139,7 +139,7 @@ abstract class BaseApplication {
 	 * @throws Exception
 	 */
 	function __construct($config) {
-		ob_start();
+		$this->startOutputBuffer();
 
 		$this->startedTime = microtime(true);
 
@@ -168,6 +168,10 @@ abstract class BaseApplication {
 
 		$this->config->access->setAccessList($this->config->accessControl);
 		Jodit::$app = $this;
+	}
+
+	protected function startOutputBuffer() {
+		ob_start();
 	}
 
 	/**

@@ -228,7 +228,9 @@ class Config {
 				);
 			}
 
-			return realpath($this->root) . Consts::DS;
+			$root = realpath($this->root);
+
+			return  $root !==  Consts::DS ? $root . Consts::DS : Consts::DS;
 		}
 
 		throw new Exception(
@@ -330,7 +332,7 @@ class Config {
 			return $source;
 		}
 
-		if ($sourceName === null) {
+		if ($sourceName === null || $sourceName === '') {
 			foreach ($this->sources as $key => $item) {
 				try {
 					return $item->getCompatibleSource(false);

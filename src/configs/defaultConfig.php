@@ -15,7 +15,8 @@ return [
 	'thumbFolderName' => '_thumbs',
 	'excludeDirectoryNames' => ['.tmb', '.quarantine'],
 	'maxFileSize' => '8mb',
-	'memoryLimit' => '256mb',
+	'maxUploadFileSize' => '8M',
+	'memoryLimit' => '256M',
 	'timeoutLimit' => 60,
 	'allowCrossOrigin' => false,
 
