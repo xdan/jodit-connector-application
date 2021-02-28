@@ -148,7 +148,7 @@ class FileSystem extends ISource {
 			/**
 			 * @var IFile $file
 			 */
-			if ($file->isGoodFile($this)) {
+			if (!$file->isDirectory()) {
 				$item = [
 					'file' => $file->getPathByRoot($this),
 					'name' => $file->getName(),
@@ -170,7 +170,7 @@ class FileSystem extends ISource {
 				$item['isImage'] = $file->isImage();
 
 				$sourceData->files[] = $item;
-			} elseif ($file->isDirectory()) {
+			} else {
 				$item = [
 					'file' => $file->getPathByRoot($this),
 					'name' => $file->getName(),
@@ -562,12 +562,17 @@ class FileSystem extends ISource {
 			false
 		);
 
+		$onlyImages = Jodit::$app->request->getField(
+			'mods/onlyImages',
+			false
+		);
+
 		foreach ($files as $index => $fileName) {
 			$file = $this->makeFile($path . $fileName);
 
 			if (
 				($file->isDirectory() && $withFolders) ||
-				$file->isGoodFile($this)
+				($file->isGoodFile($this) && (!$onlyImages || $file->isImage()))
 			) {
 				$result[] = $file;
 			}
