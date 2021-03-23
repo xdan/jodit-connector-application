@@ -170,7 +170,8 @@ class File extends IFile {
 		try {
 			if (
 				!function_exists('exif_imagetype') &&
-				!function_exists('Jodit\exif_imagetype')
+				!function_exists('Jodit\exif_imagetype') &&
+				!function_exists('Jodit\components\exif_imagetype')
 			) {
 				/**
 				 * @param $filename
