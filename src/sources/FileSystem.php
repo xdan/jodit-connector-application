@@ -59,7 +59,7 @@ class FileSystem extends ISource {
 				$path .
 				$this->thumbFolderName .
 				Consts::DS .
-				$file->getName() .
+				Helper::makeSafe($file->getName()) .
 				'.svg';
 		}
 
@@ -562,10 +562,7 @@ class FileSystem extends ISource {
 			false
 		);
 
-		$onlyImages = Jodit::$app->request->getField(
-			'mods/onlyImages',
-			false
-		);
+		$onlyImages = Jodit::$app->request->getField('mods/onlyImages', false);
 
 		foreach ($files as $index => $fileName) {
 			$file = $this->makeFile($path . $fileName);
