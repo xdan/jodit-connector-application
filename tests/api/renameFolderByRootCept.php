@@ -8,9 +8,9 @@ $files_root = realpath(__DIR__ . '/../files') . '/';
 
 $I->wantTo('Check rename file');
 
-$I->recurseCopy($files_root . 'folder1', $files_root . 'temp');
-
 try {
+	$I->recurseCopy($files_root . 'folder1', $files_root . 'temp');
+
 	$I->sendGet('?action=folderRename&source=test&name=folder1&path=/&newname=folder2');
 
 	$I->seeResponseCodeIs(HttpCode::OK); // 200
@@ -48,6 +48,7 @@ try {
 
 
 	$I->assertFileExists($files_root . 'folder1');
+
 } finally {
 	if (!realpath($files_root . 'folder1')) {
 		$I->recurseCopy($files_root . 'temp', $files_root . 'folder1');
