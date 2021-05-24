@@ -42,6 +42,7 @@ try {
 		'?action=folderRename&source=test&name=folder2&path=/&newname=subfolder'
 	);
 
+	// Because subfolder already exists
 	$I->seeResponseContainsJson([
 		'success' => false,
 		'data' => [
