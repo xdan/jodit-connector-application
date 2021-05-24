@@ -11,51 +11,55 @@ $I->wantTo('Check rename file');
 try {
 	$I->recurseCopy($files_root . 'folder1', $files_root . 'temp');
 
-	$I->sendGet('?action=folderRename&source=test&name=folder1&path=/&newname=folder2');
+	$I->sendGet(
+		'?action=folderRename&source=test&name=temp&path=/&newname=folder2'
+	);
 
 	$I->seeResponseCodeIs(HttpCode::OK); // 200
 	$I->seeResponseIsJson();
 
 	$I->seeResponseContainsJson([
-		"success" => true,
-		"data" => [
-			"code" => 220,
-		]
+		'success' => true,
+		'data' => [
+			'code' => 220,
+		],
 	]);
 
 	$I->assertFileExists($files_root . 'folder2');
 
-	$I->sendGet('?action=folderRename&source=test&name=folder1&path=/&newname=folder2');
+	$I->sendGet(
+		'?action=folderRename&source=test&name=temp&path=/&newname=folder2'
+	);
 
 	$I->seeResponseContainsJson([
-		"success" => false,
-		"data" => [
-			"code" => 404,
-		]
+		'success' => false,
+		'data' => [
+			'code' => 404,
+		],
 	]);
 
-
-	$I->sendGet('?action=folderRename&source=test&name=folder2&path=/&newname=subfolder');
+	$I->sendGet(
+		'?action=folderRename&source=test&name=folder2&path=/&newname=subfolder'
+	);
 
 	$I->seeResponseContainsJson([
-		"success" => false,
-		"data" => [
-			"code" => 400,
-		]
+		'success' => false,
+		'data' => [
+			'code' => 400,
+		],
 	]);
 
-	$I->sendGet('?action=folderRename&source=test&name=folder2&path=/&newname=folder1');
+	$I->sendGet(
+		'?action=folderRename&source=test&name=folder2&path=/&newname=temp'
+	);
 
-
-	$I->assertFileExists($files_root . 'folder1');
-
+	$I->assertFileExists($files_root . 'temp');
 } finally {
-	if (!realpath($files_root . 'folder1')) {
-		$I->recurseCopy($files_root . 'temp', $files_root . 'folder1');
+	if (realpath($files_root . 'folder2')) {
+		$I->recurseRemove($files_root . 'folder2');
 	}
 
-	$I->recurseRemove($files_root . 'temp');
+	if (realpath($files_root . 'temp')) {
+		$I->recurseRemove($files_root . 'temp');
+	}
 }
-
-
-
