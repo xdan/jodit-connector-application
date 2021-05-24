@@ -18,9 +18,12 @@ $I->seeResponseContainsJson([
     ]
 ]);
 
+
 $I->seeResponseJsonMatchesJsonPath('$.data.sources[?(@.name=="test")].files[0].file');
 $I->dontSeeResponseJsonMatchesJsonPath('$.data.sources[?(@.name=="folder1")].files[0].file');
 
+list($file) = $I->grabDataFromResponseByJsonPath('$.data.sources[?(@.name=="test")].files[?(@.name=="check.svg")]');
+$I->assertEquals($file['isImage'], true);
 
 $I->sendGet('?action=files&source=test&path=/folder1&mods[withFolders]=true');
 $I->seeResponseCodeIs(HttpCode::OK); // 200
