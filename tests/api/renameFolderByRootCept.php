@@ -39,10 +39,10 @@ try {
 	]);
 
 	$I->sendGet(
-		'?action=folderRename&source=test&name=folder2&path=/&newname=subfolder'
+		'?action=folderRename&source=test&name=folder2&path=/&newname=docs'
 	);
 
-	// Because subfolder already exists
+	// Because `docs` already exists
 	$I->seeResponseContainsJson([
 		'success' => false,
 		'data' => [
