@@ -62,4 +62,9 @@ abstract class IFile {
 	 * @return bool
 	 */
 	abstract public function isImage();
+
+	/**
+	 * @return bool
+	 */
+	abstract public function isSVGImage();
 }

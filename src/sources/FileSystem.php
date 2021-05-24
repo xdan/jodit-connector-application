@@ -64,14 +64,20 @@ class FileSystem extends ISource {
 		}
 
 		if (!file_exists($thumbName)) {
+			if ($file->isSVGImage()) {
+				return $file;
+			}
+
 			if ($file->isImage()) {
 				try {
 					$img = new SimpleImage($file->getPath());
+
 					$img->bestFit($this->thumbSize, $this->thumbSize)->toFile(
 						$thumbName,
 						'image/jpeg',
 						$this->quality
 					);
+
 					unset($img);
 				} catch (Exception $e) {
 					return $file;

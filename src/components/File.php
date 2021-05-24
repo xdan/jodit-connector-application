@@ -168,6 +168,10 @@ class File extends IFile {
 	 */
 	public function isImage () {
 		try {
+			if ($this->isSVGImage()) {
+				return true;
+			}
+
 			if (
 				!function_exists('exif_imagetype') &&
 				!function_exists('Jodit\exif_imagetype') &&
@@ -195,6 +199,14 @@ class File extends IFile {
 		} catch (Exception $e) {
 			return false;
 		}
+	}
+
+	/**
+	 * Check file is SVG image
+	 * @return bool
+	 */
+	public function isSVGImage () {
+		return strtolower($this->getExtension()) === 'svg';
 	}
 
 	/**
