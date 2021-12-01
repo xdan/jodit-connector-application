@@ -15,6 +15,7 @@ use Jodit\actions\Files;
 use Jodit\actions\File;
 use Jodit\actions\Image;
 use Jodit\actions\Permissions;
+use Jodit\actions\GenerateDocs;
 
 /**
  * Class Application
@@ -26,4 +27,5 @@ abstract class Application extends BaseApplication {
 	use File;
 	use Image;
 	use Permissions;
+	use GenerateDocs;
 }

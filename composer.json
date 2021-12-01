@@ -20,7 +20,8 @@
 		"ext-curl": ">=6.0.0",
 		"abeautifulsite/simpleimage": "^3.6.0",
 		"ext-gd": "*",
-		"ext-json": "*"
+		"ext-json": "*",
+		"dompdf/dompdf": "^1.1"
 	},
 	"require-dev": {
 		"codeception/codeception": "^4.1",

@@ -24,4 +24,6 @@ return [
 
 	'IMAGE_RESIZE' => true,
 	'IMAGE_CROP' => true,
+
+	'GENERATE_PDF' => true,
 ];
