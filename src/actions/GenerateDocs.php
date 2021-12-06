@@ -43,7 +43,7 @@ trait GenerateDocs {
 			);
 		}
 
-		$dompdf = new Dompdf();
+		$dompdf = new Dompdf(['enable_remote' => true]);
 		$dompdf->loadHtml($html);
 
 		$paper =  array_merge([
@@ -54,5 +54,6 @@ trait GenerateDocs {
 		$dompdf->setPaper($paper['format'], $paper['page_orientation']);
 		$dompdf->render();
 		$dompdf->stream();
+		die();
 	}
 }
