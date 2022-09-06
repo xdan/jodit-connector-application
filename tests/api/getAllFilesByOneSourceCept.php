@@ -37,6 +37,8 @@ $I->seeResponseContainsJson([
 ]);
 
 $I->seeResponseJsonMatchesJsonPath('$.data.sources[?(@.name=="test")].files[?(@.type=="folder")]');
+$I->seeResponseJsonMatchesJsonPath('$.data.sources[?(@.name=="test")].files[?(@.file=="алина test15510.jpg")]');
+$I->seeResponseJsonMatchesJsonPath('$.data.sources[?(@.name=="test")].files[?(@.thumb=="_thumbs/alina-test15510.jpg")]');
 
 $I->sendGet('?action=files&source=test&path=/folder1&mods[withFolders]=false');
 $I->seeResponseCodeIs(HttpCode::OK); // 200

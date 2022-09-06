@@ -52,14 +52,19 @@ class FileSystem extends ISource {
 		}
 
 		$thumbName =
-			$path . $this->thumbFolderName . Consts::DS . $file->getName();
+			$path .
+			$this->thumbFolderName .
+			Consts::DS .
+			Helper::slugify($file->getBasename()) .
+			'.' .
+			$file->getExtension();
 
 		if (!$file->isImage()) {
 			$thumbName =
 				$path .
 				$this->thumbFolderName .
 				Consts::DS .
-				Helper::makeSafe($file->getName()) .
+				Helper::slugify($file->getName()) .
 				'.svg';
 		}
 

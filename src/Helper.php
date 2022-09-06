@@ -9,6 +9,7 @@
 
 namespace Jodit;
 
+use Cocur\Slugify\Slugify;
 use Exception;
 use InvalidArgumentException;
 
@@ -156,6 +157,15 @@ abstract class Helper {
 	}
 
 	/**
+	 * @param string $name
+	 * @return string
+	 */
+	public static function slugify($name) {
+		$slugify = new Slugify();
+		return $slugify->slugify($name);
+	}
+
+	/**
 	 * Download remote file on server
 	 *
 	 * @param string $url
@@ -218,7 +228,7 @@ abstract class Helper {
 	 * @param string $string
 	 * @return string
 	 */
-	public static function upperize($string) {
+	public static function upperize(string $string) {
 		$string = preg_replace('#([a-z])([A-Z])#', '\1_\2', $string);
 		return strtoupper($string);
 	}
