@@ -1,0 +1,35 @@
+<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+<head><title>Document</title>
+<!--[if gte mso 9]>
+<xml>
+<w:WordDocument>
+<w:View>Print</w:View>
+<w:Zoom>100</w:Zoom>
+<w:DoNotOptimizeForBrowser/>
+</w:WordDocument>
+</xml>
+<![endif]-->
+<style><!--
+@page
+{
+    size:21cm 29.7cmt;  /* A4 */
+    margin:1cm 1cm 1cm 1cm; /* Margins: 2.5 cm on each side */
+    mso-page-orientation: portrait;
+}
+@page Section1 { }
+div.Section1 { page:Section1; }
+--></style>
+</head>
+<body>
+<div class=Section1>
+<!--<br clear=all style='mso-special-character:line-break;page-break-before:always'>-->
+
+<h1>test</h1>
+<p>asdsadsadas</p>
+<p>das</p>
+<div style="page-break-after:always"></div>
+<p>d</p>
+<p>sada<img style="width:100px;height:100px" src="https://xdsoft.net/jodit/finder/files/pexels-bia-sousa-2603201.jpg" width="300px" height="500px"/></p>
+</div>
+</body>
+</html>
