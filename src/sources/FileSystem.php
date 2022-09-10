@@ -132,11 +132,18 @@ class FileSystem extends ISource {
 
 		$config = $this;
 
-		$offset = Jodit::$app->request->getField('mods/offset', 0);
-		$limit = Jodit::$app->request->getField(
+		$offset = (int)Jodit::$app->request->getField('mods/offset', 0);
+		if (!is_numeric($offset)) {
+			throw new Exception('Offset is not numeric');
+		}
+
+		$limit = (int)Jodit::$app->request->getField(
 			'mods/limit',
 			$this->countInChunk
 		);
+		if (!is_numeric($limit)) {
+			throw new Exception('limit is not numeric');
+		}
 
 		$sortBy = (string) Jodit::$app->request->getField(
 			'mods/sortBy',

@@ -124,7 +124,7 @@ class File extends IFile {
 	 * @return string
 	 */
 	public function getName() {
-		$parts = explode(DIRECTORY_SEPARATOR, $this->getPath());
+		$parts = explode(Consts::DS, $this->getPath());
 		return array_pop($parts) ?: '';
 	}
 
