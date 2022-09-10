@@ -124,7 +124,7 @@ class File extends IFile {
 	 * @return string
 	 */
 	public function getName() {
-		$parts = mb_split(DIRECTORY_SEPARATOR, $this->getPath());
+		$parts = explode(DIRECTORY_SEPARATOR, $this->getPath());
 		return array_pop($parts) ?: '';
 	}
 
@@ -134,7 +134,7 @@ class File extends IFile {
 	 * @return string
 	 */
 	public function getExtension() {
-		$parts = mb_split('\.', $this->getName());
+		$parts = explode('.', $this->getName());
 		return array_pop($parts) ?: '';
 	}
 
@@ -144,7 +144,7 @@ class File extends IFile {
 	 * @return string
 	 */
 	public function getBasename() {
-		$parts = mb_split('\.', $this->getName());
+		$parts = explode('.', $this->getName());
 		array_pop($parts);
 		return implode('.', $parts);
 	}

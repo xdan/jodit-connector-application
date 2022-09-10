@@ -33,6 +33,14 @@ class HelperTest extends Unit {
 		);
 		$this->assertEquals('File', Helper::camelCase('FILE'));
 	}
+
+	public function testSlugify() {
+		$this->assertEquals(
+			'privet-mir',
+			Helper::slugify('привет мир')
+		);
+	}
+
 	public function testNormalizePath() {
 		$this->assertEquals(
 			'C:/sdfsdf/',
