@@ -11,11 +11,38 @@ $I->seeResponseCodeIs(HttpCode::OK); // 200
 $I->seeResponseIsJson();
 
 $I->seeResponseContainsJson([
-    "success" => true,
-    "data" => [
-        "code" => 220
-    ]
+	'success' => true,
+	'data' => [
+		'code' => 220,
+	],
 ]);
 
 $I->seeResponseJsonMatchesJsonPath('$.data.sources[0].folders');
 $I->dontSeeResponseJsonMatchesJsonPath('$.data.sources[1].folders');
+
+$I->seeResponseContainsJson([
+	'success' => true,
+	'data' => [
+		'code' => 220,
+		'sources' => [
+			json_decode(
+				<<<JSON
+
+            {
+							"name": "test",
+              "title": "Some files",
+              "baseurl": "http://localhost:8081/files/",
+              "path": "folder1/",
+              "folders": [
+				  			"..",
+								"subfolder",
+								"subfolder with \u043f\u0440\u043e\u0431\u0435\u043b"
+							]
+            }
+JSON
+				,
+				true
+			),
+		],
+	],
+]);
