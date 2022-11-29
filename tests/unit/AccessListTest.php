@@ -31,7 +31,7 @@ class AccessListTest extends \Codeception\Test\Unit
 		    ]
 	    ]);
 
-	    $this->tester->expectException('\Exception', function () {
+	    $this->tester->expectThrowable('\Exception', function () {
 	    	$this->access->checkPermission('user', 'folders');
 	    });
 	    $this->tester->assertEquals(true, $this->access->checkPermission('user', 'files'));
@@ -51,10 +51,10 @@ class AccessListTest extends \Codeception\Test\Unit
 			]
 		]);
 
-		$this->tester->expectException('\Exception', function () {
+		$this->tester->expectThrowable('\Exception', function () {
 			$this->access->checkPermission('user', 'folders');
 		});
-		$this->tester->expectException('\Exception', function () {
+		$this->tester->expectThrowable('\Exception', function () {
 			$this->access->checkPermission('user', 'folderRename');
 		});
 
@@ -76,15 +76,15 @@ class AccessListTest extends \Codeception\Test\Unit
 			]
 		]);
 
-		$this->tester->expectException('\Exception', function () {
+		$this->tester->expectThrowable('\Exception', function () {
 			$this->access->checkPermission('user', 'folders');
 		});
-		$this->tester->expectException('\Exception', function () {
+		$this->tester->expectThrowable('\Exception', function () {
 			$this->access->checkPermission('user', 'folderRename');
 		});
 
 		$this->tester->assertEquals(true, $this->access->checkPermission('admin', 'folders'));
-		$this->tester->expectException('\Exception', function () {
+		$this->tester->expectThrowable('\Exception', function () {
 			$this->access->checkPermission('admin', 'folderRename');
 		});
 	}
@@ -98,11 +98,11 @@ class AccessListTest extends \Codeception\Test\Unit
 			],
 		]);
 
-		$this->tester->expectException('\Exception', function () {
+		$this->tester->expectThrowable('\Exception', function () {
 			$this->access->checkPermission('user', 'folders');
 		});
 
-		$this->tester->expectException('\Exception', function () {
+		$this->tester->expectThrowable('\Exception', function () {
 			$this->access->checkPermission('admin', 'folders');
 		});
 	}
@@ -122,14 +122,14 @@ class AccessListTest extends \Codeception\Test\Unit
 
 		$this->tester->assertEquals(true, $this->access->checkPermission('user', 'folders'));
 
-		$this->tester->expectException('\Exception', function () {
+		$this->tester->expectThrowable('\Exception', function () {
 			$this->access->checkPermission('user', 'folders', '/images/');
 		});
 
-		$this->tester->expectException('\Exception', function () {
+		$this->tester->expectThrowable('\Exception', function () {
 			$this->access->checkPermission('admin', 'folders', '/images/');
 		});
-		$this->tester->expectException('\Exception', function () {
+		$this->tester->expectThrowable('\Exception', function () {
 			$this->access->checkPermission('admin', 'folders', '/images/subfolder/');
 		});
 
@@ -157,7 +157,7 @@ class AccessListTest extends \Codeception\Test\Unit
 
 		$this->tester->assertEquals(true, $this->access->checkPermission('user', 'fileUpload', '/', 'jpg'));
 
-		$this->tester->expectException('\Exception', function () {
+		$this->tester->expectThrowable('\Exception', function () {
 			$this->access->checkPermission('user', 'fileUpload', '/', 'zip');
 		});
 

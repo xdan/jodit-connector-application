@@ -19,7 +19,7 @@ use Codeception\Lib\Friend;
  * @SuppressWarnings(PHPMD)
  */
 class ApiTester extends Actor {
-	use _generated\ApiTesterActions;
+	use _generated\AcceptanceTesterActions;
 
 	/**
 	 * Define custom actions here

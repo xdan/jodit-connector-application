@@ -25,6 +25,6 @@ $I->seeHttpHeader(
 	'must-revalidate, post-check=0, pre-check=0'
 );
 $I->seeHttpHeader('Pragma', 'public');
-$I->seeHttpHeader('Content-Length', filesize($files_root . $filename));
+$I->seeHttpHeader('Content-Length', (string)(filesize($files_root . $filename)));
 
 $I->assertFileExists($files_root . $filename);

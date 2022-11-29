@@ -629,6 +629,11 @@ class FileSystem extends ISource {
 							$a = $fileA->getTime();
 							$b = $fileB->getTime();
 
+							if ($a === $b) {
+								$m = $sortBy === 'changed-asc' ? 1 : -1;
+								return $fileA->getBasename() > $fileB->getBasename() ? 1 * $m : -1 * $m;
+							}
+
 							return $sortBy === 'changed-asc'
 								? $a - $b
 								: $b - $a;

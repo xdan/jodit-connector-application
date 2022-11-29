@@ -1,4 +1,5 @@
 class_name: ApiTester
+actor: AcceptanceTester
 modules:
     enabled:
         - REST:
