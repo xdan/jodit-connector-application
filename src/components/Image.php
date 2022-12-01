@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * @package    jodit
  *
@@ -16,7 +17,7 @@ use Jodit\interfaces\ISource;
  * @package Jodit
  */
 class Image {
-	static $colors = [
+	static array $colors = [
 		[228, 84, 83],
 		[237, 234, 67],
 		[122, 223, 237],
@@ -38,7 +39,7 @@ class Image {
 	 * @param float $percent
 	 * @return int[]
 	 */
-	public static function luminate($color, $percent) {
+	public static function luminate(array $color, float $percent): array {
 		foreach ($color as &$value) {
 			$value = (int)min(max(0, self::luminateValue($value, $percent)), 255);
 		}
@@ -47,11 +48,9 @@ class Image {
 	}
 
 	/**
-	 * @param $value
-	 * @param $percent
 	 * @return float|int
 	 */
-	static function luminateValue($value, $percent) {
+	static function luminateValue(float $value, float $percent) {
 		// no change
 		if ($percent == 50) {
 			return $value;
@@ -75,13 +74,7 @@ class Image {
 		return 255 - $diff;
 	}
 
-	/**
-	 * @param $r
-	 * @param $g
-	 * @param $b
-	 * @return string
-	 */
-	public static function fromRGB($r, $g, $b) {
+	public static function fromRGB(int $r, int $g, int $b): string {
 		$r = dechex($r);
 		if (strlen($r) < 2) {
 			$r = '0' . $r;
@@ -100,19 +93,12 @@ class Image {
 		return '#' . $r . $g . $b;
 	}
 
-	/**
-	 * @param IFile $file
-	 * @param string $iconName
-	 * @param ISource $source
-	 * @param int $width
-	 * @param int $height
-	 */
 	public static function generateIcon(
 		IFile $file,
-		$iconName,
+		string $iconName,
 		ISource $source,
-		$width = 100,
-		$height = 100
+		int $width = 100,
+		int $height = 100
 	) {
 		$word = $file->isDirectory()
 			? 'folder'

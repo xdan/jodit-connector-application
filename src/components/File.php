@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * @package    jodit
@@ -13,27 +14,26 @@ namespace Jodit\components;
 use Exception;
 use Jodit\Consts;
 use Jodit\interfaces\IFile;
+use Jodit\interfaces\ISource;
 
 /**
  * Class Files
  */
 class File extends IFile {
 	/**
-	 * @param string $path
 	 * @return File
 	 * @throws Exception
 	 */
-	public static function create($path) {
+	public static function create(string $path) {
 		return new File($path);
 	}
 
-	private $path = '';
+	private string $path = '';
 
 	/**
-	 * @param string $path
 	 * @throws Exception
 	 */
-	protected function __construct($path) {
+	protected function __construct(string $path) {
 		$path = realpath($path);
 
 		if (!$path) {
@@ -48,11 +48,8 @@ class File extends IFile {
 
 	/**
 	 * Check file extension
-	 *
-	 * @param Config $source
-	 * @return bool
 	 */
-	public function isGoodFile($source): bool {
+	public function isGoodFile(ISource $source): bool {
 		$ext = $this->getExtension();
 
 		if (!$ext or !in_array($ext, $source->extensions)) {
@@ -64,10 +61,8 @@ class File extends IFile {
 
 	/**
 	 * File is safe
-	 * @param $source
-	 * @return bool
 	 */
-	public function isSafeFile($source): bool {
+	public function isSafeFile(ISource $source): bool {
 		$ext = $this->getExtension();
 
 		if (!$this->isGoodFile($source)) {
@@ -81,9 +76,6 @@ class File extends IFile {
 		return true;
 	}
 
-	/**
-	 * @return bool
-	 */
 	public function isDirectory(): bool {
 		return is_dir($this->path);
 	}
@@ -92,7 +84,7 @@ class File extends IFile {
 	 * Remove file
 	 * @throws Exception
 	 */
-	public function remove() {
+	public function remove(): bool {
 		$file = basename($this->path);
 		$thumb =
 			dirname($this->path) .
@@ -113,23 +105,14 @@ class File extends IFile {
 		return unlink($this->path);
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getPath() {
+	public function getPath(): string {
 		return str_replace('\\', Consts::DS, $this->path);
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getFolder() {
+	public function getFolder(): string {
 		return dirname($this->getPath()) . Consts::DS;
 	}
 
-	/**
-	 * @return string
-	 */
 	public function getName(): string {
 		$parts = explode(Consts::DS, $this->getPath());
 		return array_pop($parts) ?: '';
@@ -137,65 +120,72 @@ class File extends IFile {
 
 	/**
 	 * Get file extension
-	 *
-	 * @return string
 	 */
-	public function getExtension() {
+	public function getExtension(): string {
 		$parts = explode('.', $this->getName());
 		return mb_strtolower(array_pop($parts) ?: '');
 	}
 
 	/**
 	 * Get file basename(urf8 basename analogue)
-	 *
-	 * @return string
 	 */
-	public function getBasename() {
+	public function getBasename(): string {
 		$parts = explode('.', $this->getName());
 		array_pop($parts);
 		return implode('.', $parts);
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getSize() {
-		return filesize($this->getPath());
+	public function getSize(): int {
+		$size = filesize($this->getPath());
+
+		if ($size === false) {
+			throw new Exception(
+				'Can not read filesize',
+				Consts::ERROR_CODE_NOT_IMPLEMENTED
+			);
+		}
+
+		return $size;
+	}
+
+	public function getTime(): int {
+		$time = filemtime($this->getPath());
+
+		if ($time === false) {
+			throw new Exception(
+				'Can not read filemtime',
+				Consts::ERROR_CODE_NOT_IMPLEMENTED
+			);
+		}
+
+		return $time;
 	}
 
 	/**
-	 * @return false|int
-	 */
-	public function getTime() {
-		return filemtime($this->getPath());
-	}
-
-	/**
-	 * @param Config $source
-	 * @return string
 	 * @throws Exception
 	 */
-	public function getPathByRoot($source): string {
+	public function getPathByRoot(ISource $source): string {
 		$path = preg_replace('#[\\\\/]#', '/', $this->getPath());
 		$root = preg_replace('#[\\\\/]#', '/', $source->getPath());
 
 		return str_replace($root, '', $path);
 	}
 
+	private static array $isFile = [];
+
 	/**
 	 * Check by mimetype what file is image
-	 * @return bool
 	 */
-
-	private $__isFile = null;
 	public function isImage(): bool {
-		if (is_bool($this->__isFile)) {
-			return $this->__isFile;
+		$path = $this->getPath();
+
+		if (isset(self::$isFile[$path])) {
+			return self::$isFile[$path];
 		}
 
 		try {
 			if ($this->isSVGImage()) {
-				$this->__isFile = true;
+				self::$isFile[$path] = true;
 				return true;
 			}
 
@@ -205,10 +195,9 @@ class File extends IFile {
 				!function_exists('Jodit\components\exif_imagetype')
 			) {
 				/**
-				 * @param $filename
 				 * @return false|mixed
 				 */
-				function exif_imagetype($filename) {
+				function exif_imagetype(string $filename) {
 					if ((list(, , $type) = getimagesize($filename)) !== false) {
 						return $type;
 					}
@@ -217,7 +206,7 @@ class File extends IFile {
 				}
 			}
 
-			$this->__isFile = in_array(exif_imagetype($this->getPath()), [
+			self::$isFile[$path] = in_array(exif_imagetype($path), [
 				IMAGETYPE_GIF,
 				IMAGETYPE_JPEG,
 				IMAGETYPE_PNG,
@@ -225,15 +214,14 @@ class File extends IFile {
 				IMAGETYPE_WEBP,
 			]);
 		} catch (Exception $e) {
-			$this->__isFile = false;
+			self::$isFile[$path] = false;
 		}
 
-		return $this->__isFile;
+		return self::$isFile[$path];
 	}
 
 	/**
 	 * Check file is SVG image
-	 * @return bool
 	 */
 	public function isSVGImage(): bool {
 		return $this->getExtension() === 'svg';
@@ -242,7 +230,7 @@ class File extends IFile {
 	/**
 	 * Send file for download
 	 */
-	public function send() {
+	public function send(): void {
 		header('Content-Description: File Transfer');
 		header('Content-Type: application/octet-stream');
 		header('Content-Disposition: attachment; filename=' . $this->getName());

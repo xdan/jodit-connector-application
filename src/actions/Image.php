@@ -1,44 +1,28 @@
 <?php
+declare(strict_types=1);
 
 namespace Jodit\actions;
 
 use Jodit\components\Config;
 use Jodit\Consts;
 use Exception;
-
-/**
- * @property \claviska\SimpleImage $img
- * @property string $path
- * @property string $file
- * @property object $box
- * @property string $newname
- * @property int $width
- * @property int $height
- */
-class ImageInfo extends \stdClass {
-}
+use Jodit\interfaces\ImageInfo;
 
 /**
  * Trait Image
  * @package Jodit\actions
  */
 trait Image {
-	/**
-	 * @var Config
-	 */
-	public $config;
+	public Config $config;
 
-	/**
-	 * @var string
-	 */
-	public $action;
+	public string $action;
 
 	/**
 	 * Resize image
 	 *
 	 * @throws \Exception
 	 */
-	public function actionImageResize() {
+	public function actionImageResize(): void {
 		$source = $this->config->getSource($this->request->source);
 
 		$this->config->access->checkPermission(
@@ -75,7 +59,7 @@ trait Image {
 	/**
 	 * @throws Exception
 	 */
-	public function actionImageCrop() {
+	public function actionImageCrop(): void {
 		$source = $this->config->getSource($this->request->source);
 
 		$this->config->access->checkPermission(
@@ -134,8 +118,5 @@ trait Image {
 			);
 	}
 
-	/**
-	 * @return ImageInfo
-	 */
-	abstract function getImageEditorInfo();
+	abstract function getImageEditorInfo(): ImageInfo;
 }

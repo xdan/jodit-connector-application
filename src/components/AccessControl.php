@@ -18,45 +18,36 @@ use Jodit\Helper;
  * @package Jodit
  */
 class AccessControl {
-	private $accessList = [];
+	private array $accessList = [];
 
-	public static $defaultRule;
+	public static array $defaultRule;
 
-	/**
-	 * @param array $list
-	 */
-	public function setAccessList($list) {
+	public function setAccessList(array $list): void {
 		$this->accessList = $list;
 	}
 
 	/**
-	 * @param $role
-	 * @param $action
-	 * @param string $path
-	 * @param string $fileExtension
-	 * @return bool
 	 * @throws Exception
 	 */
 	public function checkPermission(
-		$role,
+		string $role,
 		string $action,
-		$path = '/',
-		$fileExtension = '*'
-	) {
+		string $path = '/',
+		string $fileExtension = '*'
+	): bool {
 		if (!$this->isAllow($role, $action, $path, $fileExtension)) {
 			throw new Exception('Access denied', Consts::ERROR_CODE_FORBIDDEN);
 		}
+
 		return true;
 	}
 
-	/**
-	 * @param string $role
-	 * @param string $action
-	 * @param string $path
-	 * @param string $fileExtension
-	 * @return bool
-	 */
-	public function isAllow($role, string $action, $path = '/', $fileExtension = '*') {
+	public function isAllow(
+		string $role,
+		string $action,
+		string $path = '/',
+		string $fileExtension = '*'
+	): bool {
 		$action = Helper::upperize($action);
 
 		$allow = null;
@@ -146,4 +137,4 @@ class AccessControl {
 	}
 }
 
-AccessControl::$defaultRule = include(__DIR__ . '/../configs/defaultRules.php');
+AccessControl::$defaultRule = include __DIR__ . '/../configs/defaultRules.php';

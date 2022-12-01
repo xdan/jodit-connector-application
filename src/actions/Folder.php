@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Jodit\actions;
 
@@ -13,21 +14,14 @@ use Exception;
  * @package Jodit\actions
  */
 trait Folder {
-	/**
-	 * @var Config
-	 */
-	public $config;
-
-	/**
-	 * @var Request
-	 */
-	public $request;
+	public Config $config;
+	public Request $request;
 
 	/**
 	 * Load all folders from folder ore source or sources
 	 * @throws Exception
 	 */
-	public function actionFolders() {
+	public function actionFolders(): array {
 		$sources = [];
 
 		foreach ($this->config->getSources() as $source) {
@@ -42,7 +36,7 @@ trait Folder {
 	 *
 	 * @throws Exception
 	 */
-	public function actionFolderRemove() {
+	public function actionFolderRemove(): void {
 		$this->config
 			->getSource($this->request->source)
 			->folderRemove($this->request->name);
@@ -52,7 +46,7 @@ trait Folder {
 	 * Create directory
 	 * @throws Exception
 	 */
-	public function actionFolderCreate() {
+	public function actionFolderCreate(): ?array {
 		$source = $this->config->getSource($this->request->source);
 		$destinationPath = $source->getPath();
 
@@ -105,7 +99,7 @@ trait Folder {
 	 * Move folder
 	 * @throws Exception
 	 */
-	public function actionFolderMove() {
+	public function actionFolderMove(): void {
 		$this->config
 			->getSource($this->request->source)
 			->movePath($this->request->from);
@@ -115,7 +109,7 @@ trait Folder {
 	 * Rename folder
 	 * @throws \Exception
 	 */
-	public function actionFolderRename() {
+	public function actionFolderRename(): void {
 		$this->config
 			->getSource($this->request->source)
 			->renamePath($this->request->name, $this->request->newname);

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Jodit\actions;
 
@@ -8,22 +9,17 @@ use Jodit\components\Config;
 use Jodit\components\Request;
 use Jodit\Helper;
 
+/**
+ * Trait for checking path accesses
+ */
 trait Permissions {
-	/**
-	 * @var Config
-	 */
-	public $config;
+	public Config $config;
+	public Request $request;
 
 	/**
-	 * @var Request
-	 */
-	public $request;
-
-	/**
-	 * @return array[]
 	 * @throws Exception
 	 */
-	public function actionPermissions() {
+	public function actionPermissions(): array {
 		$result = [];
 		$source = $this->config->getSource($this->request->source);
 

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * @package    jodit
  *
@@ -14,6 +15,7 @@ use Exception;
 use Jodit\Consts;
 use Jodit\Helper;
 use Jodit\interfaces\IFile;
+use Jodit\interfaces\ImageInfo;
 use Jodit\interfaces\ISource;
 
 /**
@@ -21,33 +23,22 @@ use Jodit\interfaces\ISource;
  * @package Jodit
  */
 abstract class BaseApplication {
-	/**
-	 * @property Response $response
-	 */
-	public $response;
+	public Response $response;
 
-	/**
-	 * @property Request $request
-	 */
-	public $request;
+	public Request $request;
 
-	/**
-	 * @property string $action
-	 */
-	public $action;
+	public string $action;
 
-	/**
-	 * @var Config
-	 */
-	public $config;
+	public Config $config;
 
 	/**
 	 * Check whether the user has the ability to view files
 	 * You can define JoditCheckPermissions function in config.php and use it
+	 * @return mixed
 	 */
 	abstract public function checkAuthentication();
 
-	protected function corsHeaders() {
+	protected function corsHeaders(): void {
 		if (isset($_SERVER['HTTP_ORIGIN'])) {
 			header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
 		} else {
@@ -69,13 +60,13 @@ abstract class BaseApplication {
 		}
 	}
 
-	public function display() {
+	public function display(): void {
 		$version = json_decode(
 			file_get_contents(__DIR__ . '/../../package.json')
 		)->version;
 		header('X-App-version: ' . $version);
 
-		if ($this->config && !$this->config->debug) {
+		if (!$this->config->debug) {
 			if (ob_get_length()) {
 				ob_end_clean();
 			}
@@ -86,7 +77,7 @@ abstract class BaseApplication {
 
 		echo json_encode(
 			$this->response,
-			(!$this->config or $this->config->debug)
+			$this->config->debug
 				? JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
 				: 0
 		);
@@ -96,7 +87,7 @@ abstract class BaseApplication {
 	/**
 	 * @throws Exception
 	 */
-	public function execute() {
+	public function execute(): void {
 		$methods = get_class_methods($this);
 
 		if (!in_array('action' . ucfirst($this->action), $methods)) {
@@ -129,16 +120,15 @@ abstract class BaseApplication {
 	 * @throws Exception
 	 */
 
-	private $startedTime;
+	private float $startedTime;
 
 	/**
 	 * BaseApplication constructor.
-	 *
-	 * @param $config
-	 *
 	 * @throws Exception
 	 */
-	function __construct($config) {
+	function __construct(array $config) {
+		$this->config = new Config($config, null);
+
 		$this->startOutputBuffer();
 
 		$this->startedTime = microtime(true);
@@ -148,16 +138,14 @@ abstract class BaseApplication {
 		set_error_handler(function ($ignore, $error, $errorFile, $errorLine) {
 			throw new Exception(
 				$error .
-					((!$this->config or $this->config->debug)
+					($this->config->debug
 						? ' - file:' . $errorFile . ' line:' . $errorLine
 						: ''),
-				501
+				Consts::ERROR_CODE_NOT_IMPLEMENTED
 			);
 		});
 
 		set_exception_handler([$this, 'exceptionHandler']);
-
-		$this->config = new Config($config, null);
 
 		$this->request = new Request();
 
@@ -171,15 +159,14 @@ abstract class BaseApplication {
 		Jodit::$app = $this;
 	}
 
-	protected function startOutputBuffer() {
+	protected function startOutputBuffer(): void {
 		ob_start();
 	}
 
 	/**
-	 * @return object
 	 * @throws Exception
 	 */
-	protected function getImageEditorInfo() {
+	protected function getImageEditorInfo(): ImageInfo {
 		$source = $this->config->getSource($this->request->source);
 		$path = $source->getPath();
 
@@ -219,7 +206,10 @@ abstract class BaseApplication {
 			$info = pathinfo($path . $file);
 
 			// if has not same extension
-			if (!preg_match('#\.(' . $info['extension'] . ')$#i', $newName)) {
+			if (
+				!empty($info['extension']) &&
+				!preg_match('#\.(' . $info['extension'] . ')$#i', $newName)
+			) {
 				$newName = $newName . '.' . $info['extension'];
 			}
 
@@ -246,7 +236,7 @@ abstract class BaseApplication {
 			);
 		}
 
-		return (object) [
+		return new ImageInfo([
 			'path' => $path,
 			'file' => $file,
 			'box' => $box,
@@ -254,18 +244,18 @@ abstract class BaseApplication {
 			'img' => $img,
 			'width' => $img->getWidth(),
 			'height' => $img->getHeight(),
-		];
+		]);
 	}
 
 	/**
-	 * @param Exception $e
+	 * @param mixed $e
 	 */
-	public function exceptionHandler($e) {
+	public function exceptionHandler($e): void {
 		$this->response->success = false;
 		$this->response->data->code = $e->getCode();
 		$this->response->data->messages[] = $e->getMessage();
 
-		if (!$this->config or $this->config->debug) {
+		if ($this->config->debug) {
 			do {
 				$traces = $e->getTrace();
 				$this->response->data->messages[] = implode(' - ', [
@@ -293,11 +283,10 @@ abstract class BaseApplication {
 	}
 
 	/**
-	 * @param ISource $source
 	 * @return IFile[]
 	 * @throws Exception
 	 */
-	public function uploadedFiles($source) {
+	public function uploadedFiles(ISource $source): array {
 		if (!isset($_FILES[$source->defaultFilesKey])) {
 			throw new Exception(
 				'Incorrect request',
@@ -307,7 +296,7 @@ abstract class BaseApplication {
 
 		$files = $_FILES[$source->defaultFilesKey];
 		/**
-		 * @var $output File[]
+		 * @var File[] $output
 		 */
 		$output = [];
 
@@ -394,10 +383,14 @@ abstract class BaseApplication {
 		return $output;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getRoot() {
+	public function getRoot(): string {
+		if (!isset($_SERVER['DOCUMENT_ROOT'])) {
+			throw new Exception(
+				'Empty DOCUMENT_ROOT',
+				Consts::ERROR_CODE_NOT_IMPLEMENTED
+			);
+		}
+
 		return realpath($_SERVER['DOCUMENT_ROOT']) . Consts::DS;
 	}
 }

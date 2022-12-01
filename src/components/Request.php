@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * @package    jodit
  *
@@ -17,10 +18,10 @@ namespace Jodit\components;
  * @property string $newname
  * @property string $path
  * @property string $url
- * @property array $box
+ * @property ?array $box
  */
 class Request {
-	private $rawData = [];
+	private array $rawData = [];
 
 	public function __construct () {
 		$data = file_get_contents('php://input');
@@ -37,11 +38,10 @@ class Request {
 	}
 
 	/**
-	 * @param $key
-	 * @param null $default_value
+	 * @param mixed $default_value
 	 * @return mixed|null
 	 */
-	public function get ($key, $default_value = null) {
+	public function get (string $key, $default_value = null) {
 		if (isset($_REQUEST[$key])) {
 			return $this->prepareValue($_REQUEST[$key]);
 		}
@@ -54,7 +54,8 @@ class Request {
 	}
 
 	/**
-	 * @param $str
+	 * @param mixed $str
+	 * @return mixed
 	 */
 	private function prepareValue($str) {
 		if ($str === 'false' || $str === 'true') {
@@ -69,19 +70,17 @@ class Request {
 	}
 
 	/**
-	 * @param $key
 	 * @return mixed|null
 	 */
-	public function __get ($key) {
+	public function __get (string $key) {
 		return $this->get($key);
 	}
 
 	/**
-	 * @param $keys
-	 * @param null $default_value
+	 * @param mixed $default_value
 	 * @return array|mixed
 	 */
-	public function post ($keys, $default_value = null) {
+	public function post (string $keys, $default_value = null) {
 		$keys_chain = explode('/', $keys);
 		$result = $_POST;
 
@@ -97,16 +96,13 @@ class Request {
 		return $result;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getMethod() {
+	public function getMethod(): string {
 		return strtoupper(getenv('REQUEST_METHOD'));
 	}
 
 	/**
 	 * @param string $keys
-	 * @param null $default_value
+	 * @param mixed $default_value
 	 * @return bool|mixed|null
 	 */
 	public function getField(string $keys, $default_value = null) {

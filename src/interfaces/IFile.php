@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Jodit\interfaces;
 
@@ -8,71 +9,31 @@ namespace Jodit\interfaces;
  * @package Jodit\interfaces
  */
 abstract class IFile {
-	/**
-	 * @param $source
-	 * @return bool
-	 */
-	abstract public function isGoodFile($source): bool;
-	abstract public function isSafeFile($source): bool;
+	abstract public function isGoodFile(ISource $source): bool;
+	abstract public function isSafeFile(ISource $source): bool;
 
-	/**
-	 * @return bool
-	 */
 	abstract public function isDirectory(): bool;
 
-	abstract public function remove();
-	abstract public function send();
+	abstract public function remove(): bool;
+	abstract public function send(): void;
 
-	/**
-	 * @return string
-	 */
-	abstract public function getPath();
+	abstract public function getPath(): string;
 
-	/**
-	 * @return string
-	 */
-	abstract public function getFolder();
+	abstract public function getFolder(): string;
 
-	/**
-	 * @return string
-	 */
 	abstract public function getName(): string;
 
-	/**
-	 * @return string
-	 */
-	abstract public function getExtension();
+	abstract public function getExtension(): string;
 
-	/**
-	 * @return string
-	 */
-	abstract public function getBasename();
+	abstract public function getBasename(): string;
 
-	/**
-	 * @return int
-	 */
-	abstract public function getSize();
+	abstract public function getSize(): int;
 
-	/**
-	 * @return false|int
-	 */
-	abstract public function getTime();
+	abstract public function getTime(): int;
 
+	abstract public function getPathByRoot(ISource $source): string;
 
+	abstract public function isImage(): bool;
 
-	/**
-	 * @param ISource $source
-	 * @return string
-	 */
-	abstract public function getPathByRoot($source);
-
-	/**
-	 * @return bool
-	 */
-	abstract public function isImage();
-
-	/**
-	 * @return bool
-	 */
-	abstract public function isSVGImage();
+	abstract public function isSVGImage(): bool;
 }

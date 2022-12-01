@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * @package    jodit
  *
@@ -14,28 +15,18 @@ namespace Jodit\components;
  * @package jodit
  */
 class Response {
-	/**
-	 * @var bool
-	 */
-	public $success = true;
+	public bool $success = true;
+	public string $time;
 
-	/**
-	 * @var string
-	 */
-	public $time;
+	public object $data;
 
-	public $data = [
-		'messages' => [],
-		'code' => 220,
-	];
-
-	/**
-	 * @var float|string
-	 */
-	public $elapsedTime;
+	public float $elapsedTime = 0;
 
 	public function __construct () {
 		$this->time = date('Y-m-d H:i:s');
-		$this->data = (object)$this->data;
+		$this->data = (object)[
+			'messages' => [],
+			'code' => 220,
+		];
 	}
 }

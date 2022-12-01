@@ -13,6 +13,10 @@ use Jodit\Consts;
 use Jodit\Helper;
 use Jodit\interfaces\IFile;
 use Jodit\interfaces\ISource;
+use Jodit\interfaces\ISourceFile;
+use Jodit\interfaces\ISourceFolders;
+use Jodit\interfaces\ISourceItem;
+use Jodit\interfaces\IResolveFile;
 
 /**
  * Class FileSystem
@@ -25,7 +29,7 @@ class FileSystem extends ISource {
 	 * @return IFile
 	 * @throws Exception
 	 */
-	public function makeFile($path, $content = null) {
+	public function makeFile(string $path, string $content = null): IFile {
 		if ($content !== null) {
 			file_put_contents($path, $content);
 		}
@@ -33,24 +37,19 @@ class FileSystem extends ISource {
 		return File::create($path);
 	}
 
-	/**
-	 * @param string $path
-	 */
-	public function makeFolder($path) {
+	public function makeFolder(string $path): void {
 		mkdir($path, $this->defaultPermission);
 	}
 
-	/**
-	 * @param IFile $file
-	 * @param int $countThumbs
-	 * @return mixed
-	 */
-	public function makeThumb(IFile $file, int &$countThumbs = 0) {
+	private bool $folderChecked = false;
+
+	public function makeThumb(IFile $file, int &$countThumbs = 0): IFile {
 		$path = $file->getFolder();
 
-		if (!is_dir($path . $this->thumbFolderName)) {
+		if (!$this->folderChecked && !is_dir($path . $this->thumbFolderName)) {
 			$this->makeFolder($path . $this->thumbFolderName);
 		}
+		$this->folderChecked = true;
 
 		$thumbName =
 			$path .
@@ -59,6 +58,10 @@ class FileSystem extends ISource {
 			Helper::slugify($file->getBasename()) .
 			'.' .
 			$file->getExtension();
+
+		if (file_exists($thumbName)) {
+			return $this->makeFile($thumbName);
+		}
 
 		if (!$file->isImage()) {
 			$thumbName =
@@ -99,10 +102,10 @@ class FileSystem extends ISource {
 	}
 
 	/**
-	 * @return mixed
+	 * @return ISourceItem
 	 * @throws Exception
 	 */
-	public function items() {
+	public function items(): ISourceItem {
 		/**
 		 * Read folder and retrun filelist
 		 *
@@ -113,15 +116,11 @@ class FileSystem extends ISource {
 		 */
 		$path = $this->getPath();
 
-		$sourceData = (object) [
-			'baseurl' => $this->baseurl,
-			'path' => str_replace(
-				realpath($this->getRoot()) . Consts::DS,
-				'',
-				$path
-			),
-			'files' => [],
-		];
+		$sourceData = new ISourceItem(
+			$this->baseurl,
+			str_replace(realpath($this->getRoot()) . Consts::DS, '', $path),
+			[]
+		);
 
 		try {
 			$this->access->checkPermission(
@@ -153,6 +152,7 @@ class FileSystem extends ISource {
 			$this->defaultSortBy
 		);
 
+
 		$files = array_filter(scandir($path), function ($file) use ($path) {
 			return !$this->isExcluded($file);
 		});
@@ -165,44 +165,55 @@ class FileSystem extends ISource {
 
 		$this->sortByMode($files, $sortBy);
 
+		$timings = (object) [
+			'isImage' => 0,
+			'isDirectory' => 0,
+			'item' => 0,
+			'thumbs' => 0,
+			'changed' => 0,
+			'size' => 0,
+			'directoryItem' => 0,
+		];
+
 		$countThumbs = 0;
-		foreach (array_slice($files, $offset, $limit) as $index => $file) {
+		foreach (array_slice($files, $offset, $limit) as $file) {
 			$isImage = in_array($file->getExtension(), $this->imageExtensions);
-			/**
-			 * @var IFile $file
-			 */
+
 			if (!$file->isDirectory()) {
-				$item = [
-					'file' => $file->getPathByRoot($this),
-					'name' => $file->getName(),
-					'type' => $isImage ? 'image' : 'file',
-				];
+				$item = new ISourceFile(
+					$file->getPathByRoot($this),
+					$file->getName(),
+					$isImage ? 'image' : 'file'
+				);
 
 				if ($countThumbs <= $config->safeThumbsCountInOneTime) {
-					if ($config->createThumb || !$file->isImage()) {
-						$item['thumb'] = $this->makeThumb(
+					if ($config->createThumb || !$isImage) {
+						$item->thumb = $this->makeThumb(
 							$file,
 							$countThumbs
 						)->getPathByRoot($this);
 					}
 				}
 
-				$item['changed'] = date(
+				$item->changed = date(
 					$config->datetimeFormat,
 					$file->getTime()
 				);
 
-				$item['size'] = Helper::humanFileSize($file->getSize());
-				$item['isImage'] = $isImage;
+
+				$item->size = Helper::humanFileSize($file->getSize());
+
+				$item->isImage = $isImage;
 
 				$sourceData->files[] = $item;
 			} else {
-				$item = [
-					'file' => $file->getPathByRoot($this),
-					'name' => $file->getName(),
-					'thumb' => $this->makeThumb($file)->getPathByRoot($this),
-					'type' => 'folder',
-				];
+				$item = new ISourceFile(
+					$file->getPathByRoot($this),
+					$file->getName(),
+					'folder'
+				);
+
+				$item->thumb = $this->makeThumb($file)->getPathByRoot($this);
 
 				$sourceData->files[] = $item;
 			}
@@ -214,20 +225,16 @@ class FileSystem extends ISource {
 	/**
 	 * @return mixed
 	 */
-	public function folders() {
+	public function folders(): ISourceFolders {
 		$path = $this->getPath();
 
-		$sourceData = (object) [
-			'name' => $this->sourceName,
-			'title' => $this->title,
-			'baseurl' => $this->baseurl,
-			'path' => str_replace(
-				realpath($this->getRoot()) . Consts::DS,
-				'',
-				$path
-			),
-			'folders' => [],
-		];
+		$sourceData = new ISourceFolders(
+			$this->sourceName,
+			$this->title,
+			$this->baseurl,
+			str_replace(realpath($this->getRoot()) . Consts::DS, '', $path),
+			[]
+		);
 
 		if (Jodit::$app->request->dots !== false) {
 			$sourceData->folders[] = $path === $this->getRoot() ? '.' : '..';
@@ -247,7 +254,7 @@ class FileSystem extends ISource {
 	 * @param string $file
 	 * @return bool
 	 */
-	public function isExcluded($file) {
+	public function isExcluded(string $file): bool {
 		return $file === '.' ||
 			$file === '..' ||
 			($this->createThumb && $file === $this->thumbFolderName) ||
@@ -282,11 +289,7 @@ class FileSystem extends ISource {
 		return $tree;
 	}
 
-	/**
-	 * @param string $fromName
-	 * @param string $newName
-	 */
-	public function renamePath($fromName, $newName) {
+	public function renamePath(string $fromName, string $newName): void {
 		$fromName = Helper::makeSafe($fromName);
 		$fromPath = $this->getPath() . $fromName;
 
@@ -352,7 +355,7 @@ class FileSystem extends ISource {
 	 * Move file or directory to another folder
 	 * @throws Exception
 	 */
-	public function movePath($from) {
+	public function movePath(string $from): void {
 		$destinationPath = $this->getPath();
 		$sourcePath = $this->getPath($from);
 
@@ -393,10 +396,9 @@ class FileSystem extends ISource {
 
 	/**
 	 * Remove file
-	 * @param string $target
 	 * @throws Exception
 	 */
-	public function fileRemove($target) {
+	public function fileRemove(string $target): void {
 		$file_path = false;
 
 		$path = $this->getPath();
@@ -442,10 +444,9 @@ class FileSystem extends ISource {
 
 	/**
 	 * Download file
-	 * @param string $target
 	 * @throws Exception
 	 */
-	public function fileDownload($target) {
+	public function fileDownload(string $target): void {
 		$file_path = false;
 
 		$path = $this->getPath();
@@ -491,10 +492,9 @@ class FileSystem extends ISource {
 
 	/**
 	 * Remove folder
-	 *
 	 * @throws Exception
 	 */
-	public function folderRemove($name) {
+	public function folderRemove(string $name): void {
 		$file_path = false;
 
 		$path = $this->getPath();
@@ -539,19 +539,13 @@ class FileSystem extends ISource {
 		}
 	}
 
-	/**
-	 * @param string $url
-	 * @return mixed
-	 */
-	public function resolveFileByUrl($url) {
+	public function resolveFileByUrl(string $url): ?IResolveFile {
 		$base = parse_url($this->baseurl);
 		$parts = parse_url($url);
 
-		$path = preg_replace(
-			'#^(/)?' . $base['path'] . '#',
-			'',
-			$parts['path']
-		);
+		$path = $base['path']
+			? preg_replace('#^(/)?' . $base['path'] . '#', '', $parts['path'])
+			: '';
 
 		$root = $this->getPath();
 
@@ -559,15 +553,11 @@ class FileSystem extends ISource {
 			$file = $this->makeFile($root . $path);
 
 			if ($file->isSafeFile($this)) {
-				return [
-					'path' => str_replace(
-						$root,
-						'',
-						dirname($root . $path) . Consts::DS
-					),
-					'name' => basename($path),
-					'source' => $this->sourceName,
-				];
+				return new IResolveFile(
+					str_replace($root, '', dirname($root . $path) . Consts::DS),
+					basename($path),
+					$this->sourceName
+				);
 			}
 		}
 
@@ -575,12 +565,11 @@ class FileSystem extends ISource {
 	}
 
 	/**
-	 * @param string $path
 	 * @param array<string> $files
-	 * @return array<IFile>
+	 * @return IFile[]
 	 * @throws Exception
 	 */
-	private function filterFiles($path, $files) {
+	private function filterFiles(string $path, $files): array {
 		$result = [];
 
 		$withFolders = Jodit::$app->request->getField(
@@ -608,7 +597,7 @@ class FileSystem extends ISource {
 	 * @param array<IFile> $files
 	 * @param string $sortBy
 	 */
-	private function sortByMode(array &$files, string $sortBy) {
+	private function sortByMode(array &$files, string $sortBy): void {
 		switch ($sortBy) {
 			case 'name-asc':
 				sort($files);
@@ -631,7 +620,10 @@ class FileSystem extends ISource {
 
 							if ($a === $b) {
 								$m = $sortBy === 'changed-asc' ? 1 : -1;
-								return $fileA->getBasename() > $fileB->getBasename() ? 1 * $m : -1 * $m;
+								return $fileA->getBasename() >
+									$fileB->getBasename()
+									? 1 * $m
+									: -1 * $m;
 							}
 
 							return $sortBy === 'changed-asc'
@@ -661,10 +653,7 @@ class FileSystem extends ISource {
 		);
 
 		if ($foldersPosition !== 'default') {
-			usort($files, function ($fileA, $fileB) use (
-				$sortBy,
-				$foldersPosition
-			) {
+			usort($files, function ($fileA, $fileB) use ($foldersPosition) {
 				if ($fileA->isDirectory() && !$fileB->isDirectory()) {
 					return $foldersPosition === 'top' ? -1 : 1;
 				}

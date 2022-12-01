@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace Jodit\actions;
 
 use Jodit\components\Config;
@@ -9,16 +11,13 @@ use Exception;
  * Trait Files
  */
 trait Files {
-	/**
-	 * @var Config
-	 */
-	public $config;
+	public Config $config;
 
 	/**
 	 * Load all files from folder ore source or sources
 	 * @throws Exception
 	 */
-	public function actionFiles() {
+	public function actionFiles(): array {
 		$sources = [];
 
 		foreach ($this->config->getSources() as $source) {

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Jodit\actions;
 
@@ -8,6 +9,7 @@ use Jodit\Consts;
 use Jodit\Helper;
 use Exception;
 use Jodit\interfaces\IFile;
+use Jodit\interfaces\IResolveFile;
 use Jodit\interfaces\ISource;
 
 /**
@@ -15,21 +17,14 @@ use Jodit\interfaces\ISource;
  * @package Jodit\actions
  */
 trait File {
-	/**
-	 * @var Request
-	 */
-	public $request;
-
-	/**
-	 * @var Config
-	 */
-	public $config;
+	public Request $request;
+	public Config $config;
 
 	/**
 	 * Load remote image by URL to self host
 	 * @throws Exception
 	 */
-	public function actionFileUploadRemote() {
+	public function actionFileUploadRemote(): array {
 		$url = $this->request->url;
 
 		if (!$url) {
@@ -87,11 +82,9 @@ trait File {
 
 	/**
 	 * Upload images
-	 *
-	 * @return array
 	 * @throws Exception
 	 */
-	public function actionFileUpload() {
+	public function actionFileUpload(): array {
 		$source = $this->config->getCompatibleSource($this->request->source);
 
 		$root = $source->getRoot();
@@ -135,23 +128,22 @@ trait File {
 	 *
 	 * @throws Exception
 	 */
-	public function actionFileRemove() {
+	public function actionFileRemove() : void {
 		$this->config
 			->getSource($this->request->source)
 			->fileRemove($this->request->name);
 	}
 
 	/**
-	 * @param ISource $source
 	 * @return IFile[]
 	 */
-	abstract protected function uploadedFiles($source);
+	abstract protected function uploadedFiles(ISource $source): array;
 
 	/**
 	 * Move file
 	 * @throws Exception
 	 */
-	public function actionFileMove() {
+	public function actionFileMove(): void {
 		$this->config
 			->getSource($this->request->source)
 			->movePath($this->request->from);
@@ -161,7 +153,7 @@ trait File {
 	 * Rename file
 	 * @throws Exception
 	 */
-	public function actionFileRename() {
+	public function actionFileRename(): void {
 		$this->config
 			->getSource($this->request->source)
 			->renamePath($this->request->name, $this->request->newname);
@@ -171,7 +163,7 @@ trait File {
 	 * Get filepath by URL for local files
 	 * @throws Exception
 	 */
-	public function actionGetLocalFileByUrl() {
+	public function actionGetLocalFileByUrl(): ?IResolveFile {
 		$url = $this->request->url;
 
 		if (!$url) {
@@ -204,7 +196,7 @@ trait File {
 	/**
 	 * Send file by path, source and name
 	 */
-	public function actionFileDownload() {
+	public function actionFileDownload(): void {
 		$this->config
 			->getSource($this->request->source)
 			->fileDownload($this->request->name);

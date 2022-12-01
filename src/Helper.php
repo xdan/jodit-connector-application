@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * @package    jodit
  *
@@ -18,7 +19,7 @@ use InvalidArgumentException;
  * @package Jodit
  */
 abstract class Helper {
-	public static $uploadErrors = [
+	public static array $uploadErrors = [
 		0 => 'There is no error, the file uploaded with success',
 		1 => 'The uploaded file exceeds the upload_max_filesize directive in php.ini',
 		2 => 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form',
@@ -32,13 +33,13 @@ abstract class Helper {
 	/**
 	 * Convert number bytes to human format
 	 *
-	 * @param $bytes
-	 * @param int $decimals
-	 * @return string
 	 */
-	public static function humanFileSize($bytes, $decimals = 2) {
+	public static function humanFileSize(
+		int $bytes,
+		int $decimals = 2
+	): string {
 		$size = ['B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-		$factor = (int) floor((strlen((int) $bytes) - 1) / 3);
+		$factor = (int) floor((strlen((string) $bytes) - 1) / 3);
 
 		return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)) .
 			$size[$factor];
@@ -47,7 +48,7 @@ abstract class Helper {
 	/**
 	 * Converts from human readable file size (kb,mb,gb,tb) to bytes
 	 *
-	 * @param {string|int} human readable file size. Example 1gb or 11.2mb
+	 * @param string|int $from human readable file size. Example 1gb or 11.2mb
 	 * @return int
 	 */
 	public static function convertToBytes($from) {
@@ -60,17 +61,12 @@ abstract class Helper {
 		$format = strtoupper(substr($from, -2));
 
 		return in_array($format, $formats)
-			? (int) ($number * pow(1024, array_search($format, $formats) + 1))
+			? (int) ((int) $number *
+				pow(1024, array_search($format, $formats) + 1))
 			: (int) $from;
 	}
 
-	/**
-	 * @param string $str
-	 * @return string
-	 */
-	public static function translate($str) {
-		$str = (string) $str;
-
+	public static function translate(string $str): string {
 		$replace = [
 			'а' => 'a',
 			'б' => 'b',
@@ -146,35 +142,40 @@ abstract class Helper {
 		return $str;
 	}
 
-	/**
-	 * @param string $file
-	 * @return string
-	 */
-	public static function makeSafe($file) {
+	public static function makeSafe(string $file): string {
 		$file = rtrim(self::translate($file), '.');
 		$regex = ['#(\.){2,}#', '#[^A-Za-z0-9\.\_\- ]#', '#^\.#'];
 		return trim(preg_replace($regex, '', $file));
 	}
 
-	/**
-	 * @param string $name
-	 * @return string
-	 */
-	public static function slugify($name) {
-		$slugify = new Slugify();
-		return $slugify->slugify($name);
+
+	private static ?Slugify $slugify = null;
+	public static function slugify(string $name): string {
+		if (!self::$slugify) {
+			self::$slugify = new Slugify();
+		}
+		return self::$slugify->slugify($name);
 	}
 
 	/**
 	 * Download remote file on server
-	 *
-	 * @param string $url
-	 * @param string $destinationFilename
 	 * @throws Exception
 	 */
-	public static function downloadRemoteFile($url, $destinationFilename) {
+	public static function downloadRemoteFile(
+		string $url,
+		string $destinationFilename
+	): void {
 		if (!ini_get('allow_url_fopen')) {
 			throw new Exception('allow_url_fopen is disabled', 501);
+		}
+
+		$response = parse_url($url);
+		if (
+			!$response or
+			empty($response['host']) or
+			empty($response['scheme'])
+		) {
+			throw new Exception('Invalid URL', 501);
 		}
 
 		$message = 'File was not loaded';
@@ -224,21 +225,12 @@ abstract class Helper {
 		}
 	}
 
-	/**
-	 * @param string $string
-	 * @return string
-	 */
-	public static function upperize(string $string) {
+	public static function upperize(string $string): string {
 		$string = preg_replace('#([a-z])([A-Z])#', '\1_\2', $string);
 		return strtoupper($string);
 	}
 
-	/**
-	 * @param $string
-	 *
-	 * @return string
-	 */
-	public static function camelCase($string) {
+	public static function camelCase(string $string): string {
 		$string = preg_replace_callback(
 			'#([_])(\w)#',
 			function ($m) {
@@ -250,10 +242,7 @@ abstract class Helper {
 		return ucfirst($string);
 	}
 
-	/**
-	 * @param string $dirPath
-	 */
-	public static function removeDirectory($dirPath) {
+	public static function removeDirectory(string $dirPath): bool {
 		if (!is_dir($dirPath)) {
 			throw new InvalidArgumentException("$dirPath must be a directory");
 		}
@@ -272,15 +261,10 @@ abstract class Helper {
 			}
 		}
 
-		rmdir($dirPath);
+		return rmdir($dirPath);
 	}
 
-	/**
-	 * @param string $source
-	 * @param string $dest
-	 * @return bool
-	 */
-	public static function copy($source, $dest) {
+	public static function copy(string $source, string $dest): bool {
 		if (!file_exists($source)) {
 			throw new InvalidArgumentException(
 				"$source must be file or directory"
@@ -318,17 +302,12 @@ abstract class Helper {
 		return true;
 	}
 
-	/**
-	 * @param string $path
-	 * @return string
-	 */
-	public static function normalizePath($path) {
+	public static function normalizePath(string $path): string {
 		return preg_replace('#[\\\\/]+#', '/', $path);
 	}
 
 	/**
 	 * Return first of keys
-	 * @param array $array
 	 * @return int|string|null
 	 */
 	public static function arrayKeyFirst(array $array) {

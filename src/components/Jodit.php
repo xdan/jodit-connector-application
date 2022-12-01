@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * @package    jodit
  *
@@ -14,8 +15,5 @@ namespace Jodit\components;
  * @package Jodit
  */
 class Jodit {
-	/**
-	 * @var \Jodit\components\BaseApplication
-	 */
-	public static $app;
+	public static BaseApplication $app;
 }

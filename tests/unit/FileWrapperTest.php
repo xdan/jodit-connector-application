@@ -1,16 +1,16 @@
 <?php
+
+use Jodit\components\File;
+
 class FileWrapperTest extends \Codeception\Test\Unit {
 	/**
 	 * @var UnitTester
 	 */
 	protected $tester;
-	/**
-	 * @var \Jodit\components\File
-	 */
-	protected $file;
+	protected File $file;
 
 	protected function _before() {
-		$this->file = \Jodit\components\File::create(
+		$this->file = File::create(
 			realpath(__DIR__ . '/../files/folder1/алина test15510.jpg')
 		);
 	}

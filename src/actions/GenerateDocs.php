@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Jodit\actions;
 
@@ -13,15 +14,8 @@ use Exception;
  * @package Jodit\actions
  */
 trait GenerateDocs {
-	/**
-	 * @var Request
-	 */
-	public $request;
-
-	/**
-	 * @var Config
-	 */
-	public $config;
+	public Request $request;
+	public Config $config;
 
 	private function docHTML(string $html): string {
 		return <<<HTML
@@ -56,7 +50,8 @@ div.Section1 { page:Section1; }
 </html>
 HTML;
 	}
-	public function actionGenerateDocx() {
+
+	public function actionGenerateDocx(): void {
 		$this->config->access->checkPermission(
 			$this->config->getUserRole(),
 			$this->action,
@@ -84,7 +79,7 @@ HTML;
 	 * Generate pdf file from HTML
 	 * @throws Exception
 	 */
-	public function actionGeneratePdf() {
+	public function actionGeneratePdf(): void {
 		$this->config->access->checkPermission(
 			$this->config->getUserRole(),
 			$this->action,

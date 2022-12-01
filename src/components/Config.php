@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * @package    jodit
  *
@@ -18,67 +20,62 @@ $defaultConfig = include __DIR__ . '/../configs/defaultConfig.php';
 
 /**
  * Class Config
+ * @property string $defaultRole
  * @property string $title
+ * @property string $root
  * @property string $thumbFolderName
  * @property number $countInChunk
  * @property string $defaultSortBy
  * @property string $maxFileSize
  * @property string $memoryLimit
+ * @property string $sourceClassName
  * @property number $thumbSize
  * @property number $timeoutLimit
  * @property bool $allowCrossOrigin
  * @property AccessControl $access
  * @property bool $createThumb
+ * @property bool $allowReplaceSourceFile
  * @property bool $debug
  * @property string[] $excludeDirectoryNames
  * @property number $quality
  * @property string $datetimeFormat
  * @property string $baseurl
- * @property number $defaultPermission
+ * @property int $defaultPermission
  * @property number $safeThumbsCountInOneTime
  * @property string[] $imageExtensions
  * @property string[] $extensions
+ * @property array $accessControl
  * @package jodit
  */
 class Config {
-	/**
-	 * @var Config | false
-	 */
-	private $parent;
+	private ?Config $parent;
 
-	static $defaultOptions;
+	static array $defaultOptions;
 
-	private $data = [];
+	private object $data;
 
 	/**
 	 * @var ISource[]
 	 */
-	public $sources = [];
+	public array $sources = [];
 
-	public $sourceName = 'default';
+	public string $sourceName = 'default';
 
-	/**
-	 * @var AccessControl
-	 */
-	public $access;
+	public AccessControl $access;
 
 	/**
-	 * @param $source
-	 * @param Config $param
-	 * @param $key
-	 * @return \Jodit\interfaces\ISource
 	 * @throws Exception
 	 */
-	private static function makeSource($source, Config $param, $key) {
-		$className = !empty($source['sourceClassName'])
-			? $source['sourceClassName']
+	private static function makeSource(array $sourceData, Config $param, string $key): ISource {
+		$className = !empty($sourceData ['sourceClassName'])
+			? $sourceData ['sourceClassName']
 			: $param->sourceClassName;
 
 		if (!$className) {
 			$className = self::$defaultOptions['sourceClassName'];
 		}
 
-		$instance = new $className($source, $param, $key);
+		$instance = new $className($sourceData , $param, $key);
 
 		if ($instance instanceof ISource) {
 			return $instance;
@@ -91,7 +88,7 @@ class Config {
 	 * @return ISource[]
 	 * @throws Exception
 	 */
-	public function getSources() {
+	public function getSources(): array {
 		$sources = [];
 		$request = Jodit::$app->request;
 		$action = Jodit::$app->action;
@@ -133,50 +130,44 @@ class Config {
 
 	/**
 	 * Get user role
-	 * @return string
 	 */
-	public function getUserRole() {
+	public function getUserRole(): string {
 		return isset($_SESSION[$this->roleSessionVar])
 			? $_SESSION[$this->roleSessionVar]
 			: $this->defaultRole;
 	}
 
 	/**
-	 * @param $key
-	 * @param $value
+	 * @param mixed $value
 	 */
-	public function __set($key, $value) {
+	public function __set(string $key, $value): void {
 		$this->data->{$key} = $value;
 	}
 
 	/**
-	 * @param $key
-	 * @return null
+	 * @return mixed | null
 	 */
-	public function __get($key) {
+	public function __get(string $key) {
 		if (isset($this->data->{$key})) {
 			return $this->data->{$key};
 		}
 
 		if ($this->parent) {
 			return $this->parent->{$key};
-		} else {
-			return null;
 		}
+
+		return null;
 	}
 
 	/**
 	 * Config constructor.
-	 *
-	 * @param array $data
-	 * @param null | false | Config $parent
-	 * @param string $sourceName
+	 * @param object | array  $data
+	 * @param Config | null | false  $parent
 	 * @throws Exception
 	 */
-	function __construct($data, $parent = null, $sourceName = 'default') {
-		$this->parent = $parent;
-		$data = (object) $data;
-		$this->data = $data;
+	function __construct($data, $parent, string $sourceName = 'default') {
+		$this->parent = $parent ? $parent : null;
+		$this->data = is_array($data) ? (object)$data : $data;
 		$this->sourceName = $sourceName;
 		$this->access = new AccessControl();
 
@@ -195,11 +186,11 @@ class Config {
 			$this->parent = new Config(self::$defaultOptions, false);
 
 			if (
-				isset($data->sources) and
-				is_array($data->sources) and
-				count($data->sources)
+				isset($this->data->sources) and
+				is_array($this->data->sources) and
+				count($this->data->sources)
 			) {
-				foreach ($data->sources as $key => $source) {
+				foreach ($this->data->sources as $key => $source) {
 					$this->sources[$key] = self::makeSource(
 						$source,
 						$this,
@@ -218,11 +209,9 @@ class Config {
 
 	/**
 	 * Get full path for $source->root with trailing slash
-	 *
-	 * @return string
 	 * @throws Exception
 	 */
-	public function getRoot() {
+	public function getRoot(): string {
 		if ($this->root) {
 			if (!is_dir($this->root)) {
 				throw new Exception(
@@ -244,15 +233,12 @@ class Config {
 
 	/**
 	 * Get full path for $_REQUEST[$name] relative path with trailing slash(if directory)
-	 *
-	 * @param string|bool $relativePath
-	 * @return bool|string
 	 * @throws \Exception
 	 */
-	public function getPath($relativePath = false) {
+	public function getPath(string $relativePath = null): string {
 		$root = $this->getRoot();
 
-		if ($relativePath === false) {
+		if ($relativePath === null) {
 			$relativePath = Jodit::$app->request->path ?: '';
 		}
 
@@ -276,12 +262,9 @@ class Config {
 
 	/**
 	 * Get source by name
-	 *
-	 * @param string | null $sourceName
-	 * @return ISource | null
 	 * @throws Exception
 	 */
-	public function getSource($sourceName) {
+	public function getSource(?string $sourceName): ISource {
 		if (!$sourceName || $sourceName === 'default') {
 			$sourceName = Helper::arrayKeyFirst($this->sources);
 		}
@@ -307,24 +290,15 @@ class Config {
 	}
 
 	/**
-	 * @param string|null $sourceName
-	 * @return $this|ISource
 	 * @throws Exception
 	 */
-	public function getCompatibleSource($sourceName = null) {
+	public function getCompatibleSource(?string $sourceName = null): ISource {
 		if ($sourceName === 'default') {
 			$sourceName = null;
 		}
 
 		if ($sourceName) {
 			$source = $this->getSource($sourceName);
-
-			if (!$source) {
-				throw new Exception(
-					'Source not found',
-					Consts::ERROR_CODE_NOT_EXISTS
-				);
-			}
 
 			$this->access->checkPermission(
 				$this->getUserRole(),
@@ -338,7 +312,7 @@ class Config {
 		if ($sourceName === null || $sourceName === '') {
 			foreach ($this->sources as $key => $item) {
 				try {
-					return $item->getCompatibleSource(false);
+					return $item->getCompatibleSource();
 				} catch (Exception $e) {
 				}
 			}

@@ -1,89 +1,44 @@
 <?php
+declare(strict_types=1);
 
 namespace Jodit\interfaces;
 
-
 use Jodit\components\Config;
+use Jodit\interfaces\IFile;
+use Jodit\interfaces\ISourceItem;
+use Jodit\interfaces\ISourceFolders;
 
 /**
  * Interface ISource
  * @package Jodit\interfaces
  */
 abstract class ISource extends Config {
-	/**
-	 * @return mixed
-	 */
-	abstract public function items();
+	abstract public function items(): ISourceItem;
+	abstract public function folders(): ISourceFolders;
 
-	/**
-	 * @return mixed
-	 */
-	abstract public function folders();
+	abstract public function makeFolder(string $path): void;
 
-	/**
-	 * @param string $path
-	 * @return mixed
-	 */
-	abstract public function makeFolder($path);
+	abstract public function makeThumb(IFile $file, int &$countThumbs): IFile;
 
-	/**
-	 * @param IFile $file
-	 * @param int $countThumbs
-	 * @return mixed
-	 */
-	abstract public function makeThumb(IFile $file, int &$countThumbs);
+	abstract public function isExcluded(string $file): bool;
 
-	/**
-	 * @param string $file
-	 * @return bool
-	 */
-	abstract public function isExcluded($file);
+	abstract protected function movePath(string $fromName): void;
 
-
-	/**
-	 * @param $fromName
-	 * @return mixed
-	 */
-	abstract protected function movePath($fromName);
-
-	/**
-	 * @param string $fromName
-	 * @param string $newName
-	 * @return mixed
-	 */
 	abstract public function renamePath(
-		$fromName,
-		$newName
-	);
+		string $fromName,
+		string $newName
+	): void;
 
-	/**
-	 * @param string $target
-	 * @return mixed
-	 */
-	abstract public function fileRemove($target);
+	abstract public function fileRemove(string $target): void;
 
-	/**
-	 * @param string $target
-	 * @return mixed
-	 */
-	abstract public function fileDownload($target);
+	abstract public function fileDownload(string $target): void;
 
-	/**
-	 * @param string $name
-	 * @return mixed
-	 */
-	abstract public function folderRemove($name);
+	abstract public function folderRemove(string $name): void;
 
-	/**
-	 * @param string $url
-	 * @return mixed
-	 */
-	abstract public function resolveFileByUrl($url);
+	abstract public function resolveFileByUrl(string $url): ?IResolveFile;
 
-	/**
-	 * @param string $path
-	 * @param string $content
-	 * @return IFile
-	 */
-	abstract public function makeFile($path, $content = null);
+	abstract public function makeFile(
+		string $path,
+		string $content = null
+	): IFile;
 }
