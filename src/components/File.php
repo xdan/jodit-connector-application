@@ -135,7 +135,12 @@ class File extends IFile {
 		return implode('.', $parts);
 	}
 
+	private ?int $cacheSize = null;
 	public function getSize(): int {
+		if ($this->cacheSize!== null) {
+			return $this->cacheSize;
+		}
+
 		$size = filesize($this->getPath());
 
 		if ($size === false) {
@@ -145,10 +150,17 @@ class File extends IFile {
 			);
 		}
 
+		$this->cacheSize = $size;
+
 		return $size;
 	}
 
+	private ?int $cacheTime = null;
 	public function getTime(): int {
+		if ($this->cacheTime!== null) {
+			return $this->cacheTime;
+		}
+
 		$time = filemtime($this->getPath());
 
 		if ($time === false) {
@@ -157,6 +169,8 @@ class File extends IFile {
 				Consts::ERROR_CODE_NOT_IMPLEMENTED
 			);
 		}
+
+		$this->cacheTime = $time;
 
 		return $time;
 	}

@@ -152,28 +152,17 @@ class FileSystem extends ISource {
 			$this->defaultSortBy
 		);
 
-
-		$files = array_filter(scandir($path), function ($file) use ($path) {
+		$list = array_filter(scandir($path), function ($file) use ($path) {
 			return !$this->isExcluded($file);
 		});
 
-		if ($files === false) {
+		if ($list === false) {
 			throw new Exception('Files not found');
 		}
 
-		$files = $this->filterFiles($path, $files);
+		$files = $this->filterFiles($path, $list);
 
 		$this->sortByMode($files, $sortBy);
-
-		$timings = (object) [
-			'isImage' => 0,
-			'isDirectory' => 0,
-			'item' => 0,
-			'thumbs' => 0,
-			'changed' => 0,
-			'size' => 0,
-			'directoryItem' => 0,
-		];
 
 		$countThumbs = 0;
 		foreach (array_slice($files, $offset, $limit) as $file) {
@@ -199,7 +188,6 @@ class FileSystem extends ISource {
 					$config->datetimeFormat,
 					$file->getTime()
 				);
-
 
 				$item->size = Helper::humanFileSize($file->getSize());
 
@@ -565,11 +553,11 @@ class FileSystem extends ISource {
 	}
 
 	/**
-	 * @param array<string> $files
+	 * @param string[] $list
 	 * @return IFile[]
 	 * @throws Exception
 	 */
-	private function filterFiles(string $path, $files): array {
+	private function filterFiles(string $path, $list): array {
 		$result = [];
 
 		$withFolders = Jodit::$app->request->getField(
@@ -578,13 +566,15 @@ class FileSystem extends ISource {
 		);
 
 		$onlyImages = Jodit::$app->request->getField('mods/onlyImages', false);
+		$exts = $this->imageExtensions;
 
-		foreach ($files as $index => $fileName) {
+		foreach ($list as $index => $fileName) {
 			$file = $this->makeFile($path . $fileName);
 
 			if (
 				($file->isDirectory() && $withFolders) ||
-				($file->isGoodFile($this) && (!$onlyImages || $file->isImage()))
+				($file->isGoodFile($this) &&
+					(!$onlyImages || in_array($file->getExtension(), $exts)))
 			) {
 				$result[] = $file;
 			}
@@ -611,7 +601,7 @@ class FileSystem extends ISource {
 			case 'changed-asc':
 			case 'size-asc':
 			case 'size-desc':
-				usort($files, function ($fileA, $fileB) use ($sortBy) {
+				usort($files, function (IFile $fileA, IFile $fileB) use ($sortBy) {
 					switch ($sortBy) {
 						case 'changed-desc':
 						case 'changed-asc':

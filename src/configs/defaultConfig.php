@@ -21,7 +21,7 @@ return [
 	'memoryLimit' => '256M',
 	'timeoutLimit' => 60,
 	'allowCrossOrigin' => false,
-	'safeThumbsCountInOneTime' => 10,
+	'safeThumbsCountInOneTime' => 20,
 
 	'sourceClassName' => 'Jodit\sources\FileSystem',
 
