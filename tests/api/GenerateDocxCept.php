@@ -19,4 +19,4 @@ $I->seeResponseCodeIs(HttpCode::OK); // 200
 //$I->seeHttpHeader('Content-Type', 'application/octet-stream');
 //$I->seeHttpHeader('Content-Length', '1721004');
 //$I->seeHttpHeader('Content-Disposition', 'attachment;filename="document.docx"');
-file_put_contents('ddd.doc', $I->grabResponse());
+//file_put_contents('ddd.doc', $I->grabResponse());

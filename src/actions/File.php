@@ -38,7 +38,7 @@ trait File {
 
 		if (!isset($result['host']) || !isset($result['path'])) {
 			throw new Exception(
-				'Not valid URL',
+				'Invalid URL',
 				Consts::ERROR_CODE_BAD_REQUEST
 			);
 		}
@@ -102,7 +102,7 @@ trait File {
 
 		$isImages = [];
 
-		$files = array_map(function ($file) use ($source, $root, &$isImages) {
+		$files = array_map(function ($file) use ($source, $root, &$isImages, &$messages) {
 			$messages[] = 'File ' . $file->getName() . ' was uploaded';
 			$isImages[] = $file->isImage();
 			return str_replace($root, '', $file->getPath());

@@ -148,7 +148,6 @@ abstract class Helper {
 		return trim(preg_replace($regex, '', $file));
 	}
 
-
 	private static ?Slugify $slugify = null;
 	public static function slugify(string $name): string {
 		if (!self::$slugify) {
@@ -317,5 +316,25 @@ abstract class Helper {
 		}
 
 		return null;
+	}
+
+	public static function sameFileStrategy(
+		components\File $file,
+		string $saveSameFileNameStrategy
+	): string {
+		switch ($saveSameFileNameStrategy) {
+			case 'replace':
+				return $file->getName();
+
+			case 'addNumber':
+			default:
+				$i = 1;
+				do {
+					$newFileName = $file->getBasename() . "($i)." . $file->getExtension();
+					$i += 1;
+				} while (file_exists($file->getFolder() . $newFileName));
+
+				return $newFileName;
+		}
 	}
 }

@@ -320,12 +320,22 @@ abstract class BaseApplication {
 
 					$path = $source->getPath();
 					$tmp_name = $files['tmp_name'][$i];
-					$new_path = $path . Helper::makeSafe($files['name'][$i]);
+					$fileName = Helper::makeSafe($files['name'][$i]);
+					$new_path = $path . $fileName;
+
+					if (file_exists($new_path)) {
+						$new_path =
+							$path .
+							Helper::sameFileStrategy(
+								File::create($new_path),
+								$source->saveSameFileNameStrategy
+							);
+					}
 
 					if (!move_uploaded_file($tmp_name, $new_path)) {
 						if (!is_writable($path)) {
 							throw new Exception(
-								'Destination directory is not writeble',
+								'Destination directory is not writable',
 								Consts::ERROR_CODE_IS_NOT_WRITEBLE
 							);
 						}

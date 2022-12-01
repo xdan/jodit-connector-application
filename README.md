@@ -1,12 +1,17 @@
-# jodit-connector-application
+# Jodit backend
 
 Default application for project [Jodit Application](https://github.com/xdan/jodit-connectors)
 
 * [Read more about Jodit](https://xdsoft.net/jodit/)
+* [Jodit PRO](https://xdsoft.net/jodit/pro/)
 * [Chagelog](./CHANGELOG.md)
 
 
+> This module is a framework for building a Jodit backend.
+Its installation is best done via https://github.com/xdan/jodit-connectors
+
 ### Run tests
+
 Install full requires including dev
 
 ```bash
@@ -24,7 +29,7 @@ cd ./docker && docker-compose up
 
 Run tests
 ```bash
-./vendor/bin/codecept run
+npm test
 ```
 
 Run only API tests

@@ -5,6 +5,7 @@ namespace Jodit;
 
 return [
 	'defaultFilesKey' => 'files',
+	'saveSameFileNameStrategy' => 'addNumber',
 	'debug' => true, // must be true
 	'sources' => [],
 	'datetimeFormat' => 'm/d/Y g:i A',

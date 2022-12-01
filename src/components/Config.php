@@ -45,6 +45,7 @@ $defaultConfig = include __DIR__ . '/../configs/defaultConfig.php';
  * @property string[] $imageExtensions
  * @property string[] $extensions
  * @property array $accessControl
+ * @property string $saveSameFileNameStrategy
  * @package jodit
  */
 class Config {

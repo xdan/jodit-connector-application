@@ -23,6 +23,11 @@ class FileWrapperTest extends \Codeception\Test\Unit {
 		$this->assertEquals('алина test15510.jpg', $this->file->getName());
 	}
 
+	// tests
+	public function testGetBaseName() {
+		$this->assertEquals('алина test15510', $this->file->getBasename());
+	}
+
 	public function testGetExtension() {
 		$this->assertEquals('jpg', $this->file->getExtension());
 	}
