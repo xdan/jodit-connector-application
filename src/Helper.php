@@ -323,6 +323,12 @@ abstract class Helper {
 		string $saveSameFileNameStrategy
 	): string {
 		switch ($saveSameFileNameStrategy) {
+			case 'error':
+				throw new Exception(
+					'File already exists',
+					Consts::ERROR_CODE_BAD_REQUEST
+				);
+
 			case 'replace':
 				return $file->getName();
 
@@ -330,7 +336,8 @@ abstract class Helper {
 			default:
 				$i = 1;
 				do {
-					$newFileName = $file->getBasename() . "($i)." . $file->getExtension();
+					$newFileName =
+						$file->getBasename() . "($i)." . $file->getExtension();
 					$i += 1;
 				} while (file_exists($file->getFolder() . $newFileName));
 

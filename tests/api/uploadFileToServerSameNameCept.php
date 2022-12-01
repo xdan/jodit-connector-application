@@ -77,3 +77,30 @@ foreach (
 		'success' => true,
 	]);
 }
+
+$I->sendPost(
+	'?custom_config=' .
+		rawurlencode(
+			json_encode([
+				'saveSameFileNameStrategy' => 'error',
+			])
+		),
+	[
+		'action' => 'fileUpload',
+		'source' => 'test',
+	],
+	[
+		'files' => [realpath(__DIR__ . '/../files/regina.png')],
+	]
+);
+
+$I->seeResponseCodeIs(HttpCode::OK); // 200
+$I->seeResponseIsJson();
+
+$I->seeResponseContainsJson([
+	'success' => false,
+	'data' => [
+		'code' => 400,
+		'messages' => ['File already exists'],
+	],
+]);
