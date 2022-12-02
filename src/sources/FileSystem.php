@@ -218,7 +218,7 @@ class FileSystem extends ISource {
 
 		$sourceData = new ISourceFolders(
 			$this->sourceName,
-			$this->title,
+			$this->title ?? $this->sourceName,
 			$this->baseurl,
 			str_replace(realpath($this->getRoot()) . Consts::DS, '', $path),
 			[]
