@@ -13,6 +13,8 @@ use Jodit\interfaces\ISourceFolders;
  * @package Jodit\interfaces
  */
 abstract class ISource extends Config {
+	public string $name;
+
 	abstract public function items(): ISourceItem;
 	abstract public function folders(): ISourceFolders;
 

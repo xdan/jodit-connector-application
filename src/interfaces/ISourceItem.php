@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Jodit\interfaces;
 
 class ISourceItem {
+	public string $name;
 	public string $baseurl;
 	public string $path = '';
 	/**
