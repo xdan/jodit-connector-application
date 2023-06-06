@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Jodit;
 
 return [
+	'title' => '',
 	'defaultFilesKey' => 'files',
 	'saveSameFileNameStrategy' => 'addNumber',
 	'debug' => true, // must be true
