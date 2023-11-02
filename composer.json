@@ -21,7 +21,7 @@
 		"abeautifulsite/simpleimage": "^3.7.0",
 		"ext-gd": "*",
 		"ext-json": "*",
-		"dompdf/dompdf": "^v1.2.2",
+		"dompdf/dompdf": "^v2.0.3",
 		"cocur/slugify": "^4.2",
 		"ext-mbstring": "*"
 	},
