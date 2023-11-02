@@ -13,6 +13,6 @@ services:
       - php
 
   php:
-    image: chialab/php:8.0-fpm
+    image: chialab/php:8.2-fpm
     volumes:
       - ../:/code/
