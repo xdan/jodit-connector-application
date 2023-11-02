@@ -22,7 +22,7 @@
 		"ext-gd": "*",
 		"ext-json": "*",
 		"dompdf/dompdf": "^v2.0.3",
-		"cocur/slugify": "^4.2",
+		"cocur/slugify": "4.3.0",
 		"ext-mbstring": "*"
 	},
 	"require-dev": {

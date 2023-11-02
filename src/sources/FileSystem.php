@@ -152,7 +152,7 @@ class FileSystem extends ISource {
 			$this->defaultSortBy
 		);
 
-		$list = array_filter(scandir($path), function ($file) use ($path) {
+		$list = array_filter(scandir($path), function ($file) {
 			return !$this->isExcluded($file);
 		});
 
