@@ -32,9 +32,12 @@ Run tests
 npm test
 ```
 
+But before add your internal ip `tests/index-test.php` and `tests/TestApplication.php`
+
 Run only API tests
 ```bash
 ./vendor/bin/codecept run api
+./vendor/bin/codecept run api getFilesOnlyImagesCept
 ```
 
 Run only unit tests

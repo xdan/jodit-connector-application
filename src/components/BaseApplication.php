@@ -252,8 +252,10 @@ abstract class BaseApplication {
 	 */
 	public function exceptionHandler($e): void {
 		$this->response->success = false;
-		$this->response->data->code = $e->getCode();
-		$this->response->data->messages[] = $e->getMessage();
+		$this->response->data = (object)[
+			"code" =>  $e->getCode(),
+			"messages" =>  [$e->getMessage()],
+		];
 
 		if ($this->config->debug) {
 			do {

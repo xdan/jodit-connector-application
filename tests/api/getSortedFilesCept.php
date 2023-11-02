@@ -5,6 +5,9 @@ use Codeception\Util\HttpCode;
 
 $I = new ApiTester($scenario);
 
+$files_root = realpath(__DIR__ . '/../files') . '/';
+file_put_contents($files_root . 'summer.txt', 'summer');
+
 $I->wantTo('Get all items with some sort');
 $I->sendGet('?action=files&mods[sortBy]=changed-asc');
 $I->seeResponseCodeIs(HttpCode::OK); // 200
@@ -28,6 +31,7 @@ $changedAsc = [
 	'pexels-yuri-manei-2337448.jpg',
 	'regina.png',
 	'test.csv',
+	'summer.txt',
 ];
 
 foreach ($changedAsc as $index => $title) {
@@ -36,7 +40,6 @@ foreach ($changedAsc as $index => $title) {
 	);
 	$I->assertEquals($file, $title);
 }
-
 
 $I->sendGet('?action=files&mods[sortBy]=changed-desc');
 $I->seeResponseCodeIs(HttpCode::OK); // 200
@@ -50,7 +53,6 @@ foreach ($changedDesc as $index => $title) {
 	);
 	$I->assertEquals($file, $title);
 }
-
 
 $I->sendGet('?action=files&mods[sortBy]=name-asc');
 $I->seeResponseCodeIs(HttpCode::OK); // 200
@@ -79,3 +81,5 @@ foreach ($nameAsc as $index => $title) {
 	);
 	$I->assertEquals($file, $title);
 }
+
+unlink($files_root . 'summer.txt');
