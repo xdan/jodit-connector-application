@@ -1,4 +1,4 @@
-<?php  //[STAMP] b401fb277ef58c842f7fb1d61350ad22
+<?php  //[STAMP] 75bc02215644cf7518750f570a62e099
 // phpcs:ignoreFile
 namespace _generated;
 
@@ -16,7 +16,7 @@ trait AcceptanceTesterActions
     /**
      * [!] Method is generated. Documentation taken from corresponding module.
      *
-     * Sets a HTTP header to be used for all subsequent requests. Use [`deleteHeader`](#deleteHeader) to unset it.
+     * Sets a HTTP header to be used for all subsequent requests. Use [`unsetHttpHeader`](#unsetHttpHeader) to unset it.
      *
      * ```php
      * <?php
@@ -36,7 +36,7 @@ trait AcceptanceTesterActions
     /**
      * [!] Method is generated. Documentation taken from corresponding module.
      *
-     * Deletes a HTTP header (that was originally added by [haveHttpHeader()](#haveHttpHeader)),
+     * Unsets a HTTP header (that was originally added by [haveHttpHeader()](#haveHttpHeader)),
      * so that subsequent requests will not send it anymore.
      *
      * Example:
@@ -45,17 +45,17 @@ trait AcceptanceTesterActions
      * $I->haveHttpHeader('X-Requested-With', 'Codeception');
      * $I->sendGet('test-headers.php');
      * // ...
-     * $I->deleteHeader('X-Requested-With');
+     * $I->unsetHttpHeader('X-Requested-With');
      * $I->sendPost('some-other-page.php');
      * ```
      *
-     * @param string $name the name of the header to delete.
+     * @param string $name the name of the header to unset.
      * @part json
      * @part xml
-     * @see \Codeception\Module\REST::deleteHeader()
+     * @see \Codeception\Module\REST::unsetHttpHeader()
      */
-    public function deleteHeader(string $name): void {
-        $this->getScenario()->runStep(new \Codeception\Step\Action('deleteHeader', func_get_args()));
+    public function unsetHttpHeader(string $name): void {
+        $this->getScenario()->runStep(new \Codeception\Step\Action('unsetHttpHeader', func_get_args()));
     }
 
  
@@ -233,7 +233,7 @@ trait AcceptanceTesterActions
      * $I->amNTLMAuthenticated('jon_snow', 'targaryen');
      * ```
      *
-     * @throws ModuleException
+     * @throws \Codeception\Exception\ModuleException
      * @part json
      * @part xml
      * @see \Codeception\Module\REST::amNTLMAuthenticated()
@@ -273,7 +273,7 @@ trait AcceptanceTesterActions
      * ]]);
      * ```
      *
-     * @param array|string|JsonSerializable $params
+     * @param array|string|\JsonSerializable $params
      * @param array $files A list of filenames or "mocks" of $_FILES (each entry being an array with the following
      *                     keys: name, type, error, size, tmp_name (pointing to the real file path). Each key works
      *                     as the "name" attribute of a file input field.
@@ -349,7 +349,7 @@ trait AcceptanceTesterActions
      * $response = $I->sendPut('/message/1', ['subject' => 'Read this!']);
      * ```
      *
-     * @param array|string|JsonSerializable $params
+     * @param array|string|\JsonSerializable $params
      * @part json
      * @part xml
      * @see \Codeception\Module\REST::sendPut()
@@ -369,7 +369,7 @@ trait AcceptanceTesterActions
      * $response = $I->sendPatch('/message/1', ['subject' => 'Read this!']);
      * ```
      *
-     * @param array|string|JsonSerializable $params
+     * @param array|string|\JsonSerializable $params
      * @part json
      * @part xml
      * @see \Codeception\Module\REST::sendPatch()
@@ -403,7 +403,7 @@ trait AcceptanceTesterActions
      *
      * Sends a HTTP request.
      *
-     * @param array|string|JsonSerializable $params
+     * @param array|string|\JsonSerializable $params
      * @part json
      * @part xml
      * @see \Codeception\Module\REST::send()
@@ -604,10 +604,10 @@ trait AcceptanceTesterActions
      *
      * // response {"name": "john", "age": 20}
      * $schema = [
-     *  "properties" => [
-     *      "age" => [
-     *          "type" => "integer",
-     *          "minimum" => 18
+     *  'properties' => [
+     *      'age' => [
+     *          'type' => 'integer',
+     *          'minimum' => 18
      *      ]
      *  ]
      * ];
@@ -637,10 +637,10 @@ trait AcceptanceTesterActions
      *
      * // response {"name": "john", "age": 20}
      * $schema = [
-     *  "properties" => [
-     *      "age" => [
-     *          "type" => "integer",
-     *          "minimum" => 18
+     *  'properties' => [
+     *      'age' => [
+     *          'type' => 'integer',
+     *          'minimum' => 18
      *      ]
      *  ]
      * ];
@@ -722,7 +722,7 @@ trait AcceptanceTesterActions
      * ```
      *
      * @return array Array of matching items
-     * @throws Exception
+     * @throws \Exception
      * @part json
      * @see \Codeception\Module\REST::grabDataFromResponseByJsonPath()
      */
@@ -1152,6 +1152,7 @@ trait AcceptanceTesterActions
      *
      * Here is the list of possible filters:
      *
+     * * `array:empty` - check that value is an empty array
      * * `integer:>{val}` - checks that integer is greater than {val} (works with float and string types too).
      * * `integer:<{val}` - checks that integer is lower than {val} (works with float and string types too).
      * * `string:url` - checks that value is valid url.
@@ -1236,6 +1237,7 @@ trait AcceptanceTesterActions
      *
      * Here is the list of possible filters:
      *
+     * * `array:empty` - check that value is an empty array
      * * `integer:>{val}` - checks that integer is greater than {val} (works with float and string types too).
      * * `integer:<{val}` - checks that integer is lower than {val} (works with float and string types too).
      * * `string:url` - checks that value is valid url.
@@ -1532,14 +1534,14 @@ trait AcceptanceTesterActions
      *
      * ```php
      * <?php
-     * $I->seeBinaryResponseEquals("df589122eac0f6a7bd8795436e692e3675cadc3b");
+     * $I->seeBinaryResponseEquals('df589122eac0f6a7bd8795436e692e3675cadc3b');
      * ```
      *
      * Example: Using sha1 for a file contents
      *
      * ```php
      * <?php
-     * $fileData = file_get_contents("test_file.jpg");
+     * $fileData = file_get_contents('test_file.jpg');
      * $I->seeBinaryResponseEquals(md5($fileData));
      * ```
      * Example: Using sha256 hash
@@ -1547,7 +1549,7 @@ trait AcceptanceTesterActions
      * ```php
      * <?php
      * $fileData = '/9j/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/yQALCAABAAEBAREA/8wABgAQEAX/2gAIAQEAAD8A0s8g/9k='; // very small jpeg
-     * $I->seeBinaryResponseEquals(hash("sha256", base64_decode($fileData)), 'sha256');
+     * $I->seeBinaryResponseEquals(hash('sha256', base64_decode($fileData)), 'sha256');
      * ```
      *
      * @param string $hash the hashed data response expected
@@ -1571,14 +1573,14 @@ trait AcceptanceTesterActions
      *
      * ```php
      * <?php
-     * $I->seeBinaryResponseEquals("df589122eac0f6a7bd8795436e692e3675cadc3b");
+     * $I->seeBinaryResponseEquals('df589122eac0f6a7bd8795436e692e3675cadc3b');
      * ```
      *
      * Example: Using sha1 for a file contents
      *
      * ```php
      * <?php
-     * $fileData = file_get_contents("test_file.jpg");
+     * $fileData = file_get_contents('test_file.jpg');
      * $I->seeBinaryResponseEquals(md5($fileData));
      * ```
      * Example: Using sha256 hash
@@ -1586,7 +1588,7 @@ trait AcceptanceTesterActions
      * ```php
      * <?php
      * $fileData = '/9j/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/yQALCAABAAEBAREA/8wABgAQEAX/2gAIAQEAAD8A0s8g/9k='; // very small jpeg
-     * $I->seeBinaryResponseEquals(hash("sha256", base64_decode($fileData)), 'sha256');
+     * $I->seeBinaryResponseEquals(hash('sha256', base64_decode($fileData)), 'sha256');
      * ```
      *
      * @param string $hash the hashed data response expected
@@ -1607,7 +1609,7 @@ trait AcceptanceTesterActions
      *
      * ```php
      * <?php
-     * $I->dontSeeBinaryResponseEquals("8c90748342f19b195b9c6b4eff742ded");
+     * $I->dontSeeBinaryResponseEquals('8c90748342f19b195b9c6b4eff742ded');
      * ```
      * Opposite to `seeBinaryResponseEquals`
      *
@@ -1628,7 +1630,7 @@ trait AcceptanceTesterActions
      *
      * ```php
      * <?php
-     * $I->dontSeeBinaryResponseEquals("8c90748342f19b195b9c6b4eff742ded");
+     * $I->dontSeeBinaryResponseEquals('8c90748342f19b195b9c6b4eff742ded');
      * ```
      * Opposite to `seeBinaryResponseEquals`
      *

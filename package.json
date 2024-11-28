@@ -4,7 +4,7 @@
   "description": "Official Jodit connector",
   "main": "index.js",
   "scripts": {
-    "start": "cd ./docker && docker-compose up",
+    "start": "cd ./docker && docker compose up",
     "test": "./vendor/bin/codecept run",
     "test:one": "./vendor/bin/codecept run tests/api/uploadFileToServerSameNameCept.php",
     "prettier": "prettier ./src/**.php --write --config .prettierrc",
@@ -24,7 +24,7 @@
   },
   "homepage": "https://github.com/xdan/jodit-connector-application#readme",
   "devDependencies": {
-    "@prettier/plugin-php": "^0.16.1",
-    "prettier": "^2.2.1"
+    "@prettier/plugin-php": "^0.22.2",
+    "prettier": "^3.4.1"
   }
 }

@@ -7,6 +7,7 @@ use Jodit\components\Config;
 use Jodit\components\Request;
 use Jodit\Consts;
 use Dompdf\Dompdf;
+use Dompdf\Options;
 use Exception;
 
 /**
@@ -95,14 +96,15 @@ HTML;
 			);
 		}
 
-		$dompdf = new Dompdf(['enable_remote' => true]);
+		$options = new Options();
+		$options
+			->set($this->config->pdf);
+
+		$dompdf = new Dompdf($options);
 		$dompdf->loadHtml($html);
 
 		$paper = array_merge(
-			[
-				'format' => 'A4',
-				'page_orientation' => 'portrait',
-			],
+			$this->config->pdf['paper'],
 			$this->request->options ?: []
 		);
 

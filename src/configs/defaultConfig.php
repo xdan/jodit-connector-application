@@ -85,4 +85,12 @@ return [
 	'imageExtensions' => ['jpg', 'png', 'gif', 'jpeg', 'bmp', 'svg', 'ico', 'webp'],
 	'maxImageWidth' => 1900,
 	'maxImageHeight' => 1900,
+	"pdf" => [
+		"defaultFont" => "serif",
+		"isRemoteEnabled" => true,
+		"paper" => [
+			'format' => 'A4',
+			'page_orientation' => 'portrait',
+		]
+	],
 ];
