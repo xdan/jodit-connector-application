@@ -23,4 +23,24 @@ class Consts {
 	const ERROR_CODE_NOT_ACCEPTABLE = 406;
 	const ERROR_CODE_FAILED = 424;
 	const DS = DIRECTORY_SEPARATOR;
+
+	/**
+   * @var array The list of the core fonts
+   */
+  static $coreFonts = [
+  	'courier',
+  	'courier-bold',
+  	'courier-oblique',
+  	'courier-boldoblique',
+  	'helvetica',
+  	'helvetica-bold',
+  	'helvetica-oblique',
+  	'helvetica-boldoblique',
+  	'times-roman',
+  	'times-bold',
+  	'times-italic',
+  	'times-bolditalic',
+  	'symbol',
+  	'zapfdingbats'
+  ];
 }

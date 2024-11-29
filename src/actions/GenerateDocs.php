@@ -100,6 +100,17 @@ HTML;
 		$options
 			->set($this->config->pdf);
 
+		if ($this->request->options && $this->request->options['defaultFont']) {
+			if (!in_array(strtolower($this->request->options['defaultFont']), Consts::$coreFonts)) {
+				throw new Exception(
+					'Font not found',
+					Consts::ERROR_CODE_BAD_REQUEST
+				);
+			}
+
+			$options->set('defaultFont', $this->request->options['defaultFont']);
+		}
+
 		$dompdf = new Dompdf($options);
 		$dompdf->loadHtml($html);
 
