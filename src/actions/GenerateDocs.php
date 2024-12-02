@@ -121,7 +121,9 @@ HTML;
 
 		$dompdf->setPaper($paper['format'], $paper['page_orientation']);
 		$dompdf->render();
-		$dompdf->stream();
+		$dompdf->stream("document.pdf", [
+			'compress' => true
+		]);
 		die();
 	}
 }
