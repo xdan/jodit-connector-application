@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Jodit;
 
+$tmp = sys_get_temp_dir();
+
 return [
 	'title' => '',
 	'defaultFilesKey' => 'files',
@@ -88,6 +90,10 @@ return [
 	"pdf" => [
 		"defaultFont" => "serif",
 		"isRemoteEnabled" => true,
+		'fontDir' => $tmp,
+		'fontCache' => $tmp,
+		'tempDir' => $tmp,
+		'chroot' => $tmp,
 		"paper" => [
 			'format' => 'A4',
 			'page_orientation' => 'portrait',
