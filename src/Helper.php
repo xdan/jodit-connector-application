@@ -337,7 +337,7 @@ abstract class Helper {
 				$i = 1;
 				do {
 					$newFileName =
-						$file->getBasename() . "($i)." . $file->getExtension();
+						$file->getBasename() . "$i." . $file->getExtension();
 					$i += 1;
 				} while (file_exists($file->getFolder() . $newFileName));
 
