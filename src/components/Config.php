@@ -236,7 +236,7 @@ class Config {
 	 * Get full path for $_REQUEST[$name] relative path with trailing slash(if directory)
 	 * @throws \Exception
 	 */
-	public function getPath(string $relativePath = null): string {
+	public function getPath(?string $relativePath = null): string {
 		$root = $this->getRoot();
 
 		if ($relativePath === null) {

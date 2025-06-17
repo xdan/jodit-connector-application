@@ -41,6 +41,6 @@ abstract class ISource extends Config {
 
 	abstract public function makeFile(
 		string $path,
-		string $content = null
+		?string $content = null
 	): IFile;
 }
