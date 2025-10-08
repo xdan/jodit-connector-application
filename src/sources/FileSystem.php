@@ -29,7 +29,7 @@ class FileSystem extends ISource {
 	 * @return IFile
 	 * @throws Exception
 	 */
-	public function makeFile(string $path, string $content = null): IFile {
+	public function makeFile(string $path, ?string $content = null): IFile {
 		if ($content !== null) {
 			file_put_contents($path, $content);
 		}
