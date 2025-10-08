@@ -1,4 +1,4 @@
-<?php  //[STAMP] d9caa84b554dd0eb7eb0ebbd0520cefc
+<?php  //[STAMP] 2e0295609ae125472545df1f736e1b9c
 // phpcs:ignoreFile
 namespace _generated;
 
@@ -347,6 +347,8 @@ trait UnitTesterActions
      * Asserts that a variable is empty.
      *
      * @param mixed $actual
+     *
+     * @phpstan-assert empty $actual
      * @see \Codeception\Module\AbstractAsserts::assertEmpty()
      */
     public function assertEmpty($actual, string $message = "") {
@@ -416,6 +418,8 @@ trait UnitTesterActions
      * Asserts that a condition is false.
      *
      * @param mixed $condition
+     *
+     * @phpstan-assert false $condition
      * @see \Codeception\Module\AbstractAsserts::assertFalse()
      */
     public function assertFalse($condition, string $message = "") {
@@ -614,7 +618,12 @@ trait UnitTesterActions
      *
      * Asserts that a variable is of a given type.
      *
+     * @template ExpectedType of object
+     *
      * @param mixed $actual
+     * @param class-string<ExpectedType> $expected
+     *
+     * @phpstan-assert =ExpectedType $actual
      * @see \Codeception\Module\AbstractAsserts::assertInstanceOf()
      */
     public function assertInstanceOf(string $expected, $actual, string $message = "") {
@@ -628,6 +637,8 @@ trait UnitTesterActions
      * Asserts that a variable is of type array.
      *
      * @param mixed $actual
+     *
+     * @phpstan-assert array $actual
      * @see \Codeception\Module\AbstractAsserts::assertIsArray()
      */
     public function assertIsArray($actual, string $message = "") {
@@ -641,6 +652,8 @@ trait UnitTesterActions
      * Asserts that a variable is of type bool.
      *
      * @param mixed $actual
+     *
+     * @phpstan-assert bool $actual
      * @see \Codeception\Module\AbstractAsserts::assertIsBool()
      */
     public function assertIsBool($actual, string $message = "") {
@@ -654,6 +667,8 @@ trait UnitTesterActions
      * Asserts that a variable is of type callable.
      *
      * @param mixed $actual
+     *
+     * @phpstan-assert callable $actual
      * @see \Codeception\Module\AbstractAsserts::assertIsCallable()
      */
     public function assertIsCallable($actual, string $message = "") {
@@ -667,6 +682,8 @@ trait UnitTesterActions
      * Asserts that a variable is of type resource and is closed.
      *
      * @param mixed $actual
+     *
+     * @phpstan-assert resource $actual
      * @see \Codeception\Module\AbstractAsserts::assertIsClosedResource()
      */
     public function assertIsClosedResource($actual, string $message = "") {
@@ -680,6 +697,8 @@ trait UnitTesterActions
      * Asserts that a variable is of type float.
      *
      * @param mixed $actual
+     *
+     * @phpstan-assert float $actual
      * @see \Codeception\Module\AbstractAsserts::assertIsFloat()
      */
     public function assertIsFloat($actual, string $message = "") {
@@ -693,6 +712,8 @@ trait UnitTesterActions
      * Asserts that a variable is of type int.
      *
      * @param mixed $actual
+     *
+     * @phpstan-assert int $actual
      * @see \Codeception\Module\AbstractAsserts::assertIsInt()
      */
     public function assertIsInt($actual, string $message = "") {
@@ -706,6 +727,8 @@ trait UnitTesterActions
      * Asserts that a variable is of type iterable.
      *
      * @param mixed $actual
+     *
+     * @phpstan-assert iterable $actual
      * @see \Codeception\Module\AbstractAsserts::assertIsIterable()
      */
     public function assertIsIterable($actual, string $message = "") {
@@ -719,6 +742,8 @@ trait UnitTesterActions
      * Asserts that a variable is not of type array.
      *
      * @param mixed $actual
+     *
+     * @phpstan-assert !array $actual
      * @see \Codeception\Module\AbstractAsserts::assertIsNotArray()
      */
     public function assertIsNotArray($actual, string $message = "") {
@@ -732,6 +757,8 @@ trait UnitTesterActions
      * Asserts that a variable is not of type bool.
      *
      * @param mixed $actual
+     *
+     * @phpstan-assert !bool $actual
      * @see \Codeception\Module\AbstractAsserts::assertIsNotBool()
      */
     public function assertIsNotBool($actual, string $message = "") {
@@ -745,6 +772,8 @@ trait UnitTesterActions
      * Asserts that a variable is not of type callable.
      *
      * @param mixed $actual
+     *
+     * @phpstan-assert !callable $actual
      * @see \Codeception\Module\AbstractAsserts::assertIsNotCallable()
      */
     public function assertIsNotCallable($actual, string $message = "") {
@@ -758,6 +787,8 @@ trait UnitTesterActions
      * Asserts that a variable is not of type resource.
      *
      * @param mixed $actual
+     *
+     * @phpstan-assert !resource $actual
      * @see \Codeception\Module\AbstractAsserts::assertIsNotClosedResource()
      */
     public function assertIsNotClosedResource($actual, string $message = "") {
@@ -771,6 +802,8 @@ trait UnitTesterActions
      * Asserts that a variable is not of type float.
      *
      * @param mixed $actual
+     *
+     * @phpstan-assert !float $actual
      * @see \Codeception\Module\AbstractAsserts::assertIsNotFloat()
      */
     public function assertIsNotFloat($actual, string $message = "") {
@@ -784,6 +817,8 @@ trait UnitTesterActions
      * Asserts that a variable is not of type int.
      *
      * @param mixed $actual
+     *
+     * @phpstan-assert !int $actual
      * @see \Codeception\Module\AbstractAsserts::assertIsNotInt()
      */
     public function assertIsNotInt($actual, string $message = "") {
@@ -797,6 +832,8 @@ trait UnitTesterActions
      * Asserts that a variable is not of type iterable.
      *
      * @param mixed $actual
+     *
+     * @phpstan-assert !iterable $actual
      * @see \Codeception\Module\AbstractAsserts::assertIsNotIterable()
      */
     public function assertIsNotIterable($actual, string $message = "") {
@@ -810,6 +847,8 @@ trait UnitTesterActions
      * Asserts that a variable is not of type numeric.
      *
      * @param mixed $actual
+     *
+     * @phpstan-assert !numeric $actual
      * @see \Codeception\Module\AbstractAsserts::assertIsNotNumeric()
      */
     public function assertIsNotNumeric($actual, string $message = "") {
@@ -823,6 +862,8 @@ trait UnitTesterActions
      * Asserts that a variable is not of type object.
      *
      * @param mixed $actual
+     *
+     * @phpstan-assert !object $actual
      * @see \Codeception\Module\AbstractAsserts::assertIsNotObject()
      */
     public function assertIsNotObject($actual, string $message = "") {
@@ -847,6 +888,8 @@ trait UnitTesterActions
      * Asserts that a variable is not of type resource.
      *
      * @param mixed $actual
+     *
+     * @phpstan-assert !resource $actual
      * @see \Codeception\Module\AbstractAsserts::assertIsNotResource()
      */
     public function assertIsNotResource($actual, string $message = "") {
@@ -860,6 +903,8 @@ trait UnitTesterActions
      * Asserts that a variable is not of type scalar.
      *
      * @param mixed $actual
+     *
+     * @psalm-assert !scalar $actual
      * @see \Codeception\Module\AbstractAsserts::assertIsNotScalar()
      */
     public function assertIsNotScalar($actual, string $message = "") {
@@ -873,6 +918,8 @@ trait UnitTesterActions
      * Asserts that a variable is not of type string.
      *
      * @param mixed $actual
+     *
+     * @phpstan-assert !string $actual
      * @see \Codeception\Module\AbstractAsserts::assertIsNotString()
      */
     public function assertIsNotString($actual, string $message = "") {
@@ -897,6 +944,8 @@ trait UnitTesterActions
      * Asserts that a variable is of type numeric.
      *
      * @param mixed $actual
+     *
+     * @phpstan-assert numeric $actual
      * @see \Codeception\Module\AbstractAsserts::assertIsNumeric()
      */
     public function assertIsNumeric($actual, string $message = "") {
@@ -910,6 +959,8 @@ trait UnitTesterActions
      * Asserts that a variable is of type object.
      *
      * @param mixed $actual
+     *
+     * @phpstan-assert object $actual
      * @see \Codeception\Module\AbstractAsserts::assertIsObject()
      */
     public function assertIsObject($actual, string $message = "") {
@@ -934,6 +985,8 @@ trait UnitTesterActions
      * Asserts that a variable is of type resource.
      *
      * @param mixed $actual
+     *
+     * @phpstan-assert resource $actual
      * @see \Codeception\Module\AbstractAsserts::assertIsResource()
      */
     public function assertIsResource($actual, string $message = "") {
@@ -947,6 +1000,8 @@ trait UnitTesterActions
      * Asserts that a variable is of type scalar.
      *
      * @param mixed $actual
+     *
+     * @phpstan-assert scalar $actual
      * @see \Codeception\Module\AbstractAsserts::assertIsScalar()
      */
     public function assertIsScalar($actual, string $message = "") {
@@ -960,6 +1015,8 @@ trait UnitTesterActions
      * Asserts that a variable is of type string.
      *
      * @param mixed $actual
+     *
+     * @phpstan-assert string $actual
      * @see \Codeception\Module\AbstractAsserts::assertIsString()
      */
     public function assertIsString($actual, string $message = "") {
@@ -1161,6 +1218,8 @@ trait UnitTesterActions
      * Asserts that a variable is not empty.
      *
      * @param mixed $actual
+     *
+     * @phpstan-assert !empty $actual
      * @see \Codeception\Module\AbstractAsserts::assertNotEmpty()
      */
     public function assertNotEmpty($actual, string $message = "") {
@@ -1230,6 +1289,8 @@ trait UnitTesterActions
      * Asserts that a condition is not false.
      *
      * @param mixed $condition
+     *
+     * @phpstan-assert !false $condition
      * @see \Codeception\Module\AbstractAsserts::assertNotFalse()
      */
     public function assertNotFalse($condition, string $message = "") {
@@ -1242,7 +1303,12 @@ trait UnitTesterActions
      *
      * Asserts that a variable is not of a given type.
      *
+     * @template ExpectedType of object
+     *
      * @param mixed $actual
+     * @param class-string<ExpectedType> $expected
+     *
+     * @phpstan-assert !ExpectedType $actual
      * @see \Codeception\Module\AbstractAsserts::assertNotInstanceOf()
      */
     public function assertNotInstanceOf(string $expected, $actual, string $message = "") {
@@ -1256,6 +1322,8 @@ trait UnitTesterActions
      * Asserts that a variable is not null.
      *
      * @param mixed $actual
+     *
+     * @phpstan-assert !null $actual
      * @see \Codeception\Module\AbstractAsserts::assertNotNull()
      */
     public function assertNotNull($actual, string $message = "") {
@@ -1297,6 +1365,8 @@ trait UnitTesterActions
      * Asserts that a condition is not true.
      *
      * @param mixed $condition
+     *
+     * @phpstan-assert !true $condition
      * @see \Codeception\Module\AbstractAsserts::assertNotTrue()
      */
     public function assertNotTrue($condition, string $message = "") {
@@ -1310,6 +1380,8 @@ trait UnitTesterActions
      * Asserts that a variable is null.
      *
      * @param mixed $actual
+     *
+     * @phpstan-assert null $actual
      * @see \Codeception\Module\AbstractAsserts::assertNull()
      */
     public function assertNull($actual, string $message = "") {
@@ -1343,9 +1415,15 @@ trait UnitTesterActions
      * [!] Method is generated. Documentation taken from corresponding module.
      *
      * Asserts that two variables have the same type and value.
+     * Used on objects, it asserts that two variables reference
+     * the same object.
      *
-     * @param mixed $expected
+     * @template ExpectedType
+     *
+     * @param ExpectedType $expected
      * @param mixed $actual
+     *
+     * @phpstan-assert =ExpectedType $actual
      * @see \Codeception\Module\AbstractAsserts::assertSame()
      */
     public function assertSame($expected, $actual, string $message = "") {
@@ -1584,6 +1662,8 @@ trait UnitTesterActions
      * Asserts that a condition is true.
      *
      * @param mixed $condition
+     *
+     * @phpstan-assert true $condition
      * @see \Codeception\Module\AbstractAsserts::assertTrue()
      */
     public function assertTrue($condition, string $message = "") {

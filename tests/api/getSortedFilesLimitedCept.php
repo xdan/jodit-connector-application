@@ -26,9 +26,9 @@ $I->seeResponseContainsJson([
 ]);
 
 $changedAsc = [
-	'psalm.jpg',
 	'test15510.jpg',
 	'check.svg',
+	'psalm.jpg',
 	'pexels-yuri-manei-2337448.jpg',
 	'regina.png',
 	'regina-copy.png',

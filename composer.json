@@ -18,17 +18,17 @@
 	"require": {
 		"php": ">=8",
 		"ext-curl": ">=6.0.0",
-		"abeautifulsite/simpleimage": "4.2.1",
+		"abeautifulsite/simpleimage": "^4.2.1",
 		"ext-gd": "*",
 		"ext-json": "*",
-		"dompdf/dompdf": "3.0.0",
-		"cocur/slugify": "4.6.0",
+		"dompdf/dompdf": "^3.0.0",
+		"cocur/slugify": "^4.6.0",
 		"ext-mbstring": "*"
 	},
 	"require-dev": {
-		"codeception/codeception": "^5.0",
+		"codeception/codeception": "^5.3.2",
 		"vimeo/psalm": "^4.30.0",
-		"codeception/module-rest": "^3.3",
+		"codeception/module-rest": "^3.4",
 		"codeception/module-phpbrowser": "^2.5.0",
 		"codeception/module-asserts": "^2.0.1"
 	}
