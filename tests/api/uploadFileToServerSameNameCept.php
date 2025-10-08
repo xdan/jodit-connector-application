@@ -29,7 +29,7 @@ $I->seeResponseContainsJson([
 	'success' => true,
 	'data' => [
 		'code' => 220,
-		'files' => ['regina(1).png', 'test.png', 'test(1).csv'],
+		'files' => ['regina1.png', 'test.png', 'test1.csv'],
 		'isImages' => [true, true, false],
 	],
 ]);
@@ -56,19 +56,19 @@ $I->seeResponseContainsJson([
 	'success' => true,
 	'data' => [
 		'code' => 220,
-		'files' => ['regina(2).png', 'test(1).png', 'test(2).csv'],
+		'files' => ['regina2.png', 'test1.png', 'test2.csv'],
 		'isImages' => [true, true, false],
 	],
 ]);
 
 foreach (
 	[
-		'regina(1).png',
+		'regina1.png',
 		'test.png',
-		'test(1).csv',
-		'regina(2).png',
-		'test(1).png',
-		'test(2).csv',
+		'test1.csv',
+		'regina2.png',
+		'test1.png',
+		'test2.csv',
 	]
 	as $file
 ) {
