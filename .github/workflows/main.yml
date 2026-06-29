@@ -1,0 +1,24 @@
+name: Trigger dependents
+
+# A new release (tag) of this library must rebuild and redeploy the dependent
+# connector. This replaces the old local `cd ../jodit-connectors && npm run
+# newversion` chaining — everything goes through CI now, the same way the other
+# projects are wired (see jodit-pro/new-version.yml).
+
+on:
+  push:
+    tags: ['*']
+  workflow_dispatch:
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger jodit-connectors new version
+        run: |
+          curl -XPOST \
+            -u "${{ secrets.PAT_USERNAME }}:${{ secrets.PAT_TOKEN }}" \
+            -H "Accept:application/vnd.github.everest-preview+json" \
+            -H "Content-Type: application/json" \
+            https://api.github.com/repos/xdan/jodit-connectors/dispatches \
+            --data '{"event_type": "newversion"}'
