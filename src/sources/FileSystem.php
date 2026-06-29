@@ -144,7 +144,7 @@ class FileSystem extends ISource {
 			$this->countInChunk
 		);
 		if (!is_numeric($limit)) {
-			throw new Exception('limit is not numeric');
+			throw new Exception('Limit is not numeric');
 		}
 
 		$sortBy = (string) Jodit::$app->request->getField(
@@ -300,21 +300,21 @@ class FileSystem extends ISource {
 
 		if (!$fromPath) {
 			throw new Exception(
-				'Need source path',
+				'Source path is required',
 				Consts::ERROR_CODE_BAD_REQUEST
 			);
 		}
 
 		if (!$destinationPath) {
 			throw new Exception(
-				'Need destination path',
+				'Destination path is required',
 				Consts::ERROR_CODE_BAD_REQUEST
 			);
 		}
 
 		if (!is_file($fromPath) and !is_dir($fromPath)) {
 			throw new Exception(
-				'Path not exists',
+				'Path does not exist',
 				Consts::ERROR_CODE_NOT_EXISTS
 			);
 		}
@@ -363,14 +363,14 @@ class FileSystem extends ISource {
 
 		if (!$sourcePath) {
 			throw new Exception(
-				'Need source path',
+				'Source path is required',
 				Consts::ERROR_CODE_BAD_REQUEST
 			);
 		}
 
 		if (!$destinationPath) {
 			throw new Exception(
-				'Need destination path',
+				'Destination path is required',
 				Consts::ERROR_CODE_BAD_REQUEST
 			);
 		}
@@ -378,7 +378,7 @@ class FileSystem extends ISource {
 		if (is_file($sourcePath) or is_dir($sourcePath)) {
 			rename($sourcePath, $destinationPath . basename($sourcePath));
 		} else {
-			throw new Exception('Not file', Consts::ERROR_CODE_NOT_EXISTS);
+			throw new Exception('Not a file', Consts::ERROR_CODE_NOT_EXISTS);
 		}
 	}
 
@@ -406,7 +406,7 @@ class FileSystem extends ISource {
 
 		if (!$file_path || !file_exists($file_path)) {
 			throw new Exception(
-				'File or directory not exists ' . $path . $target,
+				'File or directory does not exist ' . $path . $target,
 				Consts::ERROR_CODE_NOT_EXISTS
 			);
 		}
@@ -454,7 +454,7 @@ class FileSystem extends ISource {
 
 		if (!$file_path || !file_exists($file_path)) {
 			throw new Exception(
-				'File or directory not exists ' . $path . $target,
+				'File or directory does not exist ' . $path . $target,
 				Consts::ERROR_CODE_NOT_EXISTS
 			);
 		}
@@ -521,7 +521,7 @@ class FileSystem extends ISource {
 			}
 		} else {
 			throw new Exception(
-				'Directory not exists',
+				'Directory does not exist',
 				Consts::ERROR_CODE_NOT_EXISTS
 			);
 		}

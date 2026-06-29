@@ -121,7 +121,7 @@ class Config {
 
 		if (count($sources) === 0) {
 			throw new Exception(
-				'Need valid source',
+				'A valid source is required',
 				Consts::ERROR_CODE_NOT_EXISTS
 			);
 		}
@@ -216,7 +216,7 @@ class Config {
 		if ($this->root) {
 			if (!is_dir($this->root)) {
 				throw new Exception(
-					'Root directory not exists ' . $this->root,
+					'Root directory does not exist ' . $this->root,
 					Consts::ERROR_CODE_NOT_EXISTS
 				);
 			}
@@ -227,7 +227,7 @@ class Config {
 		}
 
 		throw new Exception(
-			'Set root directory for source',
+			'Set the root directory for the source',
 			Consts::ERROR_CODE_NOT_IMPLEMENTED
 		);
 	}

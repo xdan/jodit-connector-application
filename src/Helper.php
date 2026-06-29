@@ -20,7 +20,7 @@ use InvalidArgumentException;
  */
 abstract class Helper {
 	public static array $uploadErrors = [
-		0 => 'There is no error, the file uploaded with success',
+		0 => 'There is no error, the file was uploaded successfully',
 		1 => 'The uploaded file exceeds the upload_max_filesize directive in php.ini',
 		2 => 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form',
 		3 => 'The uploaded file was only partially uploaded',
@@ -56,14 +56,23 @@ abstract class Helper {
 			return (int) $from;
 		}
 
-		$number = substr($from, 0, -2);
-		$formats = ['KB', 'MB', 'GB', 'TB'];
-		$format = strtoupper(substr($from, -2));
+		if (!is_string($from)) {
+			return 0;
+		}
 
-		return in_array($format, $formats)
-			? (int) ((int) $number *
-				pow(1024, array_search($format, $formats) + 1))
-			: (int) $from;
+		// Accept a number with an optional unit: K/KB, M/MB, G/GB, T/TB
+		// (case-insensitive, optional space, optional trailing "B"). This
+		// must handle single-letter units like "15M" — PHP ini values use
+		// them — not only two-letter "15MB"; otherwise "15M" was parsed as
+		// 15 bytes and every upload failed with "size exceeds the allowable".
+		if (!preg_match('/^\s*([0-9]+(?:\.[0-9]+)?)\s*([KMGT])B?\s*$/i', $from, $matches)) {
+			return (int) $from;
+		}
+
+		$number = (float) $matches[1];
+		$power = ['K' => 1, 'M' => 2, 'G' => 3, 'T' => 4][strtoupper($matches[2])];
+
+		return (int) ($number * pow(1024, $power));
 	}
 
 	public static function translate(string $str): string {

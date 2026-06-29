@@ -29,7 +29,7 @@ trait File {
 
 		if (!$url) {
 			throw new Exception(
-				'Need url parameter',
+				'The URL parameter is required',
 				Consts::ERROR_CODE_BAD_REQUEST
 			);
 		}
@@ -47,7 +47,7 @@ trait File {
 
 		if (!$filename) {
 			throw new Exception(
-				'Not valid URL',
+				'Invalid URL',
 				Consts::ERROR_CODE_BAD_REQUEST
 			);
 		}
@@ -168,7 +168,7 @@ trait File {
 
 		if (!$url) {
 			throw new Exception(
-				'Need full url',
+				'A full URL is required',
 				Consts::ERROR_CODE_BAD_REQUEST
 			);
 		}
@@ -176,7 +176,7 @@ trait File {
 		$parts = parse_url($url);
 
 		if (empty($parts['path'])) {
-			throw new Exception('Empty url', Consts::ERROR_CODE_BAD_REQUEST);
+			throw new Exception('Empty URL', Consts::ERROR_CODE_BAD_REQUEST);
 		}
 
 		foreach ($this->config->getSources() as $source) {

@@ -63,7 +63,7 @@ HTML;
 
 		if (!$html) {
 			throw new Exception(
-				'Need html parameter',
+				'The HTML parameter is required',
 				Consts::ERROR_CODE_BAD_REQUEST
 			);
 		}
@@ -91,7 +91,7 @@ HTML;
 
 		if (!$html) {
 			throw new Exception(
-				'Need html parameter',
+				'The HTML parameter is required',
 				Consts::ERROR_CODE_BAD_REQUEST
 			);
 		}

@@ -38,7 +38,7 @@ class File extends IFile {
 
 		if (!$path) {
 			throw new Exception(
-				'File not exists',
+				'File does not exist',
 				Consts::ERROR_CODE_NOT_EXISTS
 			);
 		}
@@ -145,7 +145,7 @@ class File extends IFile {
 
 		if ($size === false) {
 			throw new Exception(
-				'Can not read filesize',
+				'Cannot read filesize',
 				Consts::ERROR_CODE_NOT_IMPLEMENTED
 			);
 		}
@@ -165,7 +165,7 @@ class File extends IFile {
 
 		if ($time === false) {
 			throw new Exception(
-				'Can not read filemtime',
+				'Cannot read filemtime',
 				Consts::ERROR_CODE_NOT_IMPLEMENTED
 			);
 		}

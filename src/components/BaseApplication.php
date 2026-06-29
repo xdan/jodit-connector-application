@@ -193,7 +193,7 @@ abstract class BaseApplication {
 			!is_file($path . $file)
 		) {
 			throw new Exception(
-				'File not exists',
+				'File does not exist',
 				Consts::ERROR_CODE_NOT_EXISTS
 			);
 		}
@@ -365,7 +365,7 @@ abstract class BaseApplication {
 					if (!$file->isSafeFile($source)) {
 						$file->remove();
 						throw new Exception(
-							'File type is not in white list',
+							'File type is not in the whitelist',
 							Consts::ERROR_CODE_FORBIDDEN
 						);
 					}
@@ -377,7 +377,7 @@ abstract class BaseApplication {
 					) {
 						$file->remove();
 						throw new Exception(
-							'File size exceeds the allowable',
+							'File size exceeds the maximum allowed size',
 							Consts::ERROR_CODE_FORBIDDEN
 						);
 					}
