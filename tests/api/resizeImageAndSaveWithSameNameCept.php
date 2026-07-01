@@ -28,6 +28,7 @@ $I->seeResponseContainsJson([
     "success" => true,
     "data" => [
         "code" => 220,
+        "newPath" => "http://localhost:8081/files/" . $name . ".jpg",
     ]
 ]);
 

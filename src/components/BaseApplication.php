@@ -135,7 +135,21 @@ abstract class BaseApplication {
 
 		$this->response = new Response();
 
-		set_error_handler(function ($ignore, $error, $errorFile, $errorLine) {
+		set_error_handler(function (
+			$errno,
+			$error,
+			$errorFile,
+			$errorLine
+		) {
+			// Deprecation notices must never abort a request. Newer PHP (8.5+)
+			// deprecates functions still used by vendored libraries such as
+			// SimpleImage (`imagedestroy()`), and the tooling already excludes
+			// them via error_reporting; escalating them to a fatal 501 would
+			// break otherwise-valid image operations.
+			if ($errno === E_DEPRECATED || $errno === E_USER_DEPRECATED) {
+				return true;
+			}
+
 			throw new Exception(
 				$error .
 					($this->config->debug

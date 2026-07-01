@@ -9,6 +9,42 @@
 > - :house: [Internal]
 > - :nail_care: [Polish]
 
+## 3.0.50
+
+#### :rocket: New Feature
+
+- Add `imageSave` action. It receives a client-side edited image (crop, filters,
+  finetune and annotations already baked into the bytes) as an uploaded
+  multipart file and writes it, then returns the new public URL — mirroring the
+  `imageResize`/`imageCrop` response. Used by the client-side image editor.
+
+  Request (multipart/form-data):
+  - `action=imageSave`
+  - `source` — source name
+  - `path` — optional directory within the source
+  - `name` — original file name; overwritten in place when `newname` is omitted
+  - `newname` — optional target file name ("save as")
+  - `files` — the edited image bytes (multipart file field)
+
+  Response:
+
+  ```json
+  {
+  	"success": true,
+  	"data": {
+  		"code": 220,
+  		"newPath": "http://localhost:8081/files/photo-edited.png"
+  	}
+  }
+  ```
+
+#### :bug: Bug Fix
+
+- PHP 8.5 compatibility: the global error handler no longer escalates
+  deprecation notices (`E_DEPRECATED` / `E_USER_DEPRECATED`) to a fatal `501`.
+  Newer PHP deprecates functions still used by vendored libraries (e.g.
+  SimpleImage's `imagedestroy()`), which previously broke image operations.
+
 ## 3.0.42
 
 #### :boom: Breaking Change
