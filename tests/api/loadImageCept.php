@@ -41,3 +41,17 @@ $I->seeResponseIsJson();
 $I->seeResponseContainsJson([
 	'success' => false,
 ]);
+
+// POST only: a GET must be rejected so the connector can't be used as a proxy
+// for reading files.
+$I->sendGet(
+	'?action=imageLoad&source=test&name=pexels-yuri-manei-2337448.jpg'
+);
+
+$I->seeResponseIsJson();
+$I->seeResponseContainsJson([
+	'success' => false,
+	'data' => [
+		'code' => 406,
+	],
+]);

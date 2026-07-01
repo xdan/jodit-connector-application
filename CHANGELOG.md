@@ -9,6 +9,14 @@
 > - :house: [Internal]
 > - :nail_care: [Polish]
 
+## 3.0.52
+
+#### :lock: Security
+
+- `imageSave` and `imageLoad` now require a **POST** request; a `GET` is rejected
+  with `406`. This prevents the read-only `imageLoad` from being embedded (via a
+  cached/logged `GET`) and abused as an open file proxy.
+
 ## 3.0.51
 
 #### :rocket: New Feature

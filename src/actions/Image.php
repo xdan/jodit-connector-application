@@ -142,6 +142,13 @@ trait Image {
 	 * @throws Exception
 	 */
 	public function actionImageSave(): array {
+		if ($this->request->getMethod() !== 'POST') {
+			throw new Exception(
+				'imageSave requires a POST request',
+				Consts::ERROR_CODE_NOT_ACCEPTABLE
+			);
+		}
+
 		$source = $this->config->getSource($this->request->source);
 
 		$this->config->access->checkPermission(
@@ -249,6 +256,15 @@ trait Image {
 	 * @throws Exception
 	 */
 	public function actionImageLoad(): array {
+		// POST only: a GET could be embedded (<img>, link, cache, logs) and
+		// abuse the connector as an open proxy for reading files.
+		if ($this->request->getMethod() !== 'POST') {
+			throw new Exception(
+				'imageLoad requires a POST request',
+				Consts::ERROR_CODE_NOT_ACCEPTABLE
+			);
+		}
+
 		$source = $this->config->getSource($this->request->source);
 
 		$this->config->access->checkPermission(

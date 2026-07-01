@@ -45,6 +45,16 @@ $I->seeResponseContainsJson([
 	'success' => false,
 ]);
 
+// POST only: a GET must be rejected.
+$I->sendGet('?action=imageSave&source=test&newname=x.png');
+$I->seeResponseIsJson();
+$I->seeResponseContainsJson([
+	'success' => false,
+	'data' => [
+		'code' => 406,
+	],
+]);
+
 // Cleanup: remove the saved file.
 $I->sendGet('?action=fileRemove&source=test&name=' . $name . '.png');
 $I->seeResponseCodeIs(HttpCode::OK); // 200
