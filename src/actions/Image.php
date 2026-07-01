@@ -238,5 +238,72 @@ trait Image {
 		];
 	}
 
+	/**
+	 * Return an image file as a base64 data URL.
+	 *
+	 * The raw file host often serves images without CORS headers, so a browser
+	 * on a different origin (a dev server, the image editor) can't fetch them
+	 * directly. This returns the bytes through the connector's own CORS-enabled
+	 * JSON API instead — the same path the file browser already uses.
+	 *
+	 * @throws Exception
+	 */
+	public function actionImageLoad(): array {
+		$source = $this->config->getSource($this->request->source);
+
+		$this->config->access->checkPermission(
+			$this->config->getUserRole(),
+			$this->action,
+			$source->getPath()
+		);
+
+		$name = $this->request->name
+			? Helper::makeSafe((string) $this->request->name)
+			: '';
+
+		if (!$name) {
+			throw new Exception(
+				'Name not specified',
+				Consts::ERROR_CODE_BAD_REQUEST
+			);
+		}
+
+		$path = $source->getPath();
+		$file = $path . $name;
+
+		if (!file_exists($file) || !is_file($file)) {
+			throw new Exception(
+				'File does not exist',
+				Consts::ERROR_CODE_NOT_EXISTS
+			);
+		}
+
+		$mimeMap = [
+			'jpg' => 'image/jpeg',
+			'jpeg' => 'image/jpeg',
+			'png' => 'image/png',
+			'gif' => 'image/gif',
+			'webp' => 'image/webp',
+			'svg' => 'image/svg+xml',
+			'bmp' => 'image/bmp',
+			'avif' => 'image/avif',
+			'ico' => 'image/x-icon'
+		];
+
+		$ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+		$mime = $mimeMap[$ext] ?? 'application/octet-stream';
+
+		$content =
+			'data:' .
+			$mime .
+			';base64,' .
+			base64_encode((string) file_get_contents($file));
+
+		return [
+			'content' => $content,
+			'name' => $name
+		];
+	}
+
 	abstract function getImageEditorInfo(): ImageInfo;
 }

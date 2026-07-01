@@ -9,6 +9,34 @@
 > - :house: [Internal]
 > - :nail_care: [Polish]
 
+## 3.0.51
+
+#### :rocket: New Feature
+
+- Add `imageLoad` action. It returns an image file as a base64 **data URL**
+  through the CORS-enabled JSON API, so a browser on a different origin (a dev
+  server, the image editor) can read a file the raw file host would otherwise
+  block via CORS.
+
+  Request:
+  - `action=imageLoad`
+  - `source` — source name
+  - `path` — optional directory within the source
+  - `name` — image file name
+
+  Response:
+
+  ```json
+  {
+  	"success": true,
+  	"data": {
+  		"code": 220,
+  		"content": "data:image/jpeg;base64,…",
+  		"name": "photo.jpg"
+  	}
+  }
+  ```
+
 ## 3.0.50
 
 #### :rocket: New Feature
