@@ -34,6 +34,12 @@ trait File {
 			);
 		}
 
+		// SSRF guard: http/https only, and never a loopback/private/link-local
+		// host (unless explicitly allowed for a trusted internal setup).
+		if (!$this->config->allowPrivateNetworkUploads) {
+			Helper::assertPublicHttpUrl($url);
+		}
+
 		$result = parse_url($url);
 
 		if (!isset($result['host']) || !isset($result['path'])) {

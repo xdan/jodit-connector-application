@@ -169,6 +169,116 @@ abstract class Helper {
 	 * Download remote file on server
 	 * @throws Exception
 	 */
+	/**
+	 * SSRF guard for user-supplied download URLs.
+	 *
+	 * Only http/https is allowed, and the host must not resolve to a loopback,
+	 * private, link-local (cloud metadata) or reserved address — so the connector
+	 * can't be turned into a proxy for internal services. Hostnames are resolved
+	 * so a name pointing at an internal IP is caught too.
+	 *
+	 * @throws Exception
+	 */
+	public static function assertPublicHttpUrl(string $url): void {
+		$parts = parse_url($url);
+		$scheme = strtolower($parts['scheme'] ?? '');
+
+		if ($scheme !== 'http' && $scheme !== 'https') {
+			throw new Exception(
+				'Only http and https URLs are allowed',
+				Consts::ERROR_CODE_BAD_REQUEST
+			);
+		}
+
+		$host = strtolower(trim($parts['host'] ?? '', '[]'));
+
+		if (
+			$host === '' ||
+			$host === 'localhost' ||
+			str_ends_with($host, '.localhost') ||
+			str_ends_with($host, '.local')
+		) {
+			throw new Exception(
+				'Requests to this host are not allowed',
+				Consts::ERROR_CODE_FORBIDDEN
+			);
+		}
+
+		$ips = [];
+
+		if (filter_var($host, FILTER_VALIDATE_IP)) {
+			$ips[] = $host;
+		} else {
+			$records = @dns_get_record($host, DNS_A + DNS_AAAA);
+
+			if (is_array($records)) {
+				foreach ($records as $record) {
+					if (!empty($record['ip'])) {
+						$ips[] = $record['ip'];
+					}
+					if (!empty($record['ipv6'])) {
+						$ips[] = $record['ipv6'];
+					}
+				}
+			}
+
+			if (!$ips) {
+				$resolved = gethostbyname($host);
+				if ($resolved && $resolved !== $host) {
+					$ips[] = $resolved;
+				}
+			}
+		}
+
+		if (!$ips) {
+			throw new Exception(
+				'Could not resolve URL host',
+				Consts::ERROR_CODE_BAD_REQUEST
+			);
+		}
+
+		foreach ($ips as $ip) {
+			if (self::isPrivateIp($ip)) {
+				throw new Exception(
+					'Requests to private or local addresses are not allowed',
+					Consts::ERROR_CODE_FORBIDDEN
+				);
+			}
+		}
+	}
+
+	private static function isPrivateIp(string $ip): bool {
+		if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+			// No private + no reserved range (covers 10/8, 172.16/12, 192.168/16,
+			// 127/8, 169.254/16, 0/8, 240/4, …).
+			return !filter_var(
+				$ip,
+				FILTER_VALIDATE_IP,
+				FILTER_FLAG_IPV4 |
+					FILTER_FLAG_NO_PRIV_RANGE |
+					FILTER_FLAG_NO_RES_RANGE
+			);
+		}
+
+		if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+			$lower = strtolower($ip);
+
+			if ($lower === '::1' || $lower === '::') {
+				return true;
+			}
+
+			if (preg_match('/^::ffff:(\d+\.\d+\.\d+\.\d+)$/', $ip, $m)) {
+				return self::isPrivateIp($m[1]);
+			}
+
+			// fc00::/7 (unique local) and fe80::/10 (link-local).
+			return (bool) (preg_match('/^f[cd]/', $lower) ||
+				preg_match('/^fe[89ab]/', $lower));
+		}
+
+		return true; // not a valid IP → treat as unsafe
+	}
+
 	public static function downloadRemoteFile(
 		string $url,
 		string $destinationFilename

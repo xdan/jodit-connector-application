@@ -37,6 +37,14 @@ return [
 	'roleSessionVar' => 'JoditUserRole',
 	'defaultRole' => 'guest',
 	'allowReplaceSourceFile' => true,
+
+	/**
+	 * Allow `fileUploadRemote` to download from loopback / private / link-local
+	 * hosts. Off by default (SSRF protection); enable only for a trusted
+	 * internal setup.
+	 */
+	'allowPrivateNetworkUploads' => false,
+
 	'baseurl' => '',
 	'root' => '',
 	'extensions' => [

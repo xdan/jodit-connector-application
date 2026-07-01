@@ -9,6 +9,17 @@
 > - :house: [Internal]
 > - :nail_care: [Polish]
 
+## 3.0.53
+
+#### :lock: Security
+
+- SSRF protection for `fileUploadRemote`: the `url` must be `http`/`https`, and
+  its host must not resolve to a loopback / private / link-local / reserved
+  address (`127.0.0.0/8`, `10/8`, `172.16/12`, `192.168/16`, `169.254/16`, `::1`,
+  `fc00::/7`, `localhost`, …). Hostnames are resolved so a name pointing at an
+  internal IP is caught too. Set `allowPrivateNetworkUploads => true` in the
+  config to permit private hosts on a trusted internal setup.
+
 ## 3.0.52
 
 #### :lock: Security
