@@ -9,6 +9,15 @@
 > - :house: [Internal]
 > - :nail_care: [Polish]
 
+## 3.0.54
+
+#### :lock: Security
+
+- `fileUploadRemote` no longer follows redirects blindly: redirects are resolved
+  manually and **each hop is re-validated** against the SSRF guard, so a public
+  URL that 302-redirects to an internal address (e.g. `169.254.169.254`) is
+  blocked too.
+
 ## 3.0.53
 
 #### :lock: Security

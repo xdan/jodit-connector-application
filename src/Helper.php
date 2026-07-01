@@ -279,11 +279,64 @@ abstract class Helper {
 		return true; // not a valid IP → treat as unsafe
 	}
 
+	/**
+	 * Fetch a URL without letting redirects escape the SSRF guard: redirects are
+	 * followed manually and every hop is re-validated with
+	 * {@see self::assertPublicHttpUrl()}.
+	 *
+	 * @throws Exception
+	 */
+	private static function fetchRestricted(
+		string $url,
+		int $maxRedirects = 5
+	): string {
+		$current = $url;
+
+		for ($hop = 0; ; $hop++) {
+			self::assertPublicHttpUrl($current);
+
+			$ch = curl_init($current);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+			curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 0);
+			curl_setopt($ch, CURLOPT_HEADER, 0);
+			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+			curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
+			curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+
+			$body = curl_exec($ch);
+			$status = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+			$redirectUrl = (string) curl_getinfo($ch, CURLINFO_REDIRECT_URL);
+			curl_close($ch);
+
+			if ($status >= 300 && $status < 400 && $redirectUrl !== '') {
+				if ($hop >= $maxRedirects) {
+					throw new Exception(
+						'Too many redirects',
+						Consts::ERROR_CODE_BAD_REQUEST
+					);
+				}
+
+				$current = $redirectUrl;
+				continue;
+			}
+
+			if ($body === false || $status >= 400) {
+				throw new Exception(
+					'File was not loaded',
+					Consts::ERROR_CODE_BAD_REQUEST
+				);
+			}
+
+			return (string) $body;
+		}
+	}
+
 	public static function downloadRemoteFile(
 		string $url,
-		string $destinationFilename
+		string $destinationFilename,
+		bool $restrictToPublic = false
 	): void {
-		if (!ini_get('allow_url_fopen')) {
+		if (!ini_get('allow_url_fopen') && !function_exists('curl_init')) {
 			throw new Exception('allow_url_fopen is disabled', 501);
 		}
 
@@ -298,7 +351,9 @@ abstract class Helper {
 
 		$message = 'File was not loaded';
 
-		if (function_exists('curl_init')) {
+		if ($restrictToPublic) {
+			$raw = self::fetchRestricted($url);
+		} elseif (function_exists('curl_init')) {
 			try {
 				$raw = file_get_contents($url);
 			} catch (Exception $e) {

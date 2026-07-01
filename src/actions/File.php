@@ -60,7 +60,11 @@ trait File {
 
 		$source = $this->config->getCompatibleSource($this->request->source);
 
-		Helper::downloadRemoteFile($url, $source->getRoot() . $filename);
+		Helper::downloadRemoteFile(
+			$url,
+			$source->getRoot() . $filename,
+			!$this->config->allowPrivateNetworkUploads
+		);
 
 		$file = $source->makeFile($source->getRoot() . $filename);
 
