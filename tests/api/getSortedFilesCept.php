@@ -8,18 +8,6 @@ $I = new ApiTester($scenario);
 $files_root = realpath(__DIR__ . '/../files') . '/';
 file_put_contents($files_root . 'summer.txt', 'summer');
 
-$I->wantTo('Get all items with some sort');
-$I->sendGet('?action=files&mods[sortBy]=changed-asc');
-$I->seeResponseCodeIs(HttpCode::OK); // 200
-$I->seeResponseIsJson();
-
-$I->seeResponseContainsJson([
-	'success' => true,
-	'data' => [
-		'code' => 220,
-	],
-]);
-
 $changedAsc = [
 	'Hello-world.docx',
 	'droid-sans-mono.zip',
@@ -33,6 +21,28 @@ $changedAsc = [
 	'test.csv',
 	'summer.txt',
 ];
+
+// A fresh `git checkout` resets every file's mtime to ~now, so sorting by
+// "changed" would otherwise be non-deterministic in CI. Pin explicit, strictly
+// increasing mtimes so the expected order holds in every environment.
+$mtime = 1600000000;
+foreach ($changedAsc as $name) {
+	touch($files_root . $name, $mtime);
+	$mtime += 60;
+}
+clearstatcache();
+
+$I->wantTo('Get all items with some sort');
+$I->sendGet('?action=files&mods[sortBy]=changed-asc');
+$I->seeResponseCodeIs(HttpCode::OK); // 200
+$I->seeResponseIsJson();
+
+$I->seeResponseContainsJson([
+	'success' => true,
+	'data' => [
+		'code' => 220,
+	],
+]);
 
 foreach ($changedAsc as $index => $title) {
 	list($file) = $I->grabDataFromResponseByJsonPath(
