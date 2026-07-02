@@ -31,5 +31,8 @@
 		"codeception/module-rest": "^3.4",
 		"codeception/module-phpbrowser": "^2.5.0",
 		"codeception/module-asserts": "^2.0.1"
+	},
+	"scripts": {
+		"test": "sh tests/run.sh"
 	}
 }

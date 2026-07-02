@@ -81,10 +81,12 @@ class File extends IFile {
 	}
 
 	/**
-	 * Remove file
-	 * @throws Exception
+	 * Remove the cached thumbnail for this file (if any), so the file browser
+	 * regenerates it from the current bytes on the next listing. Used both when
+	 * deleting a file and after an in-place image overwrite (imageSave) — without
+	 * it, an edited image keeps showing its stale cached thumbnail.
 	 */
-	public function remove(): bool {
+	public function removeThumb(): void {
 		$file = basename($this->path);
 		$thumb =
 			dirname($this->path) .
@@ -101,6 +103,14 @@ class File extends IFile {
 				rmdir(dirname($thumb));
 			}
 		}
+	}
+
+	/**
+	 * Remove file
+	 * @throws Exception
+	 */
+	public function remove(): bool {
+		$this->removeThumb();
 
 		return unlink($this->path);
 	}

@@ -97,7 +97,13 @@ class Request {
 	}
 
 	public function getMethod(): string {
-		return strtoupper(getenv('REQUEST_METHOD'));
+		// `$_SERVER['REQUEST_METHOD']` is the reliable source under every SAPI,
+		// including the built-in `php -S` server used by the test suite (where
+		// `getenv('REQUEST_METHOD')` is empty). The string cast keeps PHP 8+
+		// from fataling on `strtoupper(false)` when the method is absent.
+		$method = $_SERVER['REQUEST_METHOD'] ?? getenv('REQUEST_METHOD');
+
+		return strtoupper((string) ($method ?: 'GET'));
 	}
 
 	/**

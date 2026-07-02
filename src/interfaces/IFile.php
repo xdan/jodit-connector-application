@@ -15,6 +15,7 @@ abstract class IFile {
 	abstract public function isDirectory(): bool;
 
 	abstract public function remove(): bool;
+	abstract public function removeThumb(): void;
 	abstract public function send(): void;
 
 	abstract public function getPath(): string;

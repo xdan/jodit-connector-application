@@ -1,0 +1,21 @@
+# Run the connector's test suite without installing PHP on the host:
+#
+#   docker compose run --rm test
+#
+# The project is mounted into the container, dependencies are installed inside
+# it, and tests/run.sh boots the built-in server and runs the Codeception API
+# suite. `vendor/` is kept in a named volume so a host build (different PHP
+# version) never clashes with the container's.
+services:
+  test:
+    build:
+      context: .
+      dockerfile: .docker/test.Dockerfile
+    volumes:
+      - .:/app
+      - connector-vendor:/app/vendor
+    working_dir: /app
+    command: sh -c "composer install --no-interaction --prefer-dist && composer test"
+
+volumes:
+  connector-vendor:

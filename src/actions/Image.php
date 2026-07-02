@@ -240,6 +240,10 @@ trait Image {
 			);
 		}
 
+		// Drop the stale cached thumbnail so the file browser regenerates it
+		// from the just-saved bytes (otherwise it keeps showing the old image).
+		$file->removeThumb();
+
 		return [
 			'newPath' => $source->baseurl . $target
 		];
