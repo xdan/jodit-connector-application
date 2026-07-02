@@ -1,11 +1,11 @@
 {
   "name": "jodit-application",
-  "version": "3.0.54",
+  "version": "3.0.55",
   "description": "Official Jodit connector",
   "main": "index.js",
   "scripts": {
     "start": "cd ./docker && docker compose up",
-    "test": "php -d error_reporting=\"E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED\" ./vendor/bin/codecept run",
+    "test": "sh tests/run.sh",
     "test:one": "./vendor/bin/codecept run tests/api/uploadFileToServerSameNameCept.php",
     "prettier": "prettier ./src/**.php --write --config .prettierrc",
     "newversion": "npm test && npm version patch --no-git-tag-version && npm run github",
