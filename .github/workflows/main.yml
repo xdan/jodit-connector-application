@@ -8,14 +8,37 @@ on:
   workflow_dispatch:
 
 jobs:
-  # Run the Codeception API suite against the built-in PHP server on a range of
-  # supported PHP versions (composer.json requires php >= 8).
+  # `newversion` pushes the branch and the release tag together, which fires two
+  # runs for the same commit. Skip the branch run when the commit is tagged and
+  # let the tag run own CI (branch pushes without a tag still run normally).
+  guard:
+    runs-on: ubuntu-latest
+    outputs:
+      proceed: ${{ steps.check.outputs.proceed }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - id: check
+        run: |
+          if [ "${{ github.ref_type }}" = "branch" ] && [ -n "$(git tag --points-at HEAD)" ]; then
+            echo "proceed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "proceed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  # Run the Codeception suite against the built-in PHP server across the
+  # supported PHP versions (deps require php >= 8.2).
   api-tests:
+    needs: guard
+    if: needs.guard.outputs.proceed == 'true'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        php: ['8.1', '8.2', '8.3', '8.4']
+        php: ['8.2', '8.3', '8.4']
     name: API tests (PHP ${{ matrix.php }})
     steps:
       - uses: actions/checkout@v4
@@ -31,7 +54,7 @@ jobs:
       - name: Install dependencies
         run: composer install --no-interaction --prefer-dist --no-progress
 
-      - name: Run API tests
+      - name: Run tests
         run: composer test
 
   # Only after the tests pass, and only on a release tag, tell the dependent
