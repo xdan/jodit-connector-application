@@ -11,7 +11,10 @@ return [
 	'saveSameFileNameStrategy' => 'addNumber',
 	'debug' => true, // must be true
 	'sources' => [],
-	'datetimeFormat' => 'm/d/Y g:i A',
+	// Includes seconds: the file browser uses `changed` as the thumbnail
+	// cache-buster, so a minute-only format made two edits within the same
+	// minute serve the previous (cached) thumbnail.
+	'datetimeFormat' => 'm/d/Y g:i:s A',
 	'quality' => 90,
 	'countInChunk' => 1000000,
 	'defaultSortBy' => 'changed-desc',

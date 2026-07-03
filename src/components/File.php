@@ -13,6 +13,7 @@ namespace Jodit\components;
 
 use Exception;
 use Jodit\Consts;
+use Jodit\Helper;
 use Jodit\interfaces\IFile;
 use Jodit\interfaces\ISource;
 
@@ -81,27 +82,52 @@ class File extends IFile {
 	}
 
 	/**
+	 * All names a cached thumbnail may be stored under for the given file
+	 * name: `makeThumb` slugifies the name (which lowercases it, among other
+	 * things), non-images get a generated `.svg` icon, and thumbnails created
+	 * by older versions — or by another connector sharing the same folder —
+	 * keep the original file name.
+	 */
+	public static function thumbNamesFor(string $name): array {
+		// Mirrors getBasename()/getExtension() semantics.
+		$parts = explode('.', $name);
+		$ext = mb_strtolower((string) array_pop($parts));
+		$basename = implode('.', $parts);
+
+		return array_unique([
+			Helper::slugify($basename) . '.' . $ext,
+			Helper::slugify($name) . '.svg',
+			$name,
+		]);
+	}
+
+	private function thumbNames(): array {
+		return self::thumbNamesFor($this->getName());
+	}
+
+	/**
 	 * Remove the cached thumbnail for this file (if any), so the file browser
 	 * regenerates it from the current bytes on the next listing. Used both when
 	 * deleting a file and after an in-place image overwrite (imageSave) — without
 	 * it, an edited image keeps showing its stale cached thumbnail.
 	 */
 	public function removeThumb(): void {
-		$file = basename($this->path);
-		$thumb =
+		$folder =
 			dirname($this->path) .
 			Consts::DS .
 			Jodit::$app->config->getSource(Jodit::$app->request->source)
-				->thumbFolderName .
-			Consts::DS .
-			$file;
+				->thumbFolderName;
 
-		if (file_exists($thumb)) {
-			unlink($thumb);
+		foreach ($this->thumbNames() as $name) {
+			$thumb = $folder . Consts::DS . $name;
 
-			if (!count(glob(dirname($thumb) . Consts::DS . '*'))) {
-				rmdir(dirname($thumb));
+			if (file_exists($thumb)) {
+				unlink($thumb);
 			}
+		}
+
+		if (is_dir($folder) && !count(glob($folder . Consts::DS . '*'))) {
+			rmdir($folder);
 		}
 	}
 

@@ -240,14 +240,19 @@ abstract class BaseApplication {
 			$newName = $file;
 		}
 
-		if (
-			file_exists(
-				$path . $this->config->thumbFolderName . Consts::DS . $newName
-			)
-		) {
-			unlink(
-				$path . $this->config->thumbFolderName . Consts::DS . $newName
-			);
+		// The thumbnail may be stored under the slugified (lowercased) name —
+		// as `makeThumb` writes it — or under the original one; drop every
+		// variant so the resized/cropped result gets a fresh thumbnail.
+		foreach (File::thumbNamesFor($newName) as $thumbName) {
+			$thumb =
+				$path .
+				$this->config->thumbFolderName .
+				Consts::DS .
+				$thumbName;
+
+			if (file_exists($thumb)) {
+				unlink($thumb);
+			}
 		}
 
 		return new ImageInfo([

@@ -106,3 +106,39 @@ $I->assertFileDoesNotExist($thumbDir . '/' . $overwrite);
 if (file_exists($root . $overwrite)) {
 	unlink($root . $overwrite);
 }
+
+// Same, but for a mixed-case file name: `makeThumb` stores the thumbnail
+// under the *slugified* (lowercased) name, while removeThumb used to look
+// only under the original name — so the stale thumbnail survived every edit.
+$mixedBase = 'ThumbTest-ABC' . rand(10000, 20000);
+$mixed = $mixedBase . '.png';
+$sluggedThumb = strtolower($mixedBase) . '.png';
+
+copy($root . 'regina.png', $root . $mixed);
+
+// Seed a stale cached thumbnail exactly as `makeThumb` would have written it.
+copy($root . 'regina.png', $thumbDir . '/' . $sluggedThumb);
+$I->assertFileExists($thumbDir . '/' . $sluggedThumb);
+
+$I->sendPost(
+	'',
+	[
+		'action' => 'imageSave',
+		'source' => 'test',
+		'name' => $mixed,
+	],
+	[
+		'files' => [realpath(__DIR__ . '/../files/regina.png')],
+	]
+);
+
+$I->seeResponseCodeIs(HttpCode::OK); // 200
+$I->seeResponseContainsJson(['success' => true]);
+
+// The stale slugified thumbnail must be gone.
+$I->assertFileDoesNotExist($thumbDir . '/' . $sluggedThumb);
+
+// Cleanup the file we created for this check.
+if (file_exists($root . $mixed)) {
+	unlink($root . $mixed);
+}
