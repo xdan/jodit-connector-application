@@ -9,6 +9,18 @@
 > - :house: [Internal]
 > - :nail_care: [Polish]
 
+## 3.0.59
+
+#### :rocket: New Feature
+
+- New `fileCopy` / `folderCopy` actions: copy a file or a folder (recursively)
+  to another directory. A name clash is resolved with a ` (N)` suffix, so
+  copying into the same folder duplicates the item; copying a folder into
+  itself or its own subtree is rejected. Gated by the new `FILE_COPY` /
+  `FOLDER_COPY` access-control rules (allowed by default) and reported to the
+  client as `allowFileCopy` / `allowFolderCopy` in the `permissions` answer.
+  Powers Cut/Copy/Paste in the Jodit PRO Finder.
+
 ## 3.0.54
 
 #### :lock: Security

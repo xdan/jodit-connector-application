@@ -11,6 +11,7 @@ return [
 
 	'FILES' => true,
 	'FILE_MOVE' => true,
+	'FILE_COPY' => true,
 	'FILE_UPLOAD' => true,
 	'FILE_UPLOAD_REMOTE' => true,
 	'FILE_REMOVE' => true,
@@ -19,6 +20,7 @@ return [
 
 	'FOLDERS' => true,
 	'FOLDER_MOVE' => true,
+	'FOLDER_COPY' => true,
 	'FOLDER_CREATE' => true,
 	'FOLDER_REMOVE' => true,
 	'FOLDER_RENAME' => true,

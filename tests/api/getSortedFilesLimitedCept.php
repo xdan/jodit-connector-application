@@ -6,6 +6,13 @@ use Codeception\Util\HttpCode;
 $I = new ApiTester($scenario);
 
 $files_root = realpath(__DIR__ . '/../files') . '/';
+
+// An aborted previous run may not have reached the unlink at the end —
+// remove the leftover so the pinned mtimes below stay deterministic
+if (file_exists($files_root . 'regina-copy.png')) {
+	unlink($files_root . 'regina-copy.png');
+}
+
 file_put_contents(
 	$files_root . 'regina-copy.png',
 	file_get_contents($files_root . 'regina.png')

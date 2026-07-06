@@ -383,6 +383,147 @@ class FileSystem extends ISource {
 	}
 
 	/**
+	 * Copy file or directory to another folder. Unlike move, a name clash is
+	 * not an error — the copy gets a " (N)" suffix, so copying into the same
+	 * folder duplicates the item.
+	 *
+	 * @throws Exception
+	 */
+	public function copyPath(string $from): void {
+		$destinationPath = $this->getPath();
+		$sourcePath = $this->getPath($from);
+
+		$action = is_file($sourcePath) ? 'FILE_COPY' : 'FOLDER_COPY';
+
+		$this->access->checkPermission(
+			$this->getUserRole(),
+			$action,
+			$destinationPath
+		);
+
+		$this->access->checkPermission(
+			$this->getUserRole(),
+			$action,
+			$sourcePath
+		);
+
+		if (!$sourcePath) {
+			throw new Exception(
+				'Source path is required',
+				Consts::ERROR_CODE_BAD_REQUEST
+			);
+		}
+
+		if (!$destinationPath) {
+			throw new Exception(
+				'Destination path is required',
+				Consts::ERROR_CODE_BAD_REQUEST
+			);
+		}
+
+		if (!is_file($sourcePath) and !is_dir($sourcePath)) {
+			throw new Exception('Not a file', Consts::ERROR_CODE_NOT_EXISTS);
+		}
+
+		if (is_dir($sourcePath)) {
+			$normalizedSource = rtrim($sourcePath, '/');
+			$normalizedDestination = rtrim($destinationPath, '/');
+
+			if (
+				$normalizedDestination === $normalizedSource or
+				strpos($normalizedDestination . '/', $normalizedSource . '/') === 0
+			) {
+				throw new Exception(
+					'Unable to copy folder into itself',
+					Consts::ERROR_CODE_BAD_REQUEST
+				);
+			}
+		}
+
+		$target = $this->resolveUniqueTarget(
+			$destinationPath,
+			basename($sourcePath)
+		);
+
+		if (is_file($sourcePath)) {
+			if (!copy($sourcePath, $target)) {
+				throw new Exception(
+					'Unable to copy file',
+					Consts::ERROR_CODE_BAD_REQUEST
+				);
+			}
+
+			return;
+		}
+
+		$this->copyDirectoryRecursively($sourcePath, $target);
+	}
+
+	/**
+	 * Build a target path that does not clash with an existing one:
+	 * `file.txt` -> `file (1).txt` -> `file (2).txt` ...
+	 */
+	private function resolveUniqueTarget(
+		string $destinationPath,
+		string $baseName
+	): string {
+		$ext = pathinfo($baseName, PATHINFO_EXTENSION);
+		$stem =
+			$ext !== ''
+				? substr($baseName, 0, -strlen($ext) - 1)
+				: $baseName;
+
+		$attempt = 0;
+
+		do {
+			$name =
+				$attempt === 0
+					? $baseName
+					: $stem .
+						' (' .
+						$attempt .
+						')' .
+						($ext !== '' ? '.' . $ext : '');
+			$target = $destinationPath . $name;
+			$attempt += 1;
+		} while (file_exists($target));
+
+		return $target;
+	}
+
+	/**
+	 * @throws Exception
+	 */
+	private function copyDirectoryRecursively(string $from, string $to): void {
+		if (!@mkdir($to) and !is_dir($to)) {
+			throw new Exception(
+				'Unable to create directory',
+				Consts::ERROR_CODE_BAD_REQUEST
+			);
+		}
+
+		$items = scandir($from);
+
+		foreach ($items as $item) {
+			if ($item === '.' or $item === '..') {
+				continue;
+			}
+
+			$fromItem = rtrim($from, '/') . '/' . $item;
+			$toItem = rtrim($to, '/') . '/' . $item;
+
+			if (is_dir($fromItem)) {
+				$this->copyDirectoryRecursively($fromItem, $toItem);
+			} elseif (!copy($fromItem, $toItem)) {
+				throw new Exception(
+					'Unable to copy file',
+					Consts::ERROR_CODE_BAD_REQUEST
+				);
+			}
+		}
+	}
+
+	/**
 	 * Remove file
 	 * @throws Exception
 	 */

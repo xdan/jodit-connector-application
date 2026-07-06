@@ -160,6 +160,16 @@ trait File {
 	}
 
 	/**
+	 * Copy file
+	 * @throws Exception
+	 */
+	public function actionFileCopy(): void {
+		$this->config
+			->getSource($this->request->source)
+			->copyPath($this->request->from);
+	}
+
+	/**
 	 * Rename file
 	 * @throws Exception
 	 */

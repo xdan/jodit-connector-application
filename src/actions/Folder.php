@@ -106,6 +106,16 @@ trait Folder {
 	}
 
 	/**
+	 * Copy folder
+	 * @throws Exception
+	 */
+	public function actionFolderCopy(): void {
+		$this->config
+			->getSource($this->request->source)
+			->copyPath($this->request->from);
+	}
+
+	/**
 	 * Rename folder
 	 * @throws \Exception
 	 */

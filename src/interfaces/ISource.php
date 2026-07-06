@@ -26,6 +26,8 @@ abstract class ISource extends Config {
 
 	abstract protected function movePath(string $fromName): void;
 
+	abstract protected function copyPath(string $fromName): void;
+
 	abstract public function renamePath(
 		string $fromName,
 		string $newName
