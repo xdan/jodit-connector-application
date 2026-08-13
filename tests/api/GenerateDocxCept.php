@@ -13,7 +13,7 @@ $I->sendGet('?action=generateDocx&html=' . urlencode('
 <p>das</p>
 <div style="page-break-after:always"></div>
 <p>d</p>
-<p>sada<img style="width:100px;height:100px" src="https://xdsoft.net/jodit/finder/files/pexels-bia-sousa-2603201.jpg" width="300px" height="500px"/></p>'));
+<p>sada<img style="width:100px;height:100px" src="http://127.0.0.1:8082/pexels-bia-sousa-2603201.jpg" width="300px" height="500px"/></p>'));
 
 $I->seeResponseCodeIs(HttpCode::OK); // 200
 //$I->seeHttpHeader('Content-Type', 'application/octet-stream');

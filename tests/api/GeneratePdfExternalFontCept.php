@@ -23,7 +23,7 @@ $body = [
 	<p class="noto-sans-kr">모든 인류 구성원의 천부</p>
 	 <p class="noto-sans-kr">das</p>
 	 <p class="noto-sans-kr">d</p>
-	 <p class="noto-sans-kr">sada<img src="https://xdsoft.net/jodit/finder/files/pexels-keli-santos-1853268.jpeg" width="300px"></p>',
+	 <p class="noto-sans-kr">sada<img src="http://127.0.0.1:8082/pexels-keli-santos-1853268.jpeg" width="300px"></p>',
 ];
 
 $I->sendPost('', $body);

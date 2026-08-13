@@ -7,7 +7,7 @@ $I = new ApiTester($scenario);
 
 $I->wantTo('Remove image from server');
 
-$I->sendGet('?action=fileUploadRemote&source=test&url=' . urlencode('https://xdsoft.net/jodit/files/artio.jpg'));
+$I->sendGet('?action=fileUploadRemote&source=test&custom_config=%7B%22allowPrivateNetworkUploads%22%3Atrue%7D&url=' . urlencode('http://127.0.0.1:8082/artio.jpg'));
 $I->seeResponseContainsJson([
 	"success" => true,
 	"data" => [

@@ -10,7 +10,7 @@ $I->wantTo('Check generate pdf from HTML');
 $I->sendGet('?action=generatePdf&html=' . urlencode('<p>asdsadsadas</p>
 <p>das</p>
 <p>d</p>
-<p>sada<img src="https://xdsoft.net/jodit/finder/files/pexels-keli-santos-1853268.jpeg" width="300px"></p>'));
+<p>sada<img src="http://127.0.0.1:8082/pexels-keli-santos-1853268.jpeg" width="300px"></p>'));
 
 $I->seeHttpHeader('Content-Type', 'application/pdf');
 $I->seeHttpHeader('Content-Length', '224798');
