@@ -34,5 +34,8 @@
 	},
 	"scripts": {
 		"test": "sh tests/run.sh"
+	},
+	"config": {
+		"platform-check": true
 	}
 }

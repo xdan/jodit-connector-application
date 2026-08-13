@@ -398,6 +398,22 @@ abstract class Helper {
 		}
 	}
 
+	/**
+	 * Names of the given PHP extensions that are not loaded in the current
+	 * runtime
+	 *
+	 * @param string[] $extensions
+	 * @return string[]
+	 */
+	public static function missingExtensions(array $extensions): array {
+		return array_values(
+			array_filter(
+				$extensions,
+				fn(string $extension) => !extension_loaded($extension)
+			)
+		);
+	}
+
 	public static function upperize(string $string): string {
 		$string = preg_replace('#([a-z])([A-Z])#', '\1_\2', $string);
 		return strtoupper($string);

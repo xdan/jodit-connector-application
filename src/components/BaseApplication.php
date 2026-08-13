@@ -88,6 +88,8 @@ abstract class BaseApplication {
 	 * @throws Exception
 	 */
 	public function execute(): void {
+		$this->checkRequiredExtensions();
+
 		$methods = get_class_methods($this);
 
 		if (!in_array('action' . ucfirst($this->action), $methods)) {
@@ -121,6 +123,41 @@ abstract class BaseApplication {
 	 */
 
 	private float $startedTime;
+
+	/**
+	 * PHP extensions the connector cannot work without. Composer declares
+	 * them too, but its default platform check only verifies the PHP
+	 * version, so a runtime that lost an extension (e.g. after a PHP
+	 * upgrade) would otherwise fail with a bare "call to undefined
+	 * function" somewhere deep inside a request
+	 */
+	private const REQUIRED_EXTENSIONS = ['mbstring', 'gd', 'json', 'curl'];
+
+	/**
+	 * @throws Exception
+	 */
+	private function checkRequiredExtensions(): void {
+		$missing = Helper::missingExtensions(self::REQUIRED_EXTENSIONS);
+
+		if (!$missing) {
+			return;
+		}
+
+		$one = count($missing) === 1;
+
+		throw new Exception(
+			'The Jodit connector requires the PHP ' .
+				($one ? 'extension' : 'extensions') .
+				' ' .
+				implode(', ', $missing) .
+				'. Enable ' .
+				($one ? 'it' : 'them') .
+				' in php.ini (' .
+				(php_ini_loaded_file() ?: 'no php.ini loaded') .
+				') and restart PHP.',
+			Consts::ERROR_CODE_NOT_IMPLEMENTED
+		);
+	}
 
 	/**
 	 * BaseApplication constructor.
