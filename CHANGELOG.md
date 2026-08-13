@@ -9,6 +9,17 @@
 > - :house: [Internal]
 > - :nail_care: [Polish]
 
+## 3.0.60
+
+#### :bug: Bug Fix
+
+- A runtime without **mbstring** died with `Call to undefined function mb_strtolower()` from inside `File::getExtension()`, which reads as a connector bug rather than a missing PHP extension — a common surprise after a PHP upgrade, since the new build ships its own `php.ini` with the extension lines commented out. The connector now verifies `mbstring`, `gd`, `json` and `curl` before running an action and answers with a normal JSON error naming what is missing and which `php.ini` is loaded. Reported by Kevin Sormann (li-life web+it).
+
+#### :house: Internal
+
+- `config.platform-check` is enabled, so Composer's own autoload guard checks the required extensions and not just the PHP version — its default (`php-only`) is why the declared `ext-mbstring` requirement never fired at runtime.
+- The test suite no longer downloads images from xdsoft.net: `tests/run.sh` serves `tests/fixtures` over a second local port. This removes the random 30-second timeouts (and revealed that one of the fetched URLs had been 404 for a while), gives the SSRF guard its first test, and takes the suite from ~13s to ~0.7s.
+
 ## 3.0.59
 
 #### :rocket: New Feature
