@@ -9,6 +9,12 @@
 > - :house: [Internal]
 > - :nail_care: [Polish]
 
+## 3.0.61
+
+#### :rocket: New Feature
+
+- `fileUpload` accepts `onExists=addNumber|replace|error`, which overrides `saveSameFileNameStrategy` for that one upload; `replace` additionally needs the `FILE_REMOVE` permission on the path, since it destroys the existing file. The `error` strategy now answers with code `409` instead of the generic `400`, so a client can tell "the name is taken" from "could not save" and ask the user what to do. Requested by Kevin Sormann (li-life web+it) for an Overwrite / Rename / Cancel dialog in Finder.
+
 ## 3.0.60
 
 #### :bug: Bug Fix

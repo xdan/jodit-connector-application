@@ -108,7 +108,7 @@ trait File {
 
 		$messages = [];
 
-		$files = $this->uploadedFiles($source);
+		$files = $this->uploadedFiles($source, $this->onExistsFromRequest());
 
 		$isImages = [];
 
@@ -134,6 +134,29 @@ trait File {
 	}
 
 	/**
+	 * The `onExists` request parameter overrides `saveSameFileNameStrategy` for one upload
+	 *
+	 * @throws Exception
+	 */
+	private function onExistsFromRequest(): ?string {
+		$onExists = $this->request->onExists;
+
+		if ($onExists === null || $onExists === '') {
+			return null;
+		}
+
+		if (!in_array($onExists, Helper::SAME_FILE_STRATEGIES, true)) {
+			throw new Exception(
+				'Unknown onExists value, expected one of ' .
+					implode(', ', Helper::SAME_FILE_STRATEGIES),
+				Consts::ERROR_CODE_BAD_REQUEST
+			);
+		}
+
+		return $onExists;
+	}
+
+	/**
 	 * Remove file
 	 *
 	 * @throws Exception
@@ -147,7 +170,10 @@ trait File {
 	/**
 	 * @return IFile[]
 	 */
-	abstract protected function uploadedFiles(ISource $source): array;
+	abstract protected function uploadedFiles(
+		ISource $source,
+		?string $onExists = null
+	): array;
 
 	/**
 	 * Move file

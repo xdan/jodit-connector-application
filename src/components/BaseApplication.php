@@ -344,7 +344,14 @@ abstract class BaseApplication {
 	 * @return IFile[]
 	 * @throws Exception
 	 */
-	public function uploadedFiles(ISource $source): array {
+	/**
+	 * `$onExists` is the strategy the client asked for in this request and
+	 * takes precedence over the source's `saveSameFileNameStrategy`
+	 */
+	public function uploadedFiles(
+		ISource $source,
+		?string $onExists = null
+	): array {
 		if (!isset($_FILES[$source->defaultFilesKey])) {
 			throw new Exception(
 				'Incorrect request',
@@ -382,11 +389,20 @@ abstract class BaseApplication {
 					$new_path = $path . $fileName;
 
 					if (file_exists($new_path)) {
+						// Overwriting on the client's request destroys a file, so it needs the remove permission too
+						if ($onExists === 'replace') {
+							$this->config->access->checkPermission(
+								$this->config->getUserRole(),
+								'FILE_REMOVE',
+								$new_path
+							);
+						}
+
 						$new_path =
 							$path .
 							Helper::sameFileStrategy(
 								File::create($new_path),
-								$source->saveSameFileNameStrategy
+								$onExists ?: $source->saveSameFileNameStrategy
 							);
 					}
 

@@ -508,6 +508,8 @@ abstract class Helper {
 		return null;
 	}
 
+	const SAME_FILE_STRATEGIES = ['addNumber', 'replace', 'error'];
+
 	public static function sameFileStrategy(
 		components\File $file,
 		string $saveSameFileNameStrategy
@@ -516,7 +518,7 @@ abstract class Helper {
 			case 'error':
 				throw new Exception(
 					'File already exists',
-					Consts::ERROR_CODE_BAD_REQUEST
+					Consts::ERROR_CODE_CONFLICT
 				);
 
 			case 'replace':
